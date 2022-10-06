@@ -1,0 +1,6 @@
+{
+  "name": "deco",
+  "scripts": {
+    "start": "nodemon --trace-warnings"
+  }
+}

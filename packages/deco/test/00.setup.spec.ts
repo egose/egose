@@ -1,6 +1,6 @@
 import 'mocha';
 
-import initExpresss from '@examples/acl/express-server';
+import initExpresss from '@examples/deco/express-server';
 import { down, dropDatabase } from '@examples/shared/db';
 import { seed } from '@examples/shared/seed';
 

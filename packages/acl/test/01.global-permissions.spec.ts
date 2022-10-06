@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { app } from './00.setup.spec';
-import macl from '../src';
+import macl from '@egose/acl/index';
 
 describe('Global Permissions', () => {
   it('should create an user `user1` by admin', async () => {

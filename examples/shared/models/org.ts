@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { permissionsPlugin } from '../../src/plugins';
+import { permissionsPlugin } from '@egose/acl/plugins';
 
 const LocationSchema = new mongoose.Schema({
   name: { type: String, required: true },

@@ -1,5 +1,5 @@
-import macl from '../../src';
-import { Permissions } from '../../src/permission';
+import macl from '@egose/acl/index';
+import { Permissions } from '@egose/acl/permission';
 
 export const orgRouter = macl.createRouter('Org', {
   baseUrl: null,

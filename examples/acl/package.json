@@ -1,0 +1,6 @@
+{
+  "name": "acl",
+  "scripts": {
+    "start": "nodemon --trace-warnings"
+  }
+}

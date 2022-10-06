@@ -1,17 +1,15 @@
 const debug = require('debug')('seq:server');
 const http = require('http');
 
-const { HOSTNAME, PORT } = require('./config');
-
-const port = normalizePort(PORT);
-
-const createServer = (expressServer) => {
+const createServer = (expressServer, options: { hostname?: string; port?: string | number } = {}) => {
+  let { hostname, port } = options;
+  port = normalizePort(port);
   expressServer.set('port', port);
 
   const server = http.createServer(expressServer);
 
-  server.listen(port, HOSTNAME, () => {
-    console.log(`Server running at http://${HOSTNAME}:${port}/`);
+  server.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
   });
 
   server.on('error', onError);

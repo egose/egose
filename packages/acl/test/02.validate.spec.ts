@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { app } from './00.setup.spec';
-import { userRouter } from '../example/routes/user';
+import { userRouter } from '@examples/acl/routes/user';
 
 describe('Model Option - validate', () => {
   it('should not create an user `user-validate-err1` by admin', async () => {

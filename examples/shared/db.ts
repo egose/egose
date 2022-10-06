@@ -3,15 +3,13 @@ import mongoose from 'mongoose';
 
 mongoose.set('debug', false);
 
-import { DATABASE_URI } from './config';
-
 declare global {
   interface MongooseSchema extends mongoose.Schema {
     options?: any;
   }
 }
 
-export const up = async ({ databaseUrl = DATABASE_URI } = {}) => {
+export const up = async ({ databaseUrl }: { databaseUrl: string }) => {
   mongoose.plugin((schema: MongooseSchema) => {
     schema.options.timestamps = true;
   });

@@ -6,6 +6,7 @@ import { RootRouter, ModelRouter } from './router';
 import { setGlobalOption, setGlobalOptions, getGlobalOption, GlobalOptions } from './options';
 import { RootRouterProps, ModelRouterProps } from './interfaces';
 export * from './router';
+export * from './options';
 export * from './interfaces';
 
 type Middleware = () => (req: Request, res: Response, next: NextFunction) => Promise<void>;

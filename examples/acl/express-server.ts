@@ -6,11 +6,11 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import _ from 'lodash';
-import db from './db';
-import loadModels from './models';
+import db from '../shared/db';
+import loadModels from '../shared/models';
 import routes from './routes';
-import { COOKIE_SESSION_NAME, COOKIE_SESSION_SECRET } from './config';
-import macl from '../src';
+import { DATABASE_URI, COOKIE_SESSION_NAME, COOKIE_SESSION_SECRET } from './config';
+import macl from '@egose/acl/index';
 
 console.log(!!loadModels());
 
@@ -42,7 +42,7 @@ interface Props {
 const initExpresss = async (options?: Props) => {
   const { databaseUrl } = options || {};
 
-  await db.up({ databaseUrl });
+  await db.up({ databaseUrl: databaseUrl || DATABASE_URI });
 
   const expressServer = express();
 
