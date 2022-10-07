@@ -28,4 +28,5 @@ jobs:
           registry=https://registry.npmjs.org/
           always-auth=true
           EOF
-          node scripts/publish-all.js --version="$GITHUB_REF_NAME"
+          echo ${{ github.ref_name }}
+          node scripts/publish-all --version=${{ github.ref_name }}
