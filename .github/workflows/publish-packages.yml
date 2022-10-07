@@ -21,12 +21,6 @@ jobs:
       - name: Setup NPM Packages
         uses: ./.github/actions/setup-yarn
 
-      - name: Set RELEASE_VERSION Env
-        run: |
-          cat >> $GITHUB_ENV <<EOF
-          RELEASE_VERSION=$(echo ${GITHUB_REF:10})
-          EOF
-
       - name: Publish NPM Packages
         run: |
           cat >".npmrc" <<EOF
@@ -34,4 +28,4 @@ jobs:
           registry=https://registry.npmjs.org/
           always-auth=true
           EOF
-          node scripts/publish-all.js ${{env.RELEASE_VERSION}}
+          node scripts/publish-all.js "$GITHUB_REF_NAME"
