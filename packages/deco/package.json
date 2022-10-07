@@ -1,6 +1,6 @@
 {
   "name": "@egose/deco",
-  "version": "0.9.1",
+  "version": "0.0.0-PLACEHOLDER",
   "description": "REST API Access control built in Express and Mongoose",
   "license": "MIT",
   "main": "lib/index.js",
@@ -25,7 +25,7 @@
     "sync-version": "node ../../scripts/sync-version.js --name=deco"
   },
   "dependencies": {
-    "@egose/acl": "0.9.1",
+    "@egose/acl": "0.0.0-PLACEHOLDER",
     "iterare": "^1.2.1",
     "lodash": "^4.17.21"
   },

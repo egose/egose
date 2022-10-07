@@ -1,6 +1,6 @@
 {
   "name": "@egose/acl",
-  "version": "0.9.1",
+  "version": "0.0.0-PLACEHOLDER",
   "description": "REST API Access control built in Express and Mongoose",
   "license": "MIT",
   "main": "lib/index.js",

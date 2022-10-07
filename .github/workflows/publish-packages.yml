@@ -1,0 +1,34 @@
+name: Publish NPM Packages
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+
+    steps:
+      - uses: hmarr/debug-action@v2
+      - uses: actions/checkout@v3
+
+      - name: Setup Tools
+        uses: ./.github/actions/setup-tools
+
+      - name: Setup NPM Packages
+        uses: ./.github/actions/setup-yarn
+
+      - name: Set RELEASE_VERSION Env
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+
+      - name: Publish NPM Packages
+        run: |
+          cat >".npmrc" <<EOF
+          //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
+          registry=https://registry.npmjs.org/
+          always-auth=true
+          EOF
+          node scripts/publish-all.js "$RELEASE_VERSION"
