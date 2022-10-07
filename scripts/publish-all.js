@@ -5,7 +5,11 @@ const { execSync } = require('child_process');
 const glob = require('glob');
 const { argv } = require('yargs');
 
-const { version } = argv;
+let { version } = argv;
+if (!version) throw Error('version not supplied');
+
+if (version.startsWith('v')) version = version.substring(1);
+console.log(`target version ${version}`);
 
 const VER_PLACEHOLDER = '0.0.0-PLACEHOLDER';
 
