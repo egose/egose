@@ -21,11 +21,11 @@ jobs:
       - name: Setup NPM Packages
         uses: ./.github/actions/setup-yarn
 
-      - name: Publish NPM Packages
+      - name: Publish Packages
         run: |
           cat >".npmrc" <<EOF
           //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
           registry=https://registry.npmjs.org/
           always-auth=true
           EOF
-          node scripts/publish-all.js "$GITHUB_REF_NAME"
+          node scripts/publish-all.js --version="$GITHUB_REF_NAME"
