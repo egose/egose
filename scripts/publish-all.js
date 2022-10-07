@@ -5,11 +5,11 @@ const { execSync } = require('child_process');
 const glob = require('glob');
 const { argv } = require('yargs');
 
-let { version } = argv;
-if (!version) throw Error('version not supplied');
+let { tag } = argv;
+if (!tag) throw Error('tag not supplied');
 
-if (version.startsWith('v')) version = version.substring(1);
-console.log(`target version ${version}`);
+if (tag.startsWith('v')) tag = tag.substring(1);
+console.log(`target tag ${tag}`);
 
 const VER_PLACEHOLDER = '0.0.0-PLACEHOLDER';
 
@@ -37,10 +37,10 @@ glob(`${packageRoot}/*/package.json`, null, (err, files) => {
       if (!pjson[type]) return;
 
       if (_.isString(pjson[type])) {
-        if (pjson[type] === VER_PLACEHOLDER) pjson[type] = version;
+        if (pjson[type] === VER_PLACEHOLDER) pjson[type] = tag;
       } else if (_.isPlainObject(pjson[type])) {
         _.each(pjson[type], (val, key) => {
-          if (val === VER_PLACEHOLDER) pjson[type][key] = version;
+          if (val === VER_PLACEHOLDER) pjson[type][key] = tag;
         });
       }
     });
