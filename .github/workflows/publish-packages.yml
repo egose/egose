@@ -23,7 +23,7 @@ jobs:
 
       - name: Publish Packages
         run: |
-          cat >".npmrc" <<EOF
+          cat >"~/.npmrc" <<EOF
           //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
           registry=https://registry.npmjs.org/
           always-auth=true
