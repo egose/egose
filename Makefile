@@ -25,3 +25,11 @@ bump-next-version:
 .PHONY: db
 db:
 	mongod --dbpath ~/projects/_mongodb/db
+
+.PHONY: mk-serve
+mk-serve:
+	mkdocs serve
+
+.PHONY: mk-build
+mk-build:
+	mkdocs build
