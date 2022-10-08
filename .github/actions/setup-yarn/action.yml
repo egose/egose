@@ -11,5 +11,7 @@ runs:
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
     - name: Install Yarn dependencies
-      run: yarn
+      run: |
+        yarn
+        yarn bootstrap
       shell: bash
