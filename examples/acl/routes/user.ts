@@ -1,15 +1,5 @@
-import macl from '@egose/acl/index';
+import macl from '@egose/acl';
 import { Permissions } from '@egose/acl/permission';
-
-// baseUrl: false,
-// permissionSchema,
-// decorate,
-// decorateAll,
-// transform,
-// prepare,
-// baseQuery,
-// docPermissions,
-// routeGuard: true,
 
 export const userRouter = macl.createRouter('User', {
   baseUrl: null,

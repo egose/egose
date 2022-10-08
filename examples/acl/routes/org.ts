@@ -1,4 +1,4 @@
-import macl from '@egose/acl/index';
+import macl from '@egose/acl';
 import { Permissions } from '@egose/acl/permission';
 
 export const orgRouter = macl.createRouter('Org', {

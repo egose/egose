@@ -126,7 +126,7 @@ describe('Model Option - validate', () => {
     expect(response.body).to.equal(true);
   });
 
-  it('should pass the route validation', async () => {
+  it('should pass the route validation3', async () => {
     const response = await request(app).get('/api/admin-route').set('user', 'nobody').expect(500);
   });
 

@@ -10,24 +10,8 @@ import loadModels from '../shared/models';
 import { EgoseFactory } from '@egose/deco';
 import { RoutersModule } from './routes/routers.module';
 import { DATABASE_URI, COOKIE_SESSION_NAME, COOKIE_SESSION_SECRET } from './config';
-// import macl from '@egose/acl/index';
 
 console.log(!!loadModels());
-
-// macl.setGlobalOption('permissionField', '_permissions');
-
-// macl.set('globalPermissions', async function (req) {
-//   const User = mongoose.model('User');
-//   const userName = req.headers.user;
-
-//   let user;
-//   if (userName) {
-//     user = await User.findOne({ name: userName });
-//   }
-
-//   req._user = user;
-//   return { isAdmin: user?.role === 'admin' };
-// });
 
 const MemoryStore = memorystore(session);
 
@@ -73,10 +57,6 @@ const initExpresss = async (options?: Props) => {
   expressServer.disable('x-powered-by');
 
   expressServer.set('trust proxy', 1);
-
-  // expressServer.use(macl());
-
-  // expressServer.use('/api', routes);
 
   EgoseFactory.bootstrap(RoutersModule, expressServer);
 

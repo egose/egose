@@ -12,7 +12,9 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
+      "@egose/acl": ["./packages/acl/src/index"],
       "@egose/acl/*": ["./packages/acl/src/*"],
+      "@egose/deco": ["./packages/deco/src/index"],
       "@egose/deco/*": ["./packages/deco/src/*"],
       "@examples/*": ["./examples/*"]
     }

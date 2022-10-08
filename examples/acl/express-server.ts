@@ -10,7 +10,7 @@ import db from '../shared/db';
 import loadModels from '../shared/models';
 import routes from './routes';
 import { DATABASE_URI, COOKIE_SESSION_NAME, COOKIE_SESSION_SECRET } from './config';
-import macl from '@egose/acl/index';
+import macl from '@egose/acl';
 
 console.log(!!loadModels());
 
