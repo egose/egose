@@ -8,9 +8,9 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/junminahn/express-toolkit"
+    "url": "https://github.com/egose/egose"
   },
-  "homepage": "https://express-toolkit.github.io/mongoose-acl/1.philosophy/",
+  "homepage": "https://egose.github.io/mongoose-acl/1.philosophy/",
   "keywords": [
     "express",
     "mongoose",

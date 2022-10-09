@@ -1,6 +1,6 @@
 # @egose/deco
 
-`@egose/deco` exposes REST API endpoints corresponding to mongoose data models in Express routes. It builds the backend database security layer by decorating mongoose queries, which enables dynamic frontend mongoose-like query options.
+`@egose/deco` providers the decorators of the core library `@egose/acl`.
 
 <a href="https://www.npmjs.com/package/@egose/deco" target="_blank"><img src="https://img.shields.io/npm/v/@egose/deco.svg" alt="NPM Version" /></a>
 <a href="https://www.npmjs.com/package/@egose/deco" target="_blank"><img src="https://img.shields.io/npm/l/@egose/deco.svg" alt="Package License" /></a>
@@ -8,7 +8,7 @@
 
 ## Documentation
 
-please see [Express-toolkit documentation](https://express-toolkit.github.io/mongoose-acl/1.philosophy/)
+please see [Egose documentation](https://egose.github.io/mongoose-acl/1.philosophy/)
 
 ## Installation
 

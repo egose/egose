@@ -8,7 +8,7 @@
 
 ## Documentation
 
-please see [Express-toolkit documentation](https://express-toolkit.github.io/mongoose-acl/1.philosophy/)
+please see [Egose documentation](https://egose.github.io/mongoose-acl/1.philosophy/)
 
 ## Installation
 
