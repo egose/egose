@@ -127,8 +127,6 @@ export class EgoseFactoryStatic {
       if (routeGuard) this.setRouterMethodOptions(methodName, 'routeGuard', false);
     }
 
-    console.log('prepareKeysprepareKeys', this._router.options);
-
     expressRouter.use(this._router.routes);
   }
 

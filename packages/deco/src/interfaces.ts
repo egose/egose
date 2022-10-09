@@ -7,8 +7,6 @@ export interface Type<T = any> extends Function {
 /**
  * Interface defining the property object that describes the module.
  *
- * @see [Modules](https://docs.nestjs.com/modules)
- *
  * @publicApi
  */
 export interface ModuleMetadata {

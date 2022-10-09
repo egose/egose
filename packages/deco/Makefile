@@ -2,8 +2,9 @@ SHELL := /usr/bin/env bash
 
 .PHONY: build
 build:
-	rm -rf lib
+	rm -rf _lib lib
 	yarn build
+	mv _lib/deco/src lib
 	yarn pre-publish
 
 .PHONY: publish
