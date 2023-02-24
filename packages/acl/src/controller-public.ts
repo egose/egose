@@ -104,7 +104,7 @@ class PublicController extends Controller {
     );
 
     let rows = await this.req._decorateAll(this.modelName, docs, 'list');
-    rows = rows.map(row => this.req._process(this.modelName, row, process))
+    rows = rows.map((row) => this.req._process(this.modelName, row, process));
 
     if (includeCount) {
       return {
