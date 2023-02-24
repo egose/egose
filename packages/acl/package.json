@@ -31,5 +31,6 @@
   "peerDependencies": {
     "express": "^4.17.2",
     "mongoose": "^6.1.4"
-  }
+  },
+  "devDependencies": {}
 }

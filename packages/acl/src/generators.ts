@@ -21,6 +21,7 @@ import Permission, { Permissions } from './permission';
 import Controller from './controller';
 import PublicController from './controller-public';
 import { normalizeSelect, arrToObj, createValidator } from './helpers';
+import { copyAndDepopulate } from './processors';
 import { isDocument } from './lib';
 
 const MIDDLEWARE = Symbol('middleware');
@@ -310,6 +311,23 @@ export async function decorateAll(modelName, docs, access) {
   return callMiddleware(this, decorateAll, docs, permissions, {});
 }
 
+export function process(modelName, docObject, pipeline) {
+  const pipelines = compact(castArray(pipeline));
+  if (pipelines.length === 0) return docObject;
+
+  forEach(pipelines, (pipeline) => {
+    const { type, operations, options } = pipeline;
+
+    switch (type) {
+      case 'COPY_AND_DEPOPULATE':
+        docObject = copyAndDepopulate(docObject, operations, options);
+        break;
+    }
+  });
+
+  return docObject;
+}
+
 export function getPermissions() {
   const permissionField = getGlobalOption('permissionField');
   return new Permission(this[permissionField] || {});
@@ -378,6 +396,7 @@ export async function setGenerators(req, res, next) {
   req._permit = permit.bind(req);
   req._decorate = decorate.bind(req);
   req._decorateAll = decorateAll.bind(req);
+  req._process = process.bind(req);
   req._getPermissions = getPermissions.bind(req);
   req._setPermissions = setPermissions.bind(req);
   req._canActivate = canActivate.bind(req);

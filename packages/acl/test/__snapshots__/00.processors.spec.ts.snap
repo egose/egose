@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Processors - copyAndDepopulate should return the expected result - 1 1`] = `
+Object {
+  "_apple": Object {
+    "_id": "qwer",
+    "name": "apple",
+  },
+  "apple": "qwer",
+  "pear": Object {
+    "_id": "asdf",
+    "name": "pear",
+  },
+}
+`;
+
+exports[`Processors - copyAndDepopulate should return the expected result - 2 1`] = `
+Object {
+  "apple": Object {
+    "_id": "qwer",
+    "name": "apple",
+  },
+  "pear": Object {
+    "_id": "asdf",
+    "_items": Array [
+      Object {
+        "_id": 1,
+        "name": "item1",
+      },
+      Object {
+        "_id": 2,
+        "name": "item2",
+      },
+    ],
+    "items": Array [
+      1,
+      2,
+    ],
+  },
+}
+`;
+
+exports[`Processors - copyAndDepopulate should return the expected result - 3 1`] = `
+Object {
+  "apple": Object {
+    "_id": "qwer",
+    "name": "apple",
+  },
+  "pear": Object {
+    "_id": "asdf",
+    "items": Array [
+      Object {
+        "_id": 1,
+        "_samples": Array [
+          Object {
+            "_id": 1,
+            "name": "sample1",
+          },
+          Object {
+            "_id": 2,
+            "name": "sample2",
+          },
+        ],
+        "name": "item1",
+        "samples": Array [
+          "sample1",
+          "sample2",
+        ],
+      },
+      Object {
+        "_id": 2,
+        "_samples": Array [
+          Object {
+            "_id": 3,
+            "name": "sample3",
+          },
+          Object {
+            "_id": 4,
+            "name": "sample4",
+          },
+        ],
+        "name": "item2",
+        "samples": Array [
+          "sample3",
+          "sample4",
+        ],
+      },
+    ],
+  },
+}
+`;

@@ -108,7 +108,7 @@ export class ModelRouter {
       const allowed = await req._isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      let { query, select, sort, populate, limit, page, options = {} } = req.body;
+      let { query, select, sort, populate, process, limit, page, options = {} } = req.body;
       const { includePermissions, includeCount, populateAccess, lean } = options;
 
       const model = req._macl(this.modelName);
@@ -117,6 +117,7 @@ export class ModelRouter {
         select,
         sort,
         populate,
+        process,
         limit,
         page,
         options: {
@@ -183,13 +184,14 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const id = req.params[this.idParam];
-      let { select, populate, options = {} } = req.body;
+      let { select, populate, process, options = {} } = req.body;
       const { includePermissions, tryList, populateAccess, lean } = options;
 
       const model = req._macl(this.modelName);
       return model.read(id, {
         select,
         populate,
+        process,
         options: { includePermissions, tryList, populateAccess, lean },
       });
     });

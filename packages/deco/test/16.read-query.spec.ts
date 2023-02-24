@@ -87,6 +87,24 @@ describe('Read-Query User', () => {
     expect(response.body.orgs[0]).to.be.a('object');
   });
 
+  it('should return the populated user orgs in the target field', async () => {
+    const response = await request(app)
+      .post('/api/users/__query/lucy2')
+      .set('user', 'john')
+      .send({
+        populate: { path: 'orgs' },
+        process: { type: 'COPY_AND_DEPOPULATE', operations: [{ src: 'orgs', dest: '_orgs' }] },
+      })
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body.name).to.equal('lucy2');
+    expect(response.body.orgs.length).to.equal(2);
+    expect(response.body.orgs[0]).to.be.a('string');
+    expect(response.body._orgs.length).to.equal(2);
+    expect(response.body._orgs[0]).to.be.a('object');
+  });
+
   it('should return the passed field selection only', async () => {
     const response = await request(app)
       .post('/api/users/__query/lucy2')

@@ -83,6 +83,7 @@ export interface ListProps {
   select?: string[] | string | null | undefined;
   sort?: string[] | string | null | undefined;
   populate?: Populate[] | string | null | undefined;
+  process?: any;
   limit?: string | number | null | undefined;
   page?: string | number | null | undefined;
   options?: ListOptionProps;
@@ -91,6 +92,7 @@ export interface ListProps {
 export interface ReadProps {
   select?: string[] | string | null | undefined;
   populate?: Populate[] | string | null | undefined;
+  process?: any;
   options?: ReadOptionProps;
 }
 

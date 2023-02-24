@@ -55,6 +55,7 @@ class PublicController extends Controller {
     select = this.defaults.list?.select,
     sort = this.defaults.list?.sort,
     populate = this.defaults.list?.populate,
+    process = [],
     limit = this.defaults.list?.limit,
     page = this.defaults.list?.page,
     options = this.defaults.list?.options || {},
@@ -102,7 +103,8 @@ class PublicController extends Controller {
       }),
     );
 
-    const rows = await this.req._decorateAll(this.modelName, docs, 'list');
+    let rows = await this.req._decorateAll(this.modelName, docs, 'list');
+    rows = rows.map(row => this.req._process(this.modelName, row, process))
 
     if (includeCount) {
       return {
@@ -166,6 +168,7 @@ class PublicController extends Controller {
     {
       select = this.defaults.read?.select,
       populate = this.defaults.read?.populate,
+      process = [],
       options = this.defaults.read?.options || {},
     }: ReadProps = {},
   ) {
@@ -196,6 +199,7 @@ class PublicController extends Controller {
 
     doc = await this.req._pickAllowedFields(this.modelName, doc, access, ['_id', this.options.permissionField]);
     doc = await this.req._decorate(this.modelName, doc, access);
+    doc = this.req._process(this.modelName, doc, process);
 
     return doc;
   }

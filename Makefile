@@ -24,7 +24,8 @@ bump-next-version:
 
 .PHONY: db
 db:
-	mongod --dbpath ~/projects/_mongodb/db
+	mkdir -p ../_mongodb/egose
+	mongod --dbpath ../_mongodb/egose
 
 .PHONY: mk-serve
 mk-serve:
