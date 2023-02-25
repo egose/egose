@@ -3,7 +3,7 @@ name: Publish NPM Packages
 on:
   push:
     tags:
-      - "v*.*.*"
+    - v*.*.*
 
 jobs:
   build-and-publish:
@@ -12,20 +12,20 @@ jobs:
       contents: read
 
     steps:
-      - uses: hmarr/debug-action@v2
-      - uses: actions/checkout@v3
+    - uses: hmarr/debug-action@v2
+    - uses: actions/checkout@v3
 
-      - name: Setup Tools
-        uses: ./.github/actions/setup-tools
+    - name: Setup Tools
+      uses: ./.github/actions/setup-tools
 
-      - name: Setup NPM Packages
-        uses: ./.github/actions/setup-yarn
+    - name: Setup NPM Packages
+      uses: ./.github/actions/setup-yarn
 
-      - name: Publish Packages
-        run: |
-          cat >"/home/runner/.npmrc" <<EOF
-          //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
-          registry=https://registry.npmjs.org/
-          always-auth=true
-          EOF
-          node scripts/publish-all --tag=${{github.ref_name}}
+    - name: Publish Packages
+      run: |
+        cat >"/home/runner/.npmrc" <<EOF
+        //registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}
+        registry=https://registry.npmjs.org/
+        always-auth=true
+        EOF
+        node scripts/publish-all --tag=${{github.ref_name}}

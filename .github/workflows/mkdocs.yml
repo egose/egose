@@ -3,26 +3,26 @@ name: Publish docs via GitHub Pages
 on:
   push:
     branches:
-      - main
+    - main
 
 jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - uses: hmarr/debug-action@v2
-      - uses: actions/checkout@v3
+    - uses: hmarr/debug-action@v2
+    - uses: actions/checkout@v3
 
-      - name: Setup Tools
-        uses: ./.github/actions/setup-tools
+    - name: Setup Tools
+      uses: ./.github/actions/setup-tools
 
-      - name: Build the MkDocs site
-        run: |
-          make mk-build
+    - name: Build the MkDocs site
+      run: |
+        make mk-build
 
-      - name: Deploy GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.4.0
-        with:
-          repository-name: egose/egose.github.io
-          branch: gh-pages
-          folder: ./site
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
+    - name: Deploy GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4.4.0
+      with:
+        repository-name: egose/egose.github.io
+        branch: gh-pages
+        folder: ./site
+        ssh-key: ${{ secrets.DEPLOY_KEY }}
