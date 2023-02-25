@@ -21,3 +21,8 @@ export function Permissions(): ParameterDecorator {
 export function Context(): ParameterDecorator {
   return (target, key, index) => mergeHookParams(target, key, index, HookParamtypes.CONTEXT);
 }
+
+// TODO HERE
+export function ID(): ParameterDecorator {
+  return (target, key, index) => mergeHookParams(target, key, index, HookParamtypes.CONTEXT);
+}

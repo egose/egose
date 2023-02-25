@@ -14,5 +14,5 @@ export interface ModuleMetadata {
    * list of routes.
    */
   routers: Type<any>[];
-  options?: GlobalOptions & { baseUrl?: string };
+  options?: GlobalOptions & { baseUrl?: string; handleErrors?: boolean };
 }

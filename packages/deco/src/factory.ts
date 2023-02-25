@@ -60,21 +60,22 @@ export class EgoseFactoryStatic {
 
     this._expressApp.use(baseUrl, expressRouter);
 
-    // catch 404 and forward to error handler
-    this._expressApp.use((req, res, next) => {
-      const err = new Error('Not Found');
-      next(err);
-    });
-
-    // error handler
-    // no stacktraces leaked to user unless in development environment
-    this._expressApp.use((err, req, res, next) => {
-      res.status(err.status || 500);
-      res.json({
-        message: err.message,
-        error: err,
+    if (globalOptions.handleErrors) {
+      // catch 404 and forward to error handler
+      this._expressApp.use((req, res, next) => {
+        const err = new Error('Not Found');
+        next(err);
       });
-    });
+
+      // error handler
+      this._expressApp.use((err, req, res, next) => {
+        res.status(err.status || 500);
+        res.json({
+          message: err.message,
+          error: err,
+        });
+      });
+    }
   }
 
   private bootstrapGlobalScope(module: Type<any>) {
