@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: hmarr/debug-action@v2
     - uses: actions/checkout@v3
@@ -20,7 +20,7 @@ jobs:
         make mk-build
 
     - name: Deploy GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4.4.0
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
         repository-name: egose/egose.github.io
         branch: gh-pages

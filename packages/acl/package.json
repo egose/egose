@@ -3,16 +3,6 @@
   "version": "0.0.0-PLACEHOLDER",
   "description": "REST API Access control built in Express and Mongoose",
   "license": "MIT",
-  "main": "./index.js",
-  "module": "./index.mjs",
-  "types": "./index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./index.js",
-      "import": "./index.mjs",
-      "types": "./index.d.ts"
-    }
-  },
   "sideEffects": false,
   "repository": {
     "type": "git",

@@ -73,7 +73,19 @@ glob(`${packageRoot}/*/package.json`, null, (err, files) => {
       execSync(`cp ${dir}/${file} ${publishDir}/${file}`);
     });
 
-    writeJson(targetPackageJSON, packageData);
+    writeJson(targetPackageJSON, {
+      ...packageData,
+      main: './index.js',
+      module: './index.mjs',
+      types: './index.d.ts',
+      exports: {
+        '.': {
+          require: './index.js',
+          import: './index.mjs',
+          types: './index.d.ts',
+        },
+      },
+    });
     // execSync(`cd ${publishDir} && npm publish --access public`);
   });
 });
