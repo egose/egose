@@ -63,7 +63,7 @@ class Model {
     if (sort) builder = builder.sort(sort);
     if (populate) builder = builder.populate(populate);
     if (lean) builder = builder.lean();
-    builder = builder.setOptions({ sanitizeFilter: true });
+    // builder = builder.setOptions({ sanitizeFilter: true });
 
     return builder;
   }
