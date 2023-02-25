@@ -86,6 +86,7 @@ glob(`${packageRoot}/*/package.json`, null, (err, files) => {
         },
       },
     });
-    // execSync(`cd ${publishDir} && npm publish --access public`);
+
+    execSync(`cd ${publishDir} && npm publish --access public`);
   });
 });
