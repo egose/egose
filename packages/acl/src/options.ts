@@ -53,7 +53,7 @@ export const setModelOption = (modelName: string, optionKey: string, option: any
 };
 
 export const getModelOptions = (modelName: string) => {
-  return get(modelOptions, modelName, {});
+  return get(modelOptions, modelName, { baseUrl: null });
 };
 export const getModelOption = (modelName: string, optionKey: string, defaultValue?: any) => {
   const keys = optionKey.split('.');
