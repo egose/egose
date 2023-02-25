@@ -20,7 +20,7 @@
     "build": "tsc -d",
     "dev": "tsc -w",
     "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint",
-    "test": "mocha -r ts-node/register -r tsconfig-paths/register test/**/*.spec.ts --exit",
+    "test": "mocha --exit",
     "pre-publish": "node ../../scripts/pre-publish.js --name=acl",
     "sync-version": "node ../../scripts/sync-version.js --name=acl"
   },
@@ -32,5 +32,15 @@
     "express": "^4.17.2",
     "mongoose": "^6.1.4"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "mocha": {
+    "require": [
+      "ts-node/register",
+      "tsconfig-paths/register"
+    ],
+    "spec": [
+      "test/**/*.spec.ts",
+      "../_common/test/**/*.spec.ts"
+    ]
+  }
 }

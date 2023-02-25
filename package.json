@@ -10,9 +10,7 @@
     "link": "lerna link",
     "clean": "lerna clean",
     "test": "lerna run test",
-    "lint": "lerna run lint",
-    "version": "lerna version --exact --no-changelog --no-push --no-git-tag-version",
-    "release": "lerna version --exact --no-changelog --no-push --no-git-tag-version && lerna publish from-package --dist-tag next"
+    "lint": "lerna run lint"
   },
   "workspaces": {
     "packages": [

@@ -3,7 +3,7 @@ import request from 'supertest';
 import { expect } from 'chai';
 import 'mocha';
 
-import { app } from './00.setup.spec';
+import { app } from '@egose/_common/test/00.setup.spec';
 import macl from '@egose/acl';
 
 describe('Global Permissions', () => {

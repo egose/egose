@@ -16,6 +16,7 @@
       "@egose/acl/*": ["./packages/acl/src/*"],
       "@egose/deco": ["./packages/deco/src/index"],
       "@egose/deco/*": ["./packages/deco/src/*"],
+      "@egose/_common/*": ["./packages/_common/*"],
       "@examples/*": ["./examples/*"]
     }
   }
