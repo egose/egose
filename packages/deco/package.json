@@ -3,8 +3,16 @@
   "version": "0.0.0-PLACEHOLDER",
   "description": "Decorators of @egose/acl",
   "license": "MIT",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "./index.js",
+  "module": "./index.mjs",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./index.js",
+      "import": "./index.mjs",
+      "types": "./index.d.ts"
+    }
+  },
   "sideEffects": false,
   "repository": {
     "type": "git",
@@ -17,12 +25,14 @@
     "acl"
   ],
   "scripts": {
-    "build": "tsc -d",
     "dev": "tsc -w",
+    "build": "tsc -d",
+    "bundle": "tsup",
     "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint",
-    "test": "mocha --exit",
-    "pre-publish": "node ../../scripts/pre-publish.js --name=deco",
-    "sync-version": "node ../../scripts/sync-version.js --name=deco"
+    "test": "mocha --exit"
+  },
+  "engines": {
+    "node": ">=14"
   },
   "dependencies": {
     "@egose/acl": "0.0.0-PLACEHOLDER",
@@ -33,6 +43,22 @@
     "express": "^4.17.2",
     "mongoose": "^6.1.4",
     "reflect-metadata": "^0.1.13"
+  },
+  "tsup": {
+    "target": "node14",
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm",
+      "iife"
+    ],
+    "dts": true,
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "minify": false
   },
   "mocha": {
     "require": [
