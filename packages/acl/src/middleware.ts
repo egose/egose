@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import JsonRouter from 'express-json-router';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
-import { setGenerators, PERMISSIONS } from './generators';
+import { setGenerators } from './generators';
 import Permission from './permission';
 import { createValidator } from './helpers';
+import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
 export default function macl() {
   return async function (req: Request, res: Response, next: NextFunction) {

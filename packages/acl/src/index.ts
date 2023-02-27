@@ -3,20 +3,21 @@ import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
 import middleware from './middleware';
 import { RootRouter, ModelRouter } from './router';
-import { setGlobalOption, setGlobalOptions, getGlobalOption, GlobalOptions } from './options';
-import { RootRouterProps, ModelRouterProps } from './interfaces';
+import { setGlobalOption, setGlobalOptions, getGlobalOption } from './options';
+import { GlobalOptions, RootRouterOptions, ModelRouterOptions } from './interfaces';
 export * from './router';
 export * from './options';
 export * from './interfaces';
+export * from './symbols';
 
 type Middleware = () => (req: Request, res: Response, next: NextFunction) => Promise<void>;
 interface ModelRouterConstructor {
-  new (modelName: string, options: ModelRouterProps): ModelRouter;
+  new (modelName: string, options: ModelRouterOptions): ModelRouter;
 }
 
 type CreateRouter = {
-  (modelName: string, options: ModelRouterProps): ModelRouter;
-  (options: RootRouterProps): RootRouter;
+  (modelName: string, options: ModelRouterOptions): ModelRouter;
+  (options: RootRouterOptions): RootRouter;
 };
 
 interface MACL {
@@ -29,9 +30,9 @@ interface MACL {
 }
 
 const macl = middleware as Middleware & MACL;
-macl.createRouter = function (modelName: string | RootRouterProps, options: ModelRouterProps | undefined) {
+macl.createRouter = function (modelName: string | RootRouterOptions, options: ModelRouterOptions | undefined) {
   return isUndefined(options)
-    ? new RootRouter(modelName as RootRouterProps)
+    ? new RootRouter(modelName as RootRouterOptions)
     : new ModelRouter(modelName as string, options);
 } as CreateRouter;
 

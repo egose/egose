@@ -13,7 +13,7 @@ import Model from './model';
 import { setModelOptions, setModelOption, getModelOptions } from './options';
 import { normalizeSelect, iterateQuery, CustomError } from './helpers';
 import {
-  ModelRouterProps,
+  ModelRouterOptions,
   MiddlewareContext,
   SubPopulate,
   ListProps,
@@ -27,12 +27,13 @@ import {
   FindOneProps,
   FindByIdProps,
 } from './interfaces';
+import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
 class Controller {
   req: any;
   modelName: string;
   model: Model;
-  options: ModelRouterProps;
+  options: ModelRouterOptions;
   defaults: Defaults;
 
   constructor(req: any, modelName: string) {
@@ -54,9 +55,9 @@ class Controller {
     const { query: __query, select: __select, populate: __populate } = overrides;
 
     let [query, select, populate] = await Promise.all([
-      __query || this.req._genQuery(this.modelName, access, _query),
-      __select || this.req._genSelect(this.modelName, access, _select),
-      __populate || this.req._genPopulate(this.modelName, populateAccess || access, _populate),
+      __query || this.req[CORE]._genQuery(this.modelName, access, _query),
+      __select || this.req[CORE]._genSelect(this.modelName, access, _select),
+      __populate || this.req[CORE]._genPopulate(this.modelName, populateAccess || access, _populate),
     ]);
 
     if (query === false) return null;
@@ -64,7 +65,7 @@ class Controller {
     let doc = await this.model.findOne({ query, select, populate, lean });
     if (!doc) return null;
 
-    if (includePermissions) doc = await this.req._permit(this.modelName, doc, access);
+    if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, access);
     return doc;
   }
 
@@ -78,7 +79,7 @@ class Controller {
     }: FindByIdProps = {},
   ) {
     const { select: __select, populate: __populate, idQuery: __idQuery } = overrides;
-    const query = __idQuery || (await this.req._genIDQuery(this.modelName, id));
+    const query = __idQuery || (await this.req[CORE]._genIDQuery(this.modelName, id));
 
     return this.findOne({
       query,

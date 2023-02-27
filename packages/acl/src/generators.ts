@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import set from 'lodash/set';
+import assign from 'lodash/assign';
 import isBoolean from 'lodash/isBoolean';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
@@ -23,10 +24,7 @@ import PublicController from './controller-public';
 import { normalizeSelect, arrToObj, createValidator } from './helpers';
 import { copyAndDepopulate } from './processors';
 import { isDocument } from './lib';
-
-const MIDDLEWARE = Symbol('middleware');
-export const PERMISSIONS = Symbol('permissions');
-export const PERMISSION_KEYS = Symbol('permission-keys');
+import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
 const callMiddleware = async (
   req: any,
@@ -146,7 +144,7 @@ export async function genAllowedFields(modelName: string, doc: any, access: stri
 }
 
 export async function pickAllowedFields(modelName: string, doc: any, access: string, baseFields = []) {
-  const allowed = await this._genAllowedFields(modelName, doc, access, baseFields);
+  const allowed = await this[CORE]._genAllowedFields(modelName, doc, access, baseFields);
   return pick(toObject(doc), allowed);
 }
 
@@ -228,8 +226,8 @@ export async function genPopulate(modelName: string, access: string = 'read', _p
         if (!refModelName) return null;
 
         if (!isString(p) && p.access) access = p.access;
-        ret.select = await this._genSelect(refModelName, access, ret.select, false);
-        const query = await this._genQuery(refModelName, access, null);
+        ret.select = await this[CORE]._genSelect(refModelName, access, ret.select, false);
+        const query = await this[CORE]._genQuery(refModelName, access, null);
         if (query === false) return null;
 
         ret.match = query;
@@ -280,10 +278,10 @@ export async function genDocPermissions(modelName: string, doc: any, access: str
 
 export async function permit(modelName: string, doc: any, access: string, context: MiddlewareContext = {}) {
   const docPermissionField = getModelOption(modelName, 'permissionField', '_permissions');
-  const docPermissions = await this._genDocPermissions(modelName, doc, access, context);
+  const docPermissions = await this[CORE]._genDocPermissions(modelName, doc, access, context);
   setDocPermissions(doc, docPermissionField, docPermissions);
 
-  const allowedFields = await this._genAllowedFields(modelName, doc, 'update');
+  const allowedFields = await this[CORE]._genAllowedFields(modelName, doc, 'update');
   // TODO: do we need falsy fields as well?
   // const permissionSchemaKeys = getModelOption(modelName, 'permissionSchemaKeys');
 
@@ -368,7 +366,7 @@ export async function canActivate(routeGuard: Validation) {
 
 export async function isAllowed(modelName, access) {
   const routeGuard = getModelOption(modelName, `routeGuard.${access}`);
-  return this._canActivate(routeGuard);
+  return this[CORE]._canActivate(routeGuard);
 }
 
 export function macl(modelName: string) {
@@ -381,31 +379,37 @@ export function maclExt(modelName: string) {
 
 export async function setGenerators(req, res, next) {
   if (req[MIDDLEWARE]) return next();
+  req[CORE] = {
+    _genIDQuery: genIDQuery.bind(req),
+    _genQuery: genQuery.bind(req),
+    _genPagination: genPagination.bind(req),
+    _genAllowedFields: genAllowedFields.bind(req),
+    _genSelect: genSelect.bind(req),
+    _pickAllowedFields: pickAllowedFields.bind(req),
+    _genPopulate: genPopulate.bind(req),
+    _genDocPermissions: genDocPermissions.bind(req),
+    _validate: validate.bind(req),
+    _prepare: prepare.bind(req),
+    _transform: transform.bind(req),
+    _permit: permit.bind(req),
+    _decorate: decorate.bind(req),
+    _decorateAll: decorateAll.bind(req),
+    _process: process.bind(req),
+    _getPermissions: getPermissions.bind(req),
+    _setPermissions: setPermissions.bind(req),
+    _canActivate: canActivate.bind(req),
+    _isAllowed: isAllowed.bind(req),
+    _public: maclExt.bind(req),
+  };
 
-  req._genIDQuery = genIDQuery.bind(req);
-  req._genQuery = genQuery.bind(req);
-  req._genPagination = genPagination.bind(req);
-  req._genAllowedFields = genAllowedFields.bind(req);
-  req._genSelect = genSelect.bind(req);
-  req._pickAllowedFields = pickAllowedFields.bind(req);
-  req._genPopulate = genPopulate.bind(req);
-  req._genDocPermissions = genDocPermissions.bind(req);
-  req._validate = validate.bind(req);
-  req._prepare = prepare.bind(req);
-  req._transform = transform.bind(req);
-  req._permit = permit.bind(req);
-  req._decorate = decorate.bind(req);
-  req._decorateAll = decorateAll.bind(req);
-  req._process = process.bind(req);
-  req._getPermissions = getPermissions.bind(req);
-  req._setPermissions = setPermissions.bind(req);
-  req._canActivate = canActivate.bind(req);
-  req._isAllowed = isAllowed.bind(req);
-  req._macl = maclExt.bind(req);
   req.macl = macl.bind(req);
+  assign(req.macl, req[CORE]);
 
-  await req._setPermissions();
-  req[PERMISSIONS] = req.permissions = req._getPermissions();
+  // backward compatibility
+  assign(req, req[CORE]);
+
+  await req[CORE]._setPermissions();
+  req[PERMISSIONS] = req.permissions = req[CORE]._getPermissions();
   req[PERMISSION_KEYS] = req[PERMISSIONS].$_permissionKeys;
   req[MIDDLEWARE] = true;
   next();

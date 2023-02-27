@@ -241,7 +241,7 @@ describe('List Sub-query', () => {
     const orgIds = user.orgs.map((v) => String(v._id));
 
     const response = await request(app)
-      .post('/api/orgs/__query')
+      .post('/api/orgs/_extra')
       .set('user', 'admin')
       .send({
         query: {

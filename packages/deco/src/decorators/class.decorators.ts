@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { isString } from 'lodash';
-import { RootRouterProps, ModelRouterProps } from '@egose/acl';
+import { RootRouterOptions, ModelRouterOptions } from '@egose/acl';
 import { ModuleMetadata } from '../interfaces';
 import { ROOT_ROUTER_WATERMARK, ROUTER_WATERMARK, ROUTER_MODEL, ROUTER_OPTIONS } from '../constants';
 
@@ -15,18 +15,18 @@ export function Module(metadata: ModuleMetadata): ClassDecorator {
 }
 
 type CommonRouter = {
-  (modelName: string, options?: ModelRouterProps): ClassDecorator;
-  (options: RootRouterProps): ClassDecorator;
+  (modelName: string, options?: ModelRouterOptions): ClassDecorator;
+  (options: RootRouterOptions): ClassDecorator;
 };
 
-function createRootRouter(options: RootRouterProps): ClassDecorator {
+function createRootRouter(options: RootRouterOptions): ClassDecorator {
   return (target: object) => {
     Reflect.defineMetadata(ROOT_ROUTER_WATERMARK, true, target);
     Reflect.defineMetadata(ROUTER_OPTIONS, options || {}, target);
   };
 }
 
-function createModelRouter(modelName: string, options?: ModelRouterProps): ClassDecorator {
+function createModelRouter(modelName: string, options?: ModelRouterOptions): ClassDecorator {
   return (target: object) => {
     Reflect.defineMetadata(ROUTER_WATERMARK, true, target);
     Reflect.defineMetadata(ROUTER_MODEL, modelName, target);
@@ -34,7 +34,10 @@ function createModelRouter(modelName: string, options?: ModelRouterProps): Class
   };
 }
 
-const commonRouter = function Router(modelName: string | RootRouterProps, options?: ModelRouterProps): ClassDecorator {
+const commonRouter = function Router(
+  modelName: string | RootRouterOptions,
+  options?: ModelRouterOptions,
+): ClassDecorator {
   return isString(modelName) ? createModelRouter(modelName, options) : createRootRouter(modelName);
 } as CommonRouter;
 

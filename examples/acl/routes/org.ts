@@ -3,6 +3,7 @@ import { Permissions } from '@egose/acl/permission';
 
 export const orgRouter = macl.createRouter('Org', {
   baseUrl: null,
+  queryPath: '_extra',
   permissionSchema: { name: { list: true, read: true, create: true } },
   docPermissions: () => {
     return { read: false, edit: true };
