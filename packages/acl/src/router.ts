@@ -8,6 +8,7 @@ import isUndefined from 'lodash/isUndefined';
 import isString from 'lodash/isString';
 import intersection from 'lodash/intersection';
 import Model from './model';
+import { checkIfReady, listen } from './meta';
 
 import { setGenerators } from './generators';
 import { getGlobalOption, setModelOptions, setModelOption, getModelOptions } from './options';
@@ -64,8 +65,17 @@ export class ModelRouter {
     this.queryPath = _options.queryPath || getGlobalOption('queryPath', '__query');
     this.setCollectionRoutes();
     this.setDocumentRoutes();
-    this.setSubDocumentRoutes();
-    this.logEndpoints();
+
+    const runAsyncTasks = () => {
+      this.setSubDocumentRoutes();
+      this.logEndpoints();
+    };
+
+    if (checkIfReady()) {
+      runAsyncTasks();
+    } else {
+      listen(runAsyncTasks);
+    }
   }
 
   ///////////////////////

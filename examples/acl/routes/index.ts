@@ -1,12 +1,11 @@
 import express from 'express';
 const router = express.Router();
 
-import macl from '@egose/acl';
+import macl, { guard } from '@egose/acl';
 import auth from './auth';
 import { NODE_ENV } from '../config';
 import userRoutes from './user';
 import orgRoutes from './org';
-import { guard } from '@egose/acl/middleware';
 
 const rootRouter = macl.createRouter({
   baseUrl: '/macl',

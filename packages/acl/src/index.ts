@@ -5,8 +5,11 @@ import middleware from './middleware';
 import { RootRouter, ModelRouter } from './router';
 import { setGlobalOption, setGlobalOptions, getGlobalOption } from './options';
 import { GlobalOptions, RootRouterOptions, ModelRouterOptions } from './interfaces';
+export { guard } from './middleware';
+export * from './permission';
 export * from './router';
 export * from './options';
+export * from './plugins';
 export * from './interfaces';
 export * from './symbols';
 
