@@ -1,5 +1,5 @@
 import macl from '@egose/acl';
-import { Permissions } from '@egose/acl/permission';
+import { Permissions } from '@egose/acl';
 
 export const userRouter = macl.createRouter('User', {
   baseUrl: null,

@@ -11,7 +11,7 @@ import {
   Option,
 } from '@egose/deco';
 
-@Router('Org')
+@Router('Org', { queryPath: '_extra' })
 export class OrgRouter {
   @Option() routeGuard = {
     list: true,

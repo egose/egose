@@ -1,7 +1,7 @@
-# Express Toolkit
+# Egose
 
-Express Toolkit is a collection of Node.js libraries built on Express.
+`Egose` is a collection of toolkits that exposes REST API endpoints corresponding to mongoose data models in Express routes.
 
 ## Mongoose ACL
 
-- see details on [Mongoose ACL](/mongoose-acl/1.philosophy/)
+- see details on [Mongoose ACL](/egose-acl/1.philosophy/)

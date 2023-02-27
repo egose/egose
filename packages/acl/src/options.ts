@@ -1,37 +1,45 @@
-import mongoose from 'mongoose';
 import get from 'lodash/get';
 import set from 'lodash/set';
-import reduce from 'lodash/reduce';
-import { buildRefs, buildSubPaths } from './helpers';
-import { ModelRouterProps } from './interfaces';
+import { GlobalOptions, ModelRouterOptions } from './interfaces';
 
-export interface GlobalOptions {
-  permissionField?: string;
-  idParam?: string;
-  globalPermissions?: () => any;
-}
-
+////////////////////
+// Global Options //
+////////////////////
 const defaultGlobalOptions: GlobalOptions = {
   permissionField: '_permissions',
   idParam: 'id',
+  queryPath: '__query',
   globalPermissions: () => ({}),
 };
 
 let currentGlobalOptions = { ...defaultGlobalOptions };
-let modelOptions = {};
 
 export const setGlobalOptions = (options: GlobalOptions) => {
   currentGlobalOptions = { ...defaultGlobalOptions, ...currentGlobalOptions, ...options };
 };
 
-export const setGlobalOption = (optionKey: string, value: any) => {
-  set(currentGlobalOptions, optionKey, value);
+export const setGlobalOption = (key: string, value: any) => {
+  set(currentGlobalOptions, key, value);
 };
 
-export const getGlobalOption = (optionKey: string, defaultValue?: any) =>
-  get(currentGlobalOptions, optionKey, defaultValue);
+export const getGlobalOption = (key: string, defaultValue?: any) => get(currentGlobalOptions, key, defaultValue);
 
-const updateModelOptions = (modelName: string) => {
+////////////////////
+// Model Options //
+////////////////////
+const defaultModelOptions: ModelRouterOptions = {
+  baseUrl: null,
+  listHardLimit: 1000,
+  permissionField: '_permissions',
+  mandatoryFields: [],
+  identifier: '_id',
+  idParam: '',
+  queryPath: '',
+};
+
+let modelOptions = {};
+
+const _syncModelOptions = (modelName: string) => {
   const options = modelOptions[modelName];
   if (!options) return;
 
@@ -40,26 +48,29 @@ const updateModelOptions = (modelName: string) => {
   }
 };
 
-export const setModelOptions = (modelName: string, options: ModelRouterProps) => {
-  modelOptions[modelName] = options;
-  updateModelOptions(modelName);
+export const setModelOptions = (modelName: string, options: ModelRouterOptions): ModelRouterOptions => {
+  modelOptions[modelName] = { ...defaultModelOptions, ...(modelOptions[modelName] || {}), ...(options || {}) };
+  _syncModelOptions(modelName);
+  return modelOptions[modelName];
 };
 
-export const setModelOption = (modelName: string, optionKey: string, option: any) => {
+export const setModelOption = (modelName: string, key: string, value: any): ModelRouterOptions => {
   if (!modelOptions[modelName]) modelOptions[modelName] = {};
 
-  set(modelOptions[modelName], optionKey, option);
-  updateModelOptions(modelName);
+  set(modelOptions[modelName], key, value);
+  _syncModelOptions(modelName);
+  return modelOptions[modelName];
 };
 
-export const getModelOptions = (modelName: string) => {
-  return get(modelOptions, modelName, { baseUrl: null });
+export const getModelOptions = (modelName: string): ModelRouterOptions => {
+  return get(modelOptions, modelName, defaultModelOptions);
 };
-export const getModelOption = (modelName: string, optionKey: string, defaultValue?: any) => {
-  const keys = optionKey.split('.');
-  if (keys.length === 1) return get(modelOptions, `${modelName}.${optionKey}`, defaultValue);
 
-  let option = get(modelOptions, `${modelName}.${optionKey}`, undefined);
+export const getModelOption = (modelName: string, key: string, defaultValue?: any) => {
+  const keys = key.split('.');
+  if (keys.length === 1) return get(modelOptions, `${modelName}.${key}`, defaultValue);
+
+  let option = get(modelOptions, `${modelName}.${key}`, undefined);
   if (option) return option;
 
   const parentKey = keys.slice(0, -1).join('.');

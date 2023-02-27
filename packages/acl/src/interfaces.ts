@@ -1,3 +1,10 @@
+export interface GlobalOptions {
+  permissionField?: string;
+  idParam?: string;
+  queryPath?: string;
+  globalPermissions?: () => any;
+}
+
 export type Validation = boolean | string | string[] | Function;
 
 interface Access {
@@ -105,13 +112,13 @@ export interface Defaults {
   findOne?: FindOneProps;
 }
 
-export interface RootRouterProps {
+export interface RootRouterOptions {
   baseUrl: string | null | undefined | false;
   routeGuard?: Validation;
 }
 
-export interface ModelRouterProps {
-  baseUrl: string | null | undefined | false;
+export interface ModelRouterOptions {
+  baseUrl?: string | null | undefined | false;
   listHardLimit?: number;
   permissionSchema?: PermissionSchema;
   permissionSchemaKeys?: string[];
@@ -127,6 +134,8 @@ export interface ModelRouterProps {
   transform?: any;
   identifier?: string | Function;
   defaults?: Defaults;
+  idParam?: string;
+  queryPath?: string;
 }
 
 interface KeyValueProjection {

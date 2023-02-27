@@ -12,7 +12,7 @@ import flatten from 'lodash/flatten';
 import { normalizeSelect, iterateQuery, CustomError } from './helpers';
 import Controller from './controller';
 import {
-  ModelRouterProps,
+  ModelRouterOptions,
   MiddlewareContext,
   SubPopulate,
   ListProps,
@@ -23,6 +23,7 @@ import {
   Defaults,
   Populate,
 } from './interfaces';
+import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
 const filterChildren = (children, query) => {
   if (isPlainObject(query))
@@ -64,7 +65,7 @@ class PublicController extends Controller {
 
     query = await iterateQuery(query, async (sq, key) => {
       const { model, mapper, ...rest } = sq;
-      const m = this.req._macl(model);
+      const m = this.req[CORE]._public(model);
       const arr = await m.list(rest);
       if (mapper) {
         const m = mapper.multi === false ? false : true;
@@ -83,10 +84,10 @@ class PublicController extends Controller {
 
     let pagination = null;
     [query, select, populate, pagination] = await Promise.all([
-      this.req._genQuery(this.modelName, 'list', query),
-      this.req._genSelect(this.modelName, 'list', select),
-      this.req._genPopulate(this.modelName, populateAccess, populate),
-      this.req._genPagination({ limit, page }, this.options.listHardLimit),
+      this.req[CORE]._genQuery(this.modelName, 'list', query),
+      this.req[CORE]._genSelect(this.modelName, 'list', select),
+      this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
+      this.req[CORE]._genPagination({ limit, page }, this.options.listHardLimit),
     ]);
 
     if (query === false) return [];
@@ -97,14 +98,17 @@ class PublicController extends Controller {
     let docs = await this.model.find({ query, select, sort, populate, lean, ...pagination });
     docs = await Promise.all(
       docs.map(async (doc) => {
-        if (includePermissions) doc = await this.req._permit(this.modelName, doc, 'list');
-        doc = await this.req._pickAllowedFields(this.modelName, doc, 'list', ['_id', this.options.permissionField]);
-        return this.req._decorate(this.modelName, doc, 'list');
+        if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'list');
+        doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'list', [
+          '_id',
+          this.options.permissionField,
+        ]);
+        return this.req[CORE]._decorate(this.modelName, doc, 'list');
       }),
     );
 
-    let rows = await this.req._decorateAll(this.modelName, docs, 'list');
-    rows = rows.map((row) => this.req._process(this.modelName, row, process));
+    let rows = await this.req[CORE]._decorateAll(this.modelName, docs, 'list');
+    rows = rows.map((row) => this.req[CORE]._process(this.modelName, row, process));
 
     if (includeCount) {
       return {
@@ -128,10 +132,10 @@ class PublicController extends Controller {
       arr.map(async (item) => {
         const context: MiddlewareContext = { originalData: item };
 
-        const allowedFields = await this.req._genAllowedFields(this.modelName, item, 'create');
+        const allowedFields = await this.req[CORE]._genAllowedFields(this.modelName, item, 'create');
         const allowedData = pick(item, allowedFields);
 
-        const validated = await this.req._validate(this.modelName, allowedData, 'create', context);
+        const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'create', context);
         if (isBoolean(validated)) {
           if (!validated) throw new CustomError({ statusCode: 400, message: 'validation failed' });
         } else if (isArray(validated)) {
@@ -139,7 +143,7 @@ class PublicController extends Controller {
             throw new CustomError({ statusCode: 400, message: 'validation failed', errors: validated });
         }
 
-        const preparedData = await this.req._prepare(this.modelName, allowedData, 'create', context);
+        const preparedData = await this.req[CORE]._prepare(this.modelName, allowedData, 'create', context);
 
         context.preparedData = preparedData;
         contexts.push(context);
@@ -150,9 +154,12 @@ class PublicController extends Controller {
     let docs = await this.model.create(items);
     docs = await Promise.all(
       docs.map(async (doc, index) => {
-        if (includePermissions) doc = await this.req._permit(this.modelName, doc, 'create', contexts[index]);
-        doc = await this.req._pickAllowedFields(this.modelName, doc, 'read', ['_id', this.options.permissionField]);
-        return this.req._decorate(this.modelName, doc, 'create', contexts[index]);
+        if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'create', contexts[index]);
+        doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', [
+          '_id',
+          this.options.permissionField,
+        ]);
+        return this.req[CORE]._decorate(this.modelName, doc, 'create', contexts[index]);
       }),
     );
 
@@ -174,7 +181,7 @@ class PublicController extends Controller {
   ) {
     let access = 'read';
     const { includePermissions = true, tryList = true, populateAccess, lean = false } = options;
-    const idQuery = await this.req._genIDQuery(this.modelName, id);
+    const idQuery = await this.req[CORE]._genIDQuery(this.modelName, id);
 
     let doc = await this.findById(id, {
       select,
@@ -197,9 +204,9 @@ class PublicController extends Controller {
 
     if (!doc) return null;
 
-    doc = await this.req._pickAllowedFields(this.modelName, doc, access, ['_id', this.options.permissionField]);
-    doc = await this.req._decorate(this.modelName, doc, access);
-    doc = this.req._process(this.modelName, doc, process);
+    doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, access, ['_id', this.options.permissionField]);
+    doc = await this.req[CORE]._decorate(this.modelName, doc, access);
+    doc = this.req[CORE]._process(this.modelName, doc, process);
 
     return doc;
   }
@@ -207,7 +214,11 @@ class PublicController extends Controller {
   async update(id, data, options: UpdateOptionProps = this.defaults.update || {}) {
     const { returningAll = true } = options;
 
-    let query = await this.req._genQuery(this.modelName, 'update', await this.req._genIDQuery(this.modelName, id));
+    let query = await this.req[CORE]._genQuery(
+      this.modelName,
+      'update',
+      await this.req[CORE]._genIDQuery(this.modelName, id),
+    );
     if (query === false) return null;
 
     let doc = await this.model.findOne({ query });
@@ -218,13 +229,13 @@ class PublicController extends Controller {
     context.originalDoc = doc.toObject();
     context.originalData = data;
 
-    doc = await this.req._permit(this.modelName, doc, 'update', context);
+    doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
 
     context.currentDoc = doc;
-    const allowedFields = await this.req._genAllowedFields(this.modelName, doc, 'update');
+    const allowedFields = await this.req[CORE]._genAllowedFields(this.modelName, doc, 'update');
     const allowedData = pick(data, allowedFields);
 
-    const validated = await this.req._validate(this.modelName, allowedData, 'update', context);
+    const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'update', context);
     if (isBoolean(validated)) {
       if (!validated) throw new CustomError({ statusCode: 400, message: 'validation failed' });
     } else if (isArray(validated)) {
@@ -232,24 +243,28 @@ class PublicController extends Controller {
         throw new CustomError({ statusCode: 400, message: 'validation failed', errors: validated });
     }
 
-    const prepared = await this.req._prepare(this.modelName, allowedData, 'update', context);
+    const prepared = await this.req[CORE]._prepare(this.modelName, allowedData, 'update', context);
 
     context.preparedData = prepared;
     Object.assign(doc, prepared);
 
     context.modifiedPaths = doc.modifiedPaths();
-    doc = await this.req._transform(this.modelName, doc, 'update', context);
+    doc = await this.req[CORE]._transform(this.modelName, doc, 'update', context);
     context.modifiedPaths = doc.modifiedPaths();
     doc = await doc.save();
-    doc = await this.req._permit(this.modelName, doc, 'update', context);
-    doc = await this.req._pickAllowedFields(this.modelName, doc, 'read', ['_id', this.options.permissionField]);
-    doc = await this.req._decorate(this.modelName, doc, 'update', context, true);
+    doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
+    doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', ['_id', this.options.permissionField]);
+    doc = await this.req[CORE]._decorate(this.modelName, doc, 'update', context, true);
 
     return returningAll ? doc : pick(doc, Object.keys(data));
   }
 
   async delete(id) {
-    let query = await this.req._genQuery(this.modelName, 'delete', await this.req._genIDQuery(this.modelName, id));
+    let query = await this.req[CORE]._genQuery(
+      this.modelName,
+      'delete',
+      await this.req[CORE]._genIDQuery(this.modelName, id),
+    );
     if (query === false) return null;
 
     let doc = await this.model.findOneAndRemove(query);
@@ -262,7 +277,7 @@ class PublicController extends Controller {
   async distinct(field, options: DistinctOptionProps = this.defaults.distinct || {}) {
     let { query } = options;
 
-    query = await this.req._genQuery(this.modelName, 'read', query);
+    query = await this.req[CORE]._genQuery(this.modelName, 'read', query);
     if (query === false) return null;
 
     const result = await this.model.distinct(field, query);
@@ -272,17 +287,17 @@ class PublicController extends Controller {
   }
 
   async count(query, access = 'list') {
-    query = await this.req._genQuery(this.modelName, access, query);
+    query = await this.req[CORE]._genQuery(this.modelName, access, query);
     if (query === false) return 0;
 
     return this.model.countDocuments(query);
   }
 
   private async getParentDoc(id, sub, access, populate = []) {
-    const parentQuery = await this.req._genQuery(
+    const parentQuery = await this.req[CORE]._genQuery(
       this.modelName,
       access,
-      await this.req._genIDQuery(this.modelName, id),
+      await this.req[CORE]._genIDQuery(this.modelName, id),
     );
 
     if (parentQuery === false) return null;
@@ -297,8 +312,8 @@ class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subQuery, subSelect] = await Promise.all([
-      this.req._genQuery(this.modelName, `subs.${sub}.list`, ft),
-      this.req._genSelect(this.modelName, 'list', fields, false, [sub, 'sub']),
+      this.req[CORE]._genQuery(this.modelName, `subs.${sub}.list`, ft),
+      this.req[CORE]._genSelect(this.modelName, 'list', fields, false, [sub, 'sub']),
     ]);
 
     result = filterChildren(result, subQuery);
@@ -314,8 +329,8 @@ class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subQuery, subSelect] = await Promise.all([
-      this.req._genQuery(this.modelName, `subs.${sub}.read`),
-      this.req._genSelect(this.modelName, 'read', fields, false, [sub, 'sub']),
+      this.req[CORE]._genQuery(this.modelName, `subs.${sub}.read`),
+      this.req[CORE]._genSelect(this.modelName, 'read', fields, false, [sub, 'sub']),
     ]);
 
     result = filterChildren(result, subQuery);
@@ -332,9 +347,9 @@ class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subQuery, subReadSelect, subUpdateSelect] = await Promise.all([
-      this.req._genQuery(this.modelName, `subs.${sub}.update`),
-      this.req._genSelect(this.modelName, 'read', null, false, [sub, 'sub']),
-      this.req._genSelect(this.modelName, 'update', null, false, [sub, 'sub']),
+      this.req[CORE]._genQuery(this.modelName, `subs.${sub}.update`),
+      this.req[CORE]._genSelect(this.modelName, 'read', null, false, [sub, 'sub']),
+      this.req[CORE]._genSelect(this.modelName, 'update', null, false, [sub, 'sub']),
     ]);
 
     result = filterChildren(result, subQuery);
@@ -357,8 +372,8 @@ class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subCreateSelect, subReadSelect] = await Promise.all([
-      this.req._genSelect(this.modelName, 'create', null, false, [sub, 'sub']),
-      this.req._genSelect(this.modelName, 'read', null, false, [sub, 'sub']),
+      this.req[CORE]._genSelect(this.modelName, 'create', null, false, [sub, 'sub']),
+      this.req[CORE]._genSelect(this.modelName, 'read', null, false, [sub, 'sub']),
     ]);
 
     const allowedData = pick(data, subCreateSelect);
@@ -374,7 +389,7 @@ class PublicController extends Controller {
     if (!parentDoc) return null;
     let result = get(parentDoc, sub);
 
-    const subQuery = await this.req._genQuery(this.modelName, `subs.${sub}.delete`);
+    const subQuery = await this.req[CORE]._genQuery(this.modelName, `subs.${sub}.delete`);
 
     result = filterChildren(result, subQuery);
     result = result.find((v) => String(v._id) === subId);

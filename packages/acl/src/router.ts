@@ -3,16 +3,18 @@ import JsonRouter from 'express-json-router';
 import get from 'lodash/get';
 import pick from 'lodash/pick';
 import isNil from 'lodash/isNil';
+import { isArray } from 'lodash';
 import isUndefined from 'lodash/isUndefined';
 import isString from 'lodash/isString';
 import intersection from 'lodash/intersection';
 import Model from './model';
+import { checkIfReady, listen } from './meta';
 
 import { setGenerators } from './generators';
 import { getGlobalOption, setModelOptions, setModelOption, getModelOptions } from './options';
 import { getModelSub } from './meta';
-import { RootRouterProps, ModelRouterProps, Validation, RootQueryEntry } from './interfaces';
-import { isArray } from 'lodash';
+import { RootRouterOptions, ModelRouterOptions, Validation, RootQueryEntry } from './interfaces';
+import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
 JsonRouter.errorMessageProvider = function (error) {
   console.error(error);
@@ -36,44 +38,44 @@ function setOption(parentKey: string, optionKey: any, option?: any) {
 
 const parseBooleanString = (str: string, defaultValue?: any) => (str ? str === 'true' : defaultValue);
 
-const defaultModelOptions = {
-  listHardLimit: 1000,
-  permissionField: '_permissions',
-  mandatoryFields: [],
-  identifier: '_id',
-};
-
 export class ModelRouter {
   modelName: string;
   router: JsonRouter;
   model: Model;
   basename: string;
   idParam: string;
+  queryPath: string;
 
-  constructor(modelName: string, options: ModelRouterProps) {
+  constructor(modelName: string, options: ModelRouterOptions) {
+    const _options = setModelOptions(modelName, options);
+
     this.modelName = modelName;
-    const initOptions = { ...defaultModelOptions, ...options };
-
-    setModelOptions(modelName, initOptions);
-
-    const { baseUrl } = this.options;
-
     this.router = new JsonRouter();
     this.model = new Model(modelName);
 
-    if (baseUrl === false) {
+    if (_options.baseUrl === false) {
       this.basename = '';
-    } else if (isNil(baseUrl)) {
+    } else if (isNil(_options.baseUrl)) {
       this.basename = `/${pluralize(modelName)}`;
     } else {
-      this.basename = baseUrl;
+      this.basename = _options.baseUrl;
     }
 
-    this.idParam = getGlobalOption('idParam', 'id');
+    this.idParam = _options.idParam || getGlobalOption('idParam', 'id');
+    this.queryPath = _options.queryPath || getGlobalOption('queryPath', '__query');
     this.setCollectionRoutes();
     this.setDocumentRoutes();
-    this.setSubDocumentRoutes();
-    this.logEndpoints();
+
+    const runAsyncTasks = () => {
+      this.setSubDocumentRoutes();
+      this.logEndpoints();
+    };
+
+    if (checkIfReady()) {
+      runAsyncTasks();
+    } else {
+      listen(runAsyncTasks);
+    }
   }
 
   ///////////////////////
@@ -84,12 +86,12 @@ export class ModelRouter {
     // LIST //
     //////////
     this.router.get(`${this.basename}`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'list');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { limit, page, include_permissions, include_count, lean } = req.query;
 
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.list({
         limit,
         page,
@@ -104,14 +106,14 @@ export class ModelRouter {
     //////////////////
     // LIST - QUERY //
     //////////////////
-    this.router.post(`${this.basename}/__query`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'list');
+    this.router.post(`${this.basename}/${this.queryPath}`, setGenerators, async (req, res) => {
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       let { query, select, sort, populate, process, limit, page, options = {} } = req.body;
       const { includePermissions, includeCount, populateAccess, lean } = options;
 
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.list({
         query,
         select,
@@ -133,12 +135,12 @@ export class ModelRouter {
     // CREATE //
     ////////////
     this.router.post(`${this.basename}`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'create');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'create');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { include_permissions } = req.query;
 
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       const doc = await model.create(req.body, { includePermissions: parseBooleanString(include_permissions) });
 
       res.status(201).json(doc);
@@ -148,7 +150,7 @@ export class ModelRouter {
     // NEW - EMPTY //
     /////////////////
     this.router.get(`${this.basename}/new`, setGenerators, async (req, res) => {
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.empty();
     });
   }
@@ -161,12 +163,12 @@ export class ModelRouter {
     // READ //
     //////////
     this.router.get(`${this.basename}/:${this.idParam}`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'read');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const id = req.params[this.idParam];
       const { include_permissions, try_list, lean } = req.query;
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.read(id, {
         options: {
           includePermissions: parseBooleanString(include_permissions),
@@ -179,15 +181,15 @@ export class ModelRouter {
     //////////////////
     // READ - QUERY //
     //////////////////
-    this.router.post(`${this.basename}/__query/:${this.idParam}`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'read');
+    this.router.post(`${this.basename}/${this.queryPath}/:${this.idParam}`, setGenerators, async (req, res) => {
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const id = req.params[this.idParam];
       let { select, populate, process, options = {} } = req.body;
       const { includePermissions, tryList, populateAccess, lean } = options;
 
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.read(id, {
         select,
         populate,
@@ -200,13 +202,13 @@ export class ModelRouter {
     // UPDATE //
     ////////////
     this.router.put(`${this.basename}/:${this.idParam}`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'update');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'update');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const id = req.params[this.idParam];
       const { returning_all } = req.query;
 
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.update(id, req.body, { returningAll: parseBooleanString(returning_all) });
     });
 
@@ -214,11 +216,11 @@ export class ModelRouter {
     // DELETE //
     ////////////
     this.router.delete(`${this.basename}/:${this.idParam}`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'delete');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'delete');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const id = req.params[this.idParam];
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.delete(id);
     });
 
@@ -226,22 +228,22 @@ export class ModelRouter {
     // DISTINCT //
     //////////////
     this.router.get(`${this.basename}/distinct/:field`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'distinct');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'distinct');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { field } = req.params;
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.distinct(field);
     });
 
     this.router.post(`${this.basename}/distinct/:field`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'distinct');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'distinct');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { field } = req.params;
       const { query } = req.body;
 
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.distinct(field, { query });
     });
 
@@ -249,20 +251,20 @@ export class ModelRouter {
     // COUNT //
     ///////////
     this.router.get(`${this.basename}/count`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'count');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'count');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.count({});
     });
 
     this.router.post(`${this.basename}/count`, setGenerators, async (req, res) => {
-      const allowed = await req._isAllowed(this.modelName, 'count');
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'count');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { query, access } = req.body;
 
-      const model = req._macl(this.modelName);
+      const model = req[CORE]._public(this.modelName);
       return model.count(query, access);
     });
   }
@@ -280,62 +282,70 @@ export class ModelRouter {
       // LIST //
       //////////
       this.router.get(`${this.basename}/:${this.idParam}/${sub}`, setGenerators, async (req, res) => {
-        const allowed = await req._isAllowed(this.modelName, `subs.${sub}.list`);
+        const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.list`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.idParam];
-        const model = req._macl(this.modelName);
+        const model = req[CORE]._public(this.modelName);
         return model.listSub(id, sub);
       });
 
       //////////////////
       // LIST - QUERY //
       //////////////////
-      this.router.post(`${this.basename}/:${this.idParam}/${sub}/__query`, setGenerators, async (req, res) => {
-        const allowed = await req._isAllowed(this.modelName, `subs.${sub}.list`);
-        if (!allowed) throw new clientErrors.UnauthorizedError();
+      this.router.post(
+        `${this.basename}/:${this.idParam}/${sub}/${this.queryPath}`,
+        setGenerators,
+        async (req, res) => {
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.list`);
+          if (!allowed) throw new clientErrors.UnauthorizedError();
 
-        const id = req.params[this.idParam];
-        const model = req._macl(this.modelName);
-        return model.listSub(id, sub, req.body);
-      });
+          const id = req.params[this.idParam];
+          const model = req[CORE]._public(this.modelName);
+          return model.listSub(id, sub, req.body);
+        },
+      );
 
       //////////
       // READ //
       //////////
       this.router.get(`${this.basename}/:${this.idParam}/${sub}/:subId`, setGenerators, async (req, res) => {
-        const allowed = await req._isAllowed(this.modelName, `subs.${sub}.read`);
+        const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.read`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.idParam];
         const { subId } = req.params;
-        const model = req._macl(this.modelName);
+        const model = req[CORE]._public(this.modelName);
         return model.readSub(id, sub, subId);
       });
 
       //////////////////
       // READ - QUERY //
       //////////////////
-      this.router.post(`${this.basename}/:${this.idParam}/${sub}/:subId/__query`, setGenerators, async (req, res) => {
-        const allowed = await req._isAllowed(this.modelName, `subs.${sub}.read`);
-        if (!allowed) throw new clientErrors.UnauthorizedError();
+      this.router.post(
+        `${this.basename}/:${this.idParam}/${sub}/:subId/${this.queryPath}`,
+        setGenerators,
+        async (req, res) => {
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.read`);
+          if (!allowed) throw new clientErrors.UnauthorizedError();
 
-        const id = req.params[this.idParam];
-        const { subId } = req.params;
-        const model = req._macl(this.modelName);
-        return model.readSub(id, sub, subId, req.body);
-      });
+          const id = req.params[this.idParam];
+          const { subId } = req.params;
+          const model = req[CORE]._public(this.modelName);
+          return model.readSub(id, sub, subId, req.body);
+        },
+      );
 
       ////////////
       // UPDATE //
       ////////////
       this.router.put(`${this.basename}/:${this.idParam}/${sub}/:subId`, setGenerators, async (req, res) => {
-        const allowed = await req._isAllowed(this.modelName, `subs.${sub}.update`);
+        const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.update`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.idParam];
         const { subId } = req.params;
-        const model = req._macl(this.modelName);
+        const model = req[CORE]._public(this.modelName);
         return model.updateSub(id, sub, subId, req.body);
       });
 
@@ -343,11 +353,11 @@ export class ModelRouter {
       // CREATE //
       ////////////
       this.router.post(`${this.basename}/:${this.idParam}/${sub}`, setGenerators, async (req, res) => {
-        const allowed = await req._isAllowed(this.modelName, `subs.${sub}.create`);
+        const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.create`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.idParam];
-        const model = req._macl(this.modelName);
+        const model = req[CORE]._public(this.modelName);
         return model.createSub(id, sub, req.body);
       });
 
@@ -355,12 +365,12 @@ export class ModelRouter {
       // DELETE //
       ////////////
       this.router.delete(`${this.basename}/:${this.idParam}/${sub}/:subId`, setGenerators, async (req, res) => {
-        const allowed = await req._isAllowed(this.modelName, `subs.${sub}.delete`);
+        const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.delete`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.idParam];
         const { subId } = req.params;
-        const model = req._macl(this.modelName);
+        const model = req[CORE]._public(this.modelName);
         return model.deleteSub(id, sub, subId);
       });
     }
@@ -480,19 +490,22 @@ export class RootRouter {
   router: JsonRouter;
   basename: string;
   routeGuard: Validation;
+  queryPath: string;
 
-  constructor(options: RootRouterProps = { baseUrl: '', routeGuard: true }) {
+  constructor(options: RootRouterOptions = { baseUrl: '', routeGuard: true }) {
     const { baseUrl, routeGuard } = options;
 
     this.router = new JsonRouter();
     this.basename = baseUrl || '';
     this.routeGuard = routeGuard;
+    this.queryPath = getGlobalOption('queryPath', '__query');
+
     this.setRoutes();
   }
 
   private setRoutes() {
-    this.router.post(`${this.basename}/__query`, setGenerators, async (req, res) => {
-      const allowed = await req._canActivate(this.routeGuard);
+    this.router.post(`${this.basename}/${this.queryPath}`, setGenerators, async (req, res) => {
+      const allowed = await req[CORE]._canActivate(this.routeGuard);
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const items = req.body || [];
@@ -501,7 +514,7 @@ export class RootRouter {
           if (!['list', 'create', 'empty', 'read', 'update', 'delete', 'distinct', 'count'].includes(item.operation))
             return null;
 
-          const model = req._macl(item.modelName);
+          const model = req[CORE]._public(item.modelName);
           const op = model[item.operation].bind(model);
           return isArray(item.arguments) ? op(...item.arguments) : op(item.arguments);
         }),
