@@ -4,6 +4,8 @@ import isFunction from 'lodash/isFunction';
 import isPlainObject from 'lodash/isPlainObject';
 
 export const isSchema = (val) => val instanceof Schema;
+// todo; try importing Schema from 'mongoose' directly; import { Schema } from 'mongoose'
+// in case the comparison does not work.
 export const isObjectIdType = (val) => val === 'ObjectId' || val === Schema.Types.ObjectId;
 export const isReference = (val) => isPlainObject(val) && val.ref && isObjectIdType(val.type);
 
