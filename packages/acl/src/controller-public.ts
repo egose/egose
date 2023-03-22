@@ -1,14 +1,14 @@
-import get from 'lodash/get';
-import pick from 'lodash/pick';
-import isNil from 'lodash/isNil';
-import isArray from 'lodash/isArray';
-import isPlainObject from 'lodash/isPlainObject';
-import isBoolean from 'lodash/isBoolean';
-import isString from 'lodash/isString';
-import isMatch from 'lodash/isMatch';
-import filter from 'lodash/filter';
 import compact from 'lodash/compact';
+import filter from 'lodash/filter';
 import flatten from 'lodash/flatten';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
+import isMatch from 'lodash/isMatch';
+import isNil from 'lodash/isNil';
+import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString';
+import pick from 'lodash/pick';
 import { normalizeSelect, iterateQuery, CustomError } from './helpers';
 import Controller from './controller';
 import {
@@ -17,11 +17,12 @@ import {
   SubPopulate,
   ListProps,
   ReadProps,
-  CreateOptionProps,
-  UpdateOptionProps,
-  DistinctOptionProps,
+  CreateOptions,
+  UpdateOptions,
+  DistinctOptions,
   Defaults,
   Populate,
+  Request,
 } from './interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
@@ -51,61 +52,34 @@ const genSubPopulate = (sub: string, popul: any) => {
 };
 
 class PublicController extends Controller {
-  async list({
+  async _list({
     query = {},
     select = this.defaults.list?.select,
-    sort = this.defaults.list?.sort,
     populate = this.defaults.list?.populate,
-    process = [],
+    sort = this.defaults.list?.sort,
     limit = this.defaults.list?.limit,
     page = this.defaults.list?.page,
+    process = [],
     options = this.defaults.list?.options || {},
   }: ListProps = {}) {
     const { includePermissions = true, includeCount = false, populateAccess = 'read', lean = false } = options;
 
-    query = await iterateQuery(query, async (sq, key) => {
-      const { model, mapper, ...rest } = sq;
-      const m = this.req[CORE]._public(model);
-      const arr = await m.list(rest);
-      if (mapper) {
-        const m = mapper.multi === false ? false : true;
-        const c = mapper.compact === true;
-        const f = mapper.flatten === true;
-        const path = mapper.path || mapper;
-        if (!m) return get(arr[0], path, isNil(mapper.defaultValue) ? null : mapper.defaultValue);
-
-        let items = arr.map((v) => get(v, path));
-        if (f) items = flatten(items);
-        if (c) items = compact(items);
-        return items;
-      }
-      return arr;
-    });
-
-    let pagination = null;
-    [query, select, populate, pagination] = await Promise.all([
-      this.req[CORE]._genQuery(this.modelName, 'list', query),
-      this.req[CORE]._genSelect(this.modelName, 'list', select),
-      this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
-      this.req[CORE]._genPagination({ limit, page }, this.options.listHardLimit),
-    ]);
-
-    if (query === false) return [];
-
-    // prevent populate paths from updating query select fields
-    if (select) populate = (populate as Populate[]).filter((p) => select.includes(p.path.split('.')[0]));
-
-    let docs = await this.model.find({ query, select, sort, populate, lean, ...pagination });
-    docs = await Promise.all(
-      docs.map(async (doc) => {
-        if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'list');
+    let docs = await this.find({
+      query,
+      select,
+      populate,
+      sort,
+      limit,
+      page,
+      options: { includePermissions, populateAccess, lean },
+      decorate: async (doc) => {
         doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'list', [
           '_id',
           this.options.permissionField,
         ]);
         return this.req[CORE]._decorate(this.modelName, doc, 'list');
-      }),
-    );
+      },
+    });
 
     let rows = await this.req[CORE]._decorateAll(this.modelName, docs, 'list');
     rows = rows.map((row) => this.req[CORE]._process(this.modelName, row, process));
@@ -120,57 +94,22 @@ class PublicController extends Controller {
     }
   }
 
-  async create(data, options: CreateOptionProps = this.defaults.create || {}) {
-    const { includePermissions = true } = options as any;
+  async _create(data, options: CreateOptions = this.defaults.create || {}) {
+    const { includePermissions = true } = options;
 
-    const isArr = Array.isArray(data);
-    let arr = isArr ? data : [data];
+    const result = await this.create(data, { includePermissions }, async (doc, context: MiddlewareContext) => {
+      doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', ['_id', this.options.permissionField]);
+      return this.req[CORE]._decorate(this.modelName, doc, 'create', context);
+    });
 
-    const contexts: MiddlewareContext[] = [];
-
-    const items = await Promise.all(
-      arr.map(async (item) => {
-        const context: MiddlewareContext = { originalData: item };
-
-        const allowedFields = await this.req[CORE]._genAllowedFields(this.modelName, item, 'create');
-        const allowedData = pick(item, allowedFields);
-
-        const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'create', context);
-        if (isBoolean(validated)) {
-          if (!validated) throw new CustomError({ statusCode: 400, message: 'validation failed' });
-        } else if (isArray(validated)) {
-          if (validated.length > 0)
-            throw new CustomError({ statusCode: 400, message: 'validation failed', errors: validated });
-        }
-
-        const preparedData = await this.req[CORE]._prepare(this.modelName, allowedData, 'create', context);
-
-        context.preparedData = preparedData;
-        contexts.push(context);
-        return preparedData;
-      }),
-    );
-
-    let docs = await this.model.create(items);
-    docs = await Promise.all(
-      docs.map(async (doc, index) => {
-        if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'create', contexts[index]);
-        doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', [
-          '_id',
-          this.options.permissionField,
-        ]);
-        return this.req[CORE]._decorate(this.modelName, doc, 'create', contexts[index]);
-      }),
-    );
-
-    return isArr ? docs : docs[0];
+    return result;
   }
 
-  async empty() {
-    return this.model.new();
+  async _empty() {
+    return this.empty();
   }
 
-  async read(
+  async _read(
     id,
     {
       select = this.defaults.read?.select,
@@ -211,86 +150,32 @@ class PublicController extends Controller {
     return doc;
   }
 
-  async update(id, data, options: UpdateOptionProps = this.defaults.update || {}) {
+  async _update(id: string, data, options: UpdateOptions = this.defaults.update || {}) {
     const { returningAll = true } = options;
 
-    let query = await this.req[CORE]._genQuery(
-      this.modelName,
-      'update',
-      await this.req[CORE]._genIDQuery(this.modelName, id),
-    );
-    if (query === false) return null;
+    const result = await this.update(id, data, async (doc, context: MiddlewareContext) => {
+      doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', ['_id', this.options.permissionField]);
+      doc = await this.req[CORE]._decorate(this.modelName, doc, 'update', context);
 
-    let doc = await this.model.findOne({ query });
-    if (!doc) return null;
-
-    const context: MiddlewareContext = {};
-
-    context.originalDoc = doc.toObject();
-    context.originalData = data;
-
-    doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
-
-    context.currentDoc = doc;
-    const allowedFields = await this.req[CORE]._genAllowedFields(this.modelName, doc, 'update');
-    const allowedData = pick(data, allowedFields);
-
-    const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'update', context);
-    if (isBoolean(validated)) {
-      if (!validated) throw new CustomError({ statusCode: 400, message: 'validation failed' });
-    } else if (isArray(validated)) {
-      if (validated.length > 0)
-        throw new CustomError({ statusCode: 400, message: 'validation failed', errors: validated });
-    }
-
-    const prepared = await this.req[CORE]._prepare(this.modelName, allowedData, 'update', context);
-
-    context.preparedData = prepared;
-    Object.assign(doc, prepared);
-
-    context.modifiedPaths = doc.modifiedPaths();
-    doc = await this.req[CORE]._transform(this.modelName, doc, 'update', context);
-    context.modifiedPaths = doc.modifiedPaths();
-    doc = await doc.save();
-    doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
-    doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', ['_id', this.options.permissionField]);
-    doc = await this.req[CORE]._decorate(this.modelName, doc, 'update', context, true);
-
-    return returningAll ? doc : pick(doc, Object.keys(data));
-  }
-
-  async delete(id) {
-    let query = await this.req[CORE]._genQuery(
-      this.modelName,
-      'delete',
-      await this.req[CORE]._genIDQuery(this.modelName, id),
-    );
-    if (query === false) return null;
-
-    let doc = await this.model.findOneAndRemove(query);
-    if (!doc) return null;
-
-    await doc.remove();
-    return doc._id;
-  }
-
-  async distinct(field, options: DistinctOptionProps = this.defaults.distinct || {}) {
-    let { query } = options;
-
-    query = await this.req[CORE]._genQuery(this.modelName, 'read', query);
-    if (query === false) return null;
-
-    const result = await this.model.distinct(field, query);
-    if (!result) return null;
+      return returningAll ? doc : pick(doc, Object.keys(data));
+    });
 
     return result;
   }
 
-  async count(query, access = 'list') {
-    query = await this.req[CORE]._genQuery(this.modelName, access, query);
-    if (query === false) return 0;
+  async _delete(id: string) {
+    const result = await this.delete(id);
+    return result;
+  }
 
-    return this.model.countDocuments(query);
+  async _distinct(field: string, options: DistinctOptions = this.defaults.distinct || {}) {
+    const result = await this.distinct(field, options);
+    return result;
+  }
+
+  async _count(query, access = 'list') {
+    const result = await this.count(query, access);
+    return result;
   }
 
   private async getParentDoc(id, sub, access, populate = []) {

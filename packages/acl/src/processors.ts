@@ -1,10 +1,10 @@
-import get from 'lodash/get';
-import set from 'lodash/set';
-import map from 'lodash/map';
 import castArray from 'lodash/castArray';
-import isArray from 'lodash/isArray';
 import cloneDeep from 'lodash/cloneDeep';
 import forEach from 'lodash/forEach';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import map from 'lodash/map';
+import set from 'lodash/set';
 
 interface ProcessCopy {
   src: string;

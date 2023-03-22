@@ -29,6 +29,7 @@ describe('Create Users', () => {
     expect(response.body.name).to.equal('lucy');
     expect(response.body.role).to.equal('user');
     expect(response.body.public).to.equal(true);
+    expect(response.body._createdBy).to.equal('egose');
   });
 });
 

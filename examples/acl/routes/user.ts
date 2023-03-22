@@ -85,6 +85,10 @@ export const userRouter = macl.createRouter('User', {
         return doc;
       },
     ],
+    create: function (doc) {
+      doc._createdBy = 'egose';
+      return doc;
+    },
   },
 });
 

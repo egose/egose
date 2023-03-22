@@ -1,20 +1,20 @@
-import get from 'lodash/get';
-import set from 'lodash/set';
 import assign from 'lodash/assign';
-import isBoolean from 'lodash/isBoolean';
-import isString from 'lodash/isString';
-import isArray from 'lodash/isArray';
 import castArray from 'lodash/castArray';
+import compact from 'lodash/compact';
+import difference from 'lodash/difference';
+import forEach from 'lodash/forEach';
+import get from 'lodash/get';
+import intersection from 'lodash/intersection';
+import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
+import isEmpty from 'lodash/isEmpty';
 import isFunction from 'lodash/isFunction';
 import isNaN from 'lodash/isNaN';
-import isEmpty from 'lodash/isEmpty';
 import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
-import forEach from 'lodash/forEach';
-import compact from 'lodash/compact';
-import intersection from 'lodash/intersection';
-import difference from 'lodash/difference';
+import set from 'lodash/set';
 import { getGlobalOption, getModelOption } from './options';
 import { getModelRef } from './meta';
 import { Populate, Projection, MiddlewareContext, Validation } from './interfaces';
@@ -69,7 +69,16 @@ export async function genQuery(modelName: string, access: string = 'read', _quer
   return { $and: [baseQuery, _query] };
 }
 
-export function genPagination({ page = 1, limit }, hardLimit) {
+export function genPagination(
+  {
+    page = 1,
+    limit,
+  }: {
+    page?: number | string;
+    limit: any;
+  },
+  hardLimit,
+) {
   limit = Number(limit);
   page = Number(page);
   if (isNaN(limit) || limit > hardLimit) limit = hardLimit;
@@ -302,14 +311,14 @@ export async function decorate(modelName: string, doc: any, access: string, cont
   return callMiddleware(this, decorate, doc, permissions, context);
 }
 
-export async function decorateAll(modelName, docs, access) {
+export async function decorateAll(modelName: string, docs: any[], access: string) {
   const decorateAll = getModelOption(modelName, `decorateAll.${access}`, null);
   const permissions = this[PERMISSIONS];
 
   return callMiddleware(this, decorateAll, docs, permissions, {});
 }
 
-export function process(modelName, docObject, pipeline) {
+export function process(modelName: string, docObject: any, pipeline) {
   const pipelines = compact(castArray(pipeline));
   if (pipelines.length === 0) return docObject;
 
@@ -369,13 +378,38 @@ export async function isAllowed(modelName, access) {
   return this[CORE]._canActivate(routeGuard);
 }
 
-export function macl(modelName: string) {
+export function getController(modelName: string) {
   return new Controller(this, modelName);
 }
 
-export function maclExt(modelName: string) {
+export function getPublicController(modelName: string) {
   return new PublicController(this, modelName);
 }
+
+export interface MaclCore {
+  _genIDQuery: typeof genIDQuery;
+  _genQuery: typeof genQuery;
+  _genPagination: typeof genPagination;
+  _genAllowedFields: typeof genAllowedFields;
+  _genSelect: typeof genSelect;
+  _pickAllowedFields: typeof pickAllowedFields;
+  _genPopulate: typeof genPopulate;
+  _genDocPermissions: typeof genDocPermissions;
+  _validate: typeof validate;
+  _prepare: typeof prepare;
+  _transform: typeof transform;
+  _permit: typeof permit;
+  _decorate: typeof decorate;
+  _decorateAll: typeof decorateAll;
+  _process: typeof process;
+  _getPermissions: typeof getPermissions;
+  _setPermissions: typeof setPermissions;
+  _canActivate: typeof canActivate;
+  _isAllowed: typeof isAllowed;
+  _public: typeof getPublicController;
+}
+
+export type ControllerFactory = typeof getController;
 
 export async function setGenerators(req, res, next) {
   if (req[MIDDLEWARE]) return next();
@@ -399,10 +433,10 @@ export async function setGenerators(req, res, next) {
     _setPermissions: setPermissions.bind(req),
     _canActivate: canActivate.bind(req),
     _isAllowed: isAllowed.bind(req),
-    _public: maclExt.bind(req),
-  };
+    _public: getPublicController.bind(req),
+  } as MaclCore;
 
-  req.macl = macl.bind(req);
+  req.macl = getController.bind(req);
   assign(req.macl, req[CORE]);
 
   // backward compatibility
