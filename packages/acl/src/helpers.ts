@@ -1,18 +1,18 @@
 // @ts-nocheck
-import get from 'lodash/get';
-import set from 'lodash/set';
-import map from 'lodash/map';
 import castArray from 'lodash/castArray';
-import isObject from 'lodash/isObject';
-import isEmpty from 'lodash/isEmpty';
-import isArray from 'lodash/isArray';
-import isString from 'lodash/isString';
-import isPlainObject from 'lodash/isPlainObject';
-import reduce from 'lodash/reduce';
-import noop from 'lodash/noop';
 import cloneDeep from 'lodash/cloneDeep';
-import forEach from 'lodash/forEach';
 import flattenDeep from 'lodash/flattenDeep';
+import forEach from 'lodash/forEach';
+import get from 'lodash/get';
+import isArray from 'lodash/isArray';
+import isEmpty from 'lodash/isEmpty';
+import isObject from 'lodash/isObject';
+import isPlainObject from 'lodash/isPlainObject';
+import isString from 'lodash/isString';
+import map from 'lodash/map';
+import noop from 'lodash/noop';
+import reduce from 'lodash/reduce';
+import set from 'lodash/set';
 import { isSchema, isReference } from './lib';
 import { Projection } from './interfaces';
 

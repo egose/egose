@@ -2,14 +2,18 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import { GlobalOptions, ModelRouterOptions } from './interfaces';
 
+export const DEFAULT_QUERY_PATH = '__query';
+export const DEFAULT_MUTATION_PATH = '__mutation';
+
 ////////////////////
 // Global Options //
 ////////////////////
 const defaultGlobalOptions: GlobalOptions = {
   permissionField: '_permissions',
-  idParam: 'id',
-  queryPath: '__query',
   globalPermissions: () => ({}),
+  idParam: 'id',
+  queryPath: DEFAULT_QUERY_PATH,
+  mutationPath: DEFAULT_MUTATION_PATH,
 };
 
 let currentGlobalOptions = { ...defaultGlobalOptions };
@@ -35,6 +39,7 @@ const defaultModelOptions: ModelRouterOptions = {
   identifier: '_id',
   idParam: '',
   queryPath: '',
+  mutationPath: '',
 };
 
 let modelOptions = {};
