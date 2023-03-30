@@ -5,7 +5,7 @@ export const userRouter = macl.createRouter('User', {
   baseUrl: null,
   permissionSchema: {
     name: { list: true, read: true, update: ['edit.name', 'edit.dummy'], create: true },
-    role: { list: 'isAdmin', read: true, update: 'edit.role', create: true },
+    role: { list: 'isAdmin', read: true, update: 'edit.role', create: 'isAdmin' },
     public: { list: false, read: true, update: 'edit.public', create: true },
     statusHistory: {
       list: (permissions) => {
@@ -23,7 +23,7 @@ export const userRouter = macl.createRouter('User', {
         document: { list: false, read: true, update: true, create: true },
       },
     },
-    orgs: { list: true, read: true, update: 'edit.orgs' },
+    orgs: { list: true, read: true, update: 'edit.orgs', create: true },
   },
   docPermissions: function (doc, permissions) {
     const isMe = String(doc._id) === String(this._user?._id);

@@ -7,19 +7,20 @@ import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
 import pick from 'lodash/pick';
-import Model from './model';
-import { checkIfReady, listen } from './meta';
+import Model from '../model';
+import { checkIfReady, listen, getModelSub } from '../meta';
 
-import { setGenerators, MaclCore } from './generators';
-import { getGlobalOption, setModelOptions, setModelOption, getModelOptions } from './options';
-import { getModelSub } from './meta';
-import { RootRouterOptions, ModelRouterOptions, Validation, RootQueryEntry, Request } from './interfaces';
-import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
-
-JsonRouter.errorMessageProvider = function (error) {
-  console.error(error);
-  return error.message || error._message || error;
-};
+import { setGenerators, MaclCore } from '../generators';
+import {
+  getGlobalOption,
+  setModelOptions,
+  setModelOption,
+  getModelOptions,
+  DEFAULT_QUERY_PATH,
+  DEFAULT_MUTATION_PATH,
+} from '../options';
+import { RootRouterOptions, ModelRouterOptions, Validation, RootQueryEntry, Request } from '../interfaces';
+import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
 const pluralize = mongoose.pluralize();
 const clientErrors = JsonRouter.clientErrors;
@@ -45,6 +46,7 @@ export class ModelRouter {
   basename: string;
   idParam: string;
   queryPath: string;
+  mutationPath: string;
 
   constructor(modelName: string, options: ModelRouterOptions) {
     const _options = setModelOptions(modelName, options);
@@ -62,7 +64,8 @@ export class ModelRouter {
     }
 
     this.idParam = _options.idParam || getGlobalOption('idParam', 'id');
-    this.queryPath = _options.queryPath || getGlobalOption('queryPath', '__query');
+    this.queryPath = _options.queryPath || getGlobalOption('queryPath', DEFAULT_QUERY_PATH);
+    this.mutationPath = _options.mutationPath || getGlobalOption('mutationPath', DEFAULT_MUTATION_PATH);
     this.setCollectionRoutes();
     this.setDocumentRoutes();
 
@@ -92,15 +95,17 @@ export class ModelRouter {
       const { limit, page, include_permissions, include_count, lean } = req.query;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._list({
-        limit,
-        page,
-        options: {
+      return ctl._list(
+        {
+          limit,
+          page,
+        },
+        {
           includePermissions: parseBooleanString(include_permissions),
           includeCount: parseBooleanString(include_count),
           lean: parseBooleanString(lean),
         },
-      });
+      );
     });
 
     //////////////////
@@ -114,21 +119,23 @@ export class ModelRouter {
       const { includePermissions, includeCount, populateAccess, lean } = options;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._list({
-        query,
-        select,
-        sort,
-        populate,
-        process,
-        limit,
-        page,
-        options: {
+      return ctl._list(
+        {
+          query,
+          select,
+          sort,
+          populate,
+          process,
+          limit,
+          page,
+        },
+        {
           includePermissions,
           includeCount,
           populateAccess,
           lean,
         },
-      });
+      );
     });
 
     ////////////
@@ -141,7 +148,28 @@ export class ModelRouter {
       const { include_permissions } = req.query;
 
       const ctl = req[CORE]._public(this.modelName);
-      const doc = await ctl._create(req.body, { includePermissions: parseBooleanString(include_permissions) });
+      const doc = await ctl._create(req.body, {}, { includePermissions: parseBooleanString(include_permissions) });
+
+      res.status(201).json(doc);
+    });
+
+    ///////////////////////
+    // CREATE - MUTATION //
+    ///////////////////////
+    this.router.post(`${this.basename}/${this.mutationPath}`, setGenerators, async (req: Request, res) => {
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'create');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
+
+      const { include_permissions } = req.query;
+      const { data, select, populate, process, options = {} } = req.body;
+      const { includePermissions, populateAccess } = options;
+
+      const ctl = req[CORE]._public(this.modelName);
+      const doc = await ctl._create(
+        data,
+        { select, populate, process },
+        { includePermissions: includePermissions ?? parseBooleanString(include_permissions), populateAccess },
+      );
 
       res.status(201).json(doc);
     });
@@ -169,13 +197,15 @@ export class ModelRouter {
       const id = req.params[this.idParam];
       const { include_permissions, try_list, lean } = req.query;
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._read(id, {
-        options: {
+      return ctl._read(
+        id,
+        {},
+        {
           includePermissions: parseBooleanString(include_permissions),
           tryList: parseBooleanString(try_list),
           lean: parseBooleanString(lean),
         },
-      });
+      );
     });
 
     //////////////////
@@ -190,12 +220,15 @@ export class ModelRouter {
       const { includePermissions, tryList, populateAccess, lean } = options;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._read(id, {
-        select,
-        populate,
-        process,
-        options: { includePermissions, tryList, populateAccess, lean },
-      });
+      return ctl._read(
+        id,
+        {
+          select,
+          populate,
+          process,
+        },
+        { includePermissions, tryList, populateAccess, lean },
+      );
     });
 
     ////////////
@@ -209,7 +242,28 @@ export class ModelRouter {
       const { returning_all } = req.query;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._update(id, req.body, { returningAll: parseBooleanString(returning_all) });
+      return ctl._update(id, req.body, {}, { returningAll: parseBooleanString(returning_all) });
+    });
+
+    ///////////////////////
+    // UPDATE - MUTATION //
+    ///////////////////////
+    this.router.put(`${this.basename}/${this.mutationPath}/:${this.idParam}`, setGenerators, async (req: Request) => {
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'update');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
+
+      const id = req.params[this.idParam];
+      const { returning_all } = req.query;
+      const { data, select, populate, process, options = {} } = req.body;
+      const { returningAll, includePermissions, populateAccess } = options;
+
+      const ctl = req[CORE]._public(this.modelName);
+      return ctl._update(
+        id,
+        data,
+        { select, populate, process },
+        { returningAll: returningAll ?? parseBooleanString(returning_all), includePermissions, populateAccess },
+      );
     });
 
     ////////////
@@ -479,47 +533,6 @@ export class ModelRouter {
 
   get options() {
     return getModelOptions(this.modelName);
-  }
-
-  get routes() {
-    return this.router.original;
-  }
-}
-
-export class RootRouter {
-  router: JsonRouter;
-  basename: string;
-  routeGuard: Validation;
-  queryPath: string;
-
-  constructor(options: RootRouterOptions = { baseUrl: '', routeGuard: true }) {
-    const { baseUrl, routeGuard } = options;
-
-    this.router = new JsonRouter();
-    this.basename = baseUrl || '';
-    this.routeGuard = routeGuard;
-    this.queryPath = getGlobalOption('queryPath', '__query');
-
-    this.setRoutes();
-  }
-
-  private setRoutes() {
-    this.router.post(`${this.basename}/${this.queryPath}`, setGenerators, async (req: Request) => {
-      const allowed = await req[CORE]._canActivate(this.routeGuard);
-      if (!allowed) throw new clientErrors.UnauthorizedError();
-
-      const items = req.body || [];
-      return Promise.all(
-        items.map((item: RootQueryEntry) => {
-          if (!['list', 'create', 'empty', 'read', 'update', 'delete', 'distinct', 'count'].includes(item.operation))
-            return null;
-
-          const ctl = req[CORE]._public(item.modelName);
-          const op = ctl[`_${item.operation}`].bind(ctl);
-          return isArray(item.arguments) ? op(...item.arguments) : op(item.arguments);
-        }),
-      );
-    });
   }
 
   get routes() {

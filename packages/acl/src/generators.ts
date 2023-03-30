@@ -19,8 +19,7 @@ import { getGlobalOption, getModelOption } from './options';
 import { getModelRef } from './meta';
 import { Populate, Projection, MiddlewareContext, Validation } from './interfaces';
 import Permission, { Permissions } from './permission';
-import Controller from './controller';
-import PublicController from './controller-public';
+import { Controller, PublicController } from './controllers';
 import { normalizeSelect, arrToObj, createValidator } from './helpers';
 import { copyAndDepopulate } from './processors';
 import { isDocument } from './lib';
@@ -117,7 +116,7 @@ function toObject(doc) {
 }
 
 export async function genAllowedFields(modelName: string, doc: any, access: string, baseFields = []) {
-  let fields = baseFields || [];
+  let fields = [...baseFields] || [];
 
   const permissionSchema = getModelOption(modelName, 'permissionSchema');
   if (!permissionSchema) return fields;
@@ -160,7 +159,7 @@ export async function pickAllowedFields(modelName: string, doc: any, access: str
 export async function genSelect(
   modelName: string,
   access: string,
-  targetFields: Projection | null = null,
+  targetFields: Projection = null,
   skipChecks = true,
   subPaths = [],
 ) {

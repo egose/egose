@@ -1,13 +1,6 @@
 import { CORE } from '../symbols';
 import { MaclCore, ControllerFactory } from '../generators';
 
-export interface GlobalOptions {
-  permissionField?: string;
-  idParam?: string;
-  queryPath?: string;
-  globalPermissions?: (req: any) => any;
-}
-
 export type Validation = boolean | string | string[] | Function;
 
 interface KeyValueProjection {
@@ -56,4 +49,5 @@ export interface Request {
   body: any;
   [CORE]: MaclCore;
   macl: ControllerFactory;
+  [key: string]: any;
 }

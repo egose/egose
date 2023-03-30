@@ -10,34 +10,37 @@ import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import pick from 'lodash/pick';
-import Model from './model';
-import { setModelOptions, setModelOption, getModelOptions } from './options';
-import { normalizeSelect, iterateQuery, CustomError } from './helpers';
+import Model from '../model';
+import { setModelOptions, setModelOption, getModelOptions } from '../options';
+import { normalizeSelect, iterateQuery, CustomError } from '../helpers';
 import {
   ModelRouterOptions,
   MiddlewareContext,
   SubPopulate,
-  ListProps,
-  ReadProps,
-  CreateOptions,
-  UpdateOptions,
-  DistinctOptions,
+  DistinctArgs,
   Defaults,
   Populate,
-  FindOneOptions,
-  FindProps,
-  FindOneProps,
-  FindByIdProps,
   Request,
-} from './interfaces';
-import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
+  FindArgs,
+  FindOptions,
+  FindOneArgs,
+  FindOneOptions,
+  FindByIdArgs,
+  FindByIdOptions,
+  CreateArgs,
+  CreateOptions,
+  UpdateArgs,
+  UpdateOptions,
+} from '../interfaces';
+import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
-class Controller {
+export class Controller {
   req: Request;
   modelName: string;
   model: Model;
   options: ModelRouterOptions;
   defaults: Defaults;
+  baseFields: string[];
 
   constructor(req: Request, modelName: string) {
     this.req = req;
@@ -45,16 +48,23 @@ class Controller {
     this.model = new Model(modelName);
     this.options = getModelOptions(modelName);
     this.defaults = this.options.defaults || {};
+    this.baseFields = ['_id', this.options.permissionField];
   }
 
-  protected async findOne({
-    query: _query = {},
-    select: _select = this.defaults.findOne?.select,
-    populate: _populate = this.defaults.findOne?.populate,
-    options = this.defaults.findOne?.options || {},
-    overrides = {},
-  }: FindOneProps = {}) {
-    const { includePermissions = true, access = 'read', populateAccess, lean = false } = options;
+  protected async findOne(
+    {
+      query: _query = {},
+      select: _select = this.defaults.findOneArgs?.select,
+      populate: _populate = this.defaults.findOneArgs?.populate,
+      overrides = {},
+    }: FindOneArgs = {},
+    {
+      includePermissions = this.defaults.findOneOptions?.includePermissions ?? true,
+      access = this.defaults.findOneOptions?.access ?? 'read',
+      populateAccess = this.defaults.findOneOptions?.populateAccess,
+      lean = this.defaults.findOneOptions?.lean ?? false,
+    }: FindOneOptions = {},
+  ) {
     const { query: __query, select: __select, populate: __populate } = overrides;
 
     let [query, select, populate] = await Promise.all([
@@ -75,39 +85,51 @@ class Controller {
   protected async findById(
     id,
     {
-      select: _select = this.defaults.findById?.select,
-      populate: _populate = this.defaults.findById?.populate,
-      options = this.defaults.findById?.options || {},
+      select: _select = this.defaults.findByIdArgs?.select,
+      populate: _populate = this.defaults.findByIdArgs?.populate,
       overrides = {},
-    }: FindByIdProps = {},
+    }: FindByIdArgs = {},
+    {
+      includePermissions = this.defaults.findOneOptions?.includePermissions ?? true,
+      access = this.defaults.findOneOptions?.access ?? 'read',
+      populateAccess = this.defaults.findOneOptions?.populateAccess,
+      lean = this.defaults.findOneOptions?.lean ?? false,
+    }: FindByIdOptions = {},
   ) {
     const { select: __select, populate: __populate, idQuery: __idQuery } = overrides;
     const query = __idQuery || (await this.req[CORE]._genIDQuery(this.modelName, id));
 
-    return this.findOne({
-      query,
-      select: _select,
-      populate: _populate,
-      options,
-      overrides: {
-        select: __select,
-        populate: __populate,
+    return this.findOne(
+      {
+        query,
+        select: _select,
+        populate: _populate,
+        overrides: {
+          select: __select,
+          populate: __populate,
+        },
       },
-    });
+      { includePermissions, access, populateAccess, lean },
+    );
   }
 
-  protected async find({
-    query: _query = {},
-    select: _select = this.defaults.find?.select,
-    populate: _populate = this.defaults.find?.populate,
-    sort = this.defaults.find?.sort,
-    limit = this.defaults.find?.limit,
-    page = this.defaults.find?.page,
-    options = this.defaults.find?.options || {},
-    overrides = {},
-    decorate,
-  }: FindProps = {}) {
-    const { includePermissions = true, populateAccess = 'read', lean = false } = options;
+  protected async find(
+    {
+      query: _query = {},
+      select: _select = this.defaults.findArgs?.select,
+      populate: _populate = this.defaults.findArgs?.populate,
+      sort = this.defaults.findArgs?.sort,
+      limit = this.defaults.findArgs?.limit,
+      page = this.defaults.findArgs?.page,
+      overrides = {},
+    }: FindArgs = {},
+    {
+      includePermissions = this.defaults.findOneOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.findOneOptions?.populateAccess ?? 'read',
+      lean = this.defaults.findOneOptions?.lean ?? false,
+    }: FindOptions = {},
+    decorate?: Function,
+  ) {
     const { query: __query, select: __select, populate: __populate } = overrides;
 
     let [query, select, populate, pagination] = await Promise.all([
@@ -134,9 +156,15 @@ class Controller {
     return docs;
   }
 
-  protected async create(data, options: CreateOptions = this.defaults.create || {}, decorate?: Function) {
-    const { includePermissions = true } = options;
-
+  protected async create(
+    data,
+    { populate = this.defaults.createArgs?.populate }: CreateArgs = {},
+    {
+      includePermissions = this.defaults.createOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.createOptions?.populateAccess ?? 'read',
+    }: CreateOptions = {},
+    decorate?: Function,
+  ) {
     const isArr = Array.isArray(data);
     let arr = isArr ? data : [data];
 
@@ -169,6 +197,7 @@ class Controller {
     docs = await Promise.all(
       docs.map(async (doc, index) => {
         if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'create', contexts[index]);
+        if (populate) await doc.populate(await this.req[CORE]._genPopulate(this.modelName, populateAccess, populate));
         if (isFunction(decorate)) doc = await decorate(doc, contexts[index]);
         return doc;
       }),
@@ -181,7 +210,16 @@ class Controller {
     return this.model.new();
   }
 
-  protected async update(id: string, data, decorate?: Function) {
+  protected async update(
+    id: string,
+    data,
+    { populate = this.defaults.updateArgs?.populate }: UpdateArgs = {},
+    {
+      includePermissions = this.defaults.updateOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.updateOptions?.populateAccess ?? 'read',
+    }: CreateOptions = {},
+    decorate?: Function,
+  ) {
     const query = await this.req[CORE]._genQuery(
       this.modelName,
       'update',
@@ -220,8 +258,8 @@ class Controller {
     doc = await this.req[CORE]._transform(this.modelName, doc, 'update', context);
     context.modifiedPaths = doc.modifiedPaths();
     doc = await doc.save();
-    doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
-
+    if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
+    if (populate) await doc.populate(await this.req[CORE]._genPopulate(this.modelName, populateAccess, populate));
     if (isFunction(decorate)) doc = await decorate(doc, context);
     return doc;
   }
@@ -241,9 +279,7 @@ class Controller {
     return doc._id;
   }
 
-  protected async distinct(field: string, options: DistinctOptions = this.defaults.distinct || {}) {
-    let { query } = options;
-
+  protected async distinct(field: string, { query }: DistinctArgs = {}) {
     query = await this.req[CORE]._genQuery(this.modelName, 'read', query);
     if (query === false) return null;
 
@@ -283,5 +319,3 @@ class Controller {
     return result;
   }
 }
-
-export default Controller;

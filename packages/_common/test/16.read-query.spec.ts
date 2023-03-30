@@ -61,7 +61,7 @@ describe('Read-Query User', () => {
     expect(response.body.orgs[0]).to.be.a('string');
   });
 
-  it('should return the populated user orgs with read access', async () => {
+  it('should return the populated user orgs with list access', async () => {
     const response = await request(app)
       .post('/api/users/__query/lucy2')
       .set('user', 'john')

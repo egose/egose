@@ -20,9 +20,12 @@ describe('Create Users', () => {
 
   it('should create an user `lucy` by admin', async () => {
     const response = await request(app)
-      .post('/api/users')
+      .post('/api/users/__mutation')
       .set('user', 'admin')
-      .send({ name: 'lucy', role: 'user', public: true })
+      .send({
+        data: { name: 'lucy', role: 'user', public: true },
+        select: { name: 1, role: 1, public: 1, _createdBy: 1 },
+      })
       .expect('Content-Type', /json/)
       .expect(201);
 
@@ -58,12 +61,12 @@ describe('Create Orgs', () => {
 
   it('should create an org `purple` by admin', async () => {
     const response = await request(app)
-      .post('/api/orgs')
+      .post('/api/orgs/__mutation')
       .set('user', 'admin')
-      .send({ name: 'purple' })
+      .send({ data: { name: 'purple' }, select: '_id' })
       .expect('Content-Type', /json/)
       .expect(201);
 
-    expect(response.body.name).to.equal('purple');
+    expect(response.body.name).to.undefined;
   });
 });

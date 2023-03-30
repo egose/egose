@@ -7,7 +7,7 @@ import { app } from './00.setup.spec';
 describe('Root Routes - Create User', () => {
   it('should create an user `user-root1` by admin', async () => {
     const response = await request(app)
-      .post('/api/macl/__query')
+      .post('/api/macl')
       .set('user', 'admin')
       .send([
         {

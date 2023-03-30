@@ -9,22 +9,23 @@ import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import pick from 'lodash/pick';
-import { normalizeSelect, iterateQuery, CustomError } from './helpers';
-import Controller from './controller';
+import { normalizeSelect, iterateQuery, CustomError } from '../helpers';
+import { Controller } from './controller';
 import {
-  ModelRouterOptions,
   MiddlewareContext,
   SubPopulate,
-  ListProps,
-  ReadProps,
-  CreateOptions,
-  UpdateOptions,
-  DistinctOptions,
-  Defaults,
-  Populate,
+  PublicListArgs,
+  PublicListOptions,
+  PublicReadArgs,
+  PublicReadOptions,
+  PublicCreateArgs,
+  PublicCreateOptions,
+  PublicUpdateArgs,
+  PublicUpdateOptions,
+  DistinctArgs,
   Request,
-} from './interfaces';
-import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
+} from '../interfaces';
+import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
 const filterChildren = (children, query) => {
   if (isPlainObject(query))
@@ -51,35 +52,49 @@ const genSubPopulate = (sub: string, popul: any) => {
   return populate;
 };
 
-class PublicController extends Controller {
-  async _list({
-    query = {},
-    select = this.defaults.list?.select,
-    populate = this.defaults.list?.populate,
-    sort = this.defaults.list?.sort,
-    limit = this.defaults.list?.limit,
-    page = this.defaults.list?.page,
-    process = [],
-    options = this.defaults.list?.options || {},
-  }: ListProps = {}) {
-    const { includePermissions = true, includeCount = false, populateAccess = 'read', lean = false } = options;
+export class PublicController extends Controller {
+  baseFields: string[];
 
-    let docs = await this.find({
-      query,
-      select,
-      populate,
-      sort,
-      limit,
-      page,
-      options: { includePermissions, populateAccess, lean },
-      decorate: async (doc) => {
+  constructor(req: Request, modelName: string) {
+    super(req, modelName);
+    this.baseFields = ['_id', this.options.permissionField];
+  }
+
+  async _list(
+    {
+      query = {},
+      select = this.defaults._listArgs?.select,
+      populate = this.defaults._listArgs?.populate,
+      sort = this.defaults._listArgs?.sort,
+      limit = this.defaults._listArgs?.limit,
+      page = this.defaults._listArgs?.page,
+      process = this.defaults._listArgs?.process ?? [],
+    }: PublicListArgs = {},
+    {
+      includePermissions = this.defaults._listOptions?.includePermissions ?? true,
+      includeCount = this.defaults._listOptions?.includeCount ?? false,
+      populateAccess = this.defaults._listOptions?.populateAccess ?? 'read',
+      lean = this.defaults._listOptions?.lean ?? false,
+    }: PublicListOptions = {},
+  ) {
+    let docs = await this.find(
+      {
+        query,
+        select,
+        populate,
+        sort,
+        limit,
+        page,
+      },
+      { includePermissions, populateAccess, lean },
+      async (doc) => {
         doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'list', [
           '_id',
           this.options.permissionField,
         ]);
         return this.req[CORE]._decorate(this.modelName, doc, 'list');
       },
-    });
+    );
 
     let rows = await this.req[CORE]._decorateAll(this.modelName, docs, 'list');
     rows = rows.map((row) => this.req[CORE]._process(this.modelName, row, process));
@@ -94,13 +109,31 @@ class PublicController extends Controller {
     }
   }
 
-  async _create(data, options: CreateOptions = this.defaults.create || {}) {
-    const { includePermissions = true } = options;
+  async _create(
+    data,
+    {
+      select = this.defaults._createArgs?.select,
+      populate = this.defaults._createArgs?.populate,
+      process = this.defaults._createArgs?.process ?? [],
+    }: PublicCreateArgs = {},
+    {
+      includePermissions = this.defaults._createOptions?.includePermissions ?? true,
+      populateAccess = this.defaults._createOptions?.populateAccess ?? 'read',
+    }: PublicCreateOptions = {},
+  ) {
+    const result = await this.create(
+      data,
+      { populate },
+      { includePermissions, populateAccess },
+      async (doc, context: MiddlewareContext) => {
+        doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', this.baseFields);
+        doc = await this.req[CORE]._decorate(this.modelName, doc, 'create', context);
+        doc = this.req[CORE]._process(this.modelName, doc, process);
 
-    const result = await this.create(data, { includePermissions }, async (doc, context: MiddlewareContext) => {
-      doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', ['_id', this.options.permissionField]);
-      return this.req[CORE]._decorate(this.modelName, doc, 'create', context);
-    });
+        if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFields]);
+        return doc;
+      },
+    );
 
     return result;
   }
@@ -112,53 +145,84 @@ class PublicController extends Controller {
   async _read(
     id,
     {
-      select = this.defaults.read?.select,
-      populate = this.defaults.read?.populate,
-      process = [],
-      options = this.defaults.read?.options || {},
-    }: ReadProps = {},
+      select = this.defaults._readArgs?.select,
+      populate = this.defaults._readArgs?.populate,
+      process = this.defaults._readArgs?.process ?? [],
+    }: PublicReadArgs = {},
+    {
+      includePermissions = this.defaults._readOptions?.includePermissions ?? true,
+      tryList = this.defaults._readOptions?.tryList ?? true,
+      populateAccess = this.defaults._readOptions?.populateAccess,
+      lean = this.defaults._readOptions?.lean ?? false,
+    }: PublicReadOptions = {},
   ) {
     let access = 'read';
-    const { includePermissions = true, tryList = true, populateAccess, lean = false } = options;
     const idQuery = await this.req[CORE]._genIDQuery(this.modelName, id);
 
-    let doc = await this.findById(id, {
-      select,
-      populate,
-      options: { includePermissions, access, populateAccess, lean },
-      overrides: { idQuery },
-    });
+    let doc = await this.findById(
+      id,
+      {
+        select,
+        populate,
+        overrides: { idQuery },
+      },
+      { includePermissions, access, populateAccess, lean },
+    );
 
     // if not found, try to get the doc with 'list' access
     if (!doc && tryList) {
       access = 'list';
 
-      doc = await this.findById(id, {
-        select,
-        populate,
-        options: { includePermissions, access, populateAccess, lean },
-        overrides: { idQuery },
-      });
+      doc = await this.findById(
+        id,
+        {
+          select,
+          populate,
+          overrides: { idQuery },
+        },
+        { includePermissions, access, populateAccess, lean },
+      );
     }
 
     if (!doc) return null;
 
-    doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, access, ['_id', this.options.permissionField]);
+    doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, access, this.baseFields);
     doc = await this.req[CORE]._decorate(this.modelName, doc, access);
     doc = this.req[CORE]._process(this.modelName, doc, process);
 
     return doc;
   }
 
-  async _update(id: string, data, options: UpdateOptions = this.defaults.update || {}) {
-    const { returningAll = true } = options;
+  async _update(
+    id: string,
+    data,
+    {
+      select = this.defaults._updateArgs?.select,
+      populate = this.defaults._updateArgs?.populate,
+      process = this.defaults._updateArgs?.process ?? [],
+    }: PublicUpdateArgs = {},
+    {
+      returningAll = this.defaults._updateOptions?.returningAll ?? true,
+      includePermissions = this.defaults._updateOptions?.includePermissions ?? true,
+      populateAccess = this.defaults._updateOptions?.populateAccess ?? 'read',
+    }: PublicUpdateOptions = {},
+  ) {
+    const result = await this.update(
+      id,
+      data,
+      { populate },
+      { includePermissions, populateAccess },
+      async (doc, context: MiddlewareContext) => {
+        doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', this.baseFields);
+        doc = await this.req[CORE]._decorate(this.modelName, doc, 'update', context);
+        doc = this.req[CORE]._process(this.modelName, doc, process);
 
-    const result = await this.update(id, data, async (doc, context: MiddlewareContext) => {
-      doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', ['_id', this.options.permissionField]);
-      doc = await this.req[CORE]._decorate(this.modelName, doc, 'update', context);
+        if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFields]);
+        else if (!returningAll) doc = pick(doc, Object.keys(data));
 
-      return returningAll ? doc : pick(doc, Object.keys(data));
-    });
+        return doc;
+      },
+    );
 
     return result;
   }
@@ -168,7 +232,7 @@ class PublicController extends Controller {
     return result;
   }
 
-  async _distinct(field: string, options: DistinctOptions = this.defaults.distinct || {}) {
+  async _distinct(field: string, options: DistinctArgs = {}) {
     const result = await this.distinct(field, options);
     return result;
   }
@@ -285,5 +349,3 @@ class PublicController extends Controller {
     return result._id;
   }
 }
-
-export default PublicController;

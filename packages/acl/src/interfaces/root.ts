@@ -1,21 +1,48 @@
 import { Validation } from './base';
-import { FindProps, FindOneProps, FindByIdProps } from './controller';
-import { ListProps, ReadProps, CreateOptions, UpdateOptions, DistinctOptions } from './public-controller';
+import { PublicCreateArgs, CreateArgs, PublicCreateOptions, CreateOptions } from './controller-create';
+import { PublicUpdateArgs, UpdateArgs, PublicUpdateOptions, UpdateOptions } from './controller-update';
+import { PublicListArgs, PublicListOptions } from './controller-list';
+import { PublicReadArgs, PublicReadOptions } from './controller-read';
+import { FindArgs, FindOptions, FindOneArgs, FindOneOptions, FindByIdArgs, FindByIdOptions } from './controller-find';
+import { DistinctArgs } from './controller';
+
+interface DefaultFindOneArgs extends Omit<FindOneArgs, 'query' | 'overrides'> {}
+interface DefaultFindByIdArgs extends Omit<FindByIdArgs, 'overrides'> {}
+interface DefaultFindArgs extends Omit<FindArgs, 'query' | 'overrides'> {}
+interface DefaultPublicListArgs extends Omit<PublicListArgs, 'query'> {}
+
+export interface Defaults {
+  findOneArgs?: DefaultFindOneArgs;
+  findOneOptions?: FindOneOptions;
+  findByIdArgs?: DefaultFindByIdArgs;
+  findByIdOptions?: FindByIdOptions;
+  findArgs?: DefaultFindArgs;
+  findOptions?: FindOptions;
+  createArgs?: CreateArgs;
+  createOptions?: CreateOptions;
+  updateArgs?: UpdateArgs;
+  updateOptions?: UpdateOptions;
+  _listArgs?: DefaultPublicListArgs;
+  _listOptions?: PublicListOptions;
+  _createArgs?: PublicCreateArgs;
+  _createOptions?: PublicCreateOptions;
+  _readArgs?: PublicReadArgs;
+  _readOptions?: PublicReadOptions;
+  _updateArgs?: PublicUpdateArgs;
+  _updateOptions?: PublicUpdateOptions;
+}
+
+export interface GlobalOptions {
+  permissionField?: string;
+  globalPermissions?: (req: any) => any;
+  idParam?: string;
+  queryPath?: string;
+  mutationPath?: string;
+}
 
 export interface RootRouterOptions {
   baseUrl: string | false;
   routeGuard?: Validation;
-}
-
-export interface Defaults {
-  list?: ListProps;
-  create?: CreateOptions;
-  read?: ReadProps;
-  update?: UpdateOptions;
-  distinct?: DistinctOptions;
-  find?: FindProps;
-  findOne?: FindOneProps;
-  findById?: FindByIdProps;
 }
 
 interface Access {
@@ -59,4 +86,5 @@ export interface ModelRouterOptions {
   defaults?: Defaults;
   idParam?: string;
   queryPath?: string;
+  mutationPath?: string;
 }
