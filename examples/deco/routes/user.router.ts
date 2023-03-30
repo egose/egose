@@ -3,6 +3,7 @@ import {
   Prepare,
   DocPermissions,
   BaseQuery,
+  Decorate,
   RouteGuard,
   Request,
   Document,
@@ -26,7 +27,7 @@ export class UserRouter {
 
   @Option() permissionSchema = {
     name: { list: true, read: true, update: ['edit.name', 'edit.dummy'], create: true },
-    role: { list: 'isAdmin', read: true, update: 'edit.role', create: true },
+    role: { list: 'isAdmin', read: true, update: 'edit.role', create: 'isAdmin' },
     public: { list: false, read: true, update: 'edit.public', create: true },
     statusHistory: {
       list: (permissions) => {
@@ -44,7 +45,7 @@ export class UserRouter {
         document: { list: false, read: true, update: true, create: true },
       },
     },
-    orgs: { list: true, read: true, update: 'edit.orgs' },
+    orgs: { list: true, read: true, update: 'edit.orgs', create: true },
   };
 
   @Option() baseUrl = null;
@@ -111,5 +112,11 @@ export class UserRouter {
   deleteBaseQuery(@Request() req, @Permissions() permissions) {
     if (permissions.isAdmin) return {};
     else return { _id: req._user?._id };
+  }
+
+  @Decorate('create')
+  addCreatedBy(@Document() doc) {
+    doc._createdBy = 'egose';
+    return doc;
   }
 }
