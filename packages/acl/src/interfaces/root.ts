@@ -85,7 +85,7 @@ export interface ModelRouterOptions {
   mandatoryFields?: string[];
   docPermissions?: DocPermissions | Function;
   routeGuard?: Validation | Access;
-  baseQuery?: any;
+  baseFilter?: any;
   decorate?: any;
   decorateAll?: any;
   validate?: any;

@@ -110,7 +110,7 @@ export class EgoseFactoryStatic {
     const methodNames = new Set(getAllMethodNames(router.prototype));
     for (const methodName of methodNames) {
       const docPermissions = isDocPermissionsMethod(this._routerInstance, methodName);
-      const baseQuery = isBaseQueryMethod(this._routerInstance, methodName);
+      const baseFilter = isBaseQueryMethod(this._routerInstance, methodName);
       const validate = isValidateMethod(this._routerInstance, methodName);
       const prepare = isPrepareMethod(this._routerInstance, methodName);
       const transform = isTransformMethod(this._routerInstance, methodName);
@@ -119,7 +119,7 @@ export class EgoseFactoryStatic {
       const routeGuard = isRouteGuardMethod(this._routerInstance, methodName);
 
       if (docPermissions) this.setRouterMethodOptions(methodName, 'docPermissions', false);
-      if (baseQuery) this.setRouterMethodOptions(methodName, 'baseQuery', false);
+      if (baseFilter) this.setRouterMethodOptions(methodName, 'baseFilter', false);
       if (validate) this.setRouterMethodOptions(methodName, 'validate', true);
       if (prepare) this.setRouterMethodOptions(methodName, 'prepare', true);
       if (transform) this.setRouterMethodOptions(methodName, 'transform', true);

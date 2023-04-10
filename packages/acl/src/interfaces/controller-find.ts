@@ -1,14 +1,14 @@
 import { Projection, Populate } from './base';
 
 export interface FindArgs {
-  query?: any;
+  filter?: any;
   select?: Projection;
   populate?: Populate[] | string;
   sort?: string[] | string;
   limit?: string | number;
   page?: string | number;
   overrides?: {
-    query?: any;
+    filter?: any;
     select?: Projection;
     populate?: Populate[] | string;
   };
@@ -21,11 +21,10 @@ export interface FindOptions {
 }
 
 export interface FindOneArgs {
-  query?: any;
   select?: Projection;
   populate?: Populate[] | string;
   overrides?: {
-    query?: any;
+    filter?: any;
     select?: Projection;
     populate?: Populate[] | string;
   };
@@ -44,7 +43,7 @@ export interface FindByIdArgs {
   overrides?: {
     select?: Projection;
     populate?: Populate[] | string;
-    idQuery?: any;
+    idFilter?: any;
   };
 }
 

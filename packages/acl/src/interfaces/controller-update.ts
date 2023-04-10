@@ -8,7 +8,7 @@ export interface PublicUpdateArgs {
 
 export interface UpdateOneArgs extends Omit<PublicUpdateArgs, 'select' | 'process'> {
   overrides?: {
-    query?: any;
+    filter?: any;
     populate?: Populate[] | string;
   };
 }
@@ -16,7 +16,7 @@ export interface UpdateOneArgs extends Omit<PublicUpdateArgs, 'select' | 'proces
 export interface UpdateByIdArgs extends Omit<UpdateOneArgs, 'overrides'> {
   overrides?: {
     populate?: Populate[] | string;
-    idQuery?: any;
+    idFilter?: any;
   };
 }
 

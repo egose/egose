@@ -1,3 +1,3 @@
 export interface DistinctArgs {
-  query?: any;
+  filter?: any;
 }

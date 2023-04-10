@@ -111,7 +111,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: { name: 'john' } })
+      .send({ filter: { name: 'john' } })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -125,7 +125,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: { name: 'john' }, select: 'name' })
+      .send({ filter: { name: 'john' }, select: 'name' })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -139,7 +139,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: { name: 'john' }, select: 'name role' })
+      .send({ filter: { name: 'john' }, select: 'name role' })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -153,7 +153,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: { name: 'john' }, select: ['name', 'role'] })
+      .send({ filter: { name: 'john' }, select: ['name', 'role'] })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -167,7 +167,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: { name: 'john' }, select: { name: 1, role: 1 } })
+      .send({ filter: { name: 'john' }, select: { name: 1, role: 1 } })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -181,7 +181,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: { name: 'john' }, select: ['name role'] })
+      .send({ filter: { name: 'john' }, select: ['name role'] })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -195,7 +195,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: { name: 'john' } })
+      .send({ filter: { name: 'john' } })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -208,7 +208,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: { name: 'john' }, populate: 'orgs' })
+      .send({ filter: { name: 'john' }, populate: 'orgs' })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -221,7 +221,7 @@ describe('List-Query Users', () => {
     const response = await request(app)
       .post('/api/users/__query')
       .set('user', 'admin')
-      .send({ query: {}, select: '_id' })
+      .send({ filter: {}, select: '_id' })
       .expect('Content-Type', /json/)
       .expect(200);
 
@@ -244,9 +244,9 @@ describe('List Sub-query', () => {
       .post('/api/orgs/_extra')
       .set('user', 'admin')
       .send({
-        query: {
+        filter: {
           _id: {
-            $$sq: { model: 'User', mapper: { path: 'orgs', multi: false }, query: { name: 'lucy2' } },
+            $$sq: { model: 'User', mapper: { path: 'orgs', multi: false }, filter: { name: 'lucy2' } },
           },
         },
       })

@@ -96,6 +96,7 @@ export class ModelRouter {
 
       const ctl = req[CORE]._public(this.modelName);
       return ctl._list(
+        {},
         {
           limit,
           page,
@@ -115,13 +116,14 @@ export class ModelRouter {
       const allowed = await req[CORE]._isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      let { query, select, sort, populate, process, limit, page, options = {} } = req.body;
+      // @Deprecated option 'query'
+      let { query, filter, select, sort, populate, process, limit, page, options = {} } = req.body;
       const { includePermissions, includeCount, populateAccess, lean } = options;
 
       const ctl = req[CORE]._public(this.modelName);
       return ctl._list(
+        filter ?? query,
         {
-          query,
           select,
           sort,
           populate,
@@ -295,10 +297,11 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { field } = req.params;
-      const { query } = req.body;
+      // @Deprecated option 'query'
+      const { query, filter } = req.body;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._distinct(field, { query });
+      return ctl._distinct(field, { filter: filter ?? query });
     });
 
     ///////////
@@ -316,10 +319,11 @@ export class ModelRouter {
       const allowed = await req[CORE]._isAllowed(this.modelName, 'count');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      const { query, access } = req.body;
+      // @Deprecated option 'query'
+      const { query, filter, access } = req.body;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._count(query, access);
+      return ctl._count(filter ?? query, access);
     });
   }
 
@@ -477,7 +481,7 @@ export class ModelRouter {
    * The base query definitions applied in every query transaction.
    * @operation `list`, `read`, `update`, `delete`
    */
-  public baseQuery: setOptionType = setOption.bind(this, 'baseQuery');
+  public baseFilter: setOptionType = setOption.bind(this, 'baseFilter');
 
   /**
    * Middleware

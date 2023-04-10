@@ -54,7 +54,7 @@ export class UserRouter {
     return { name: id };
   };
 
-  @Option('baseQuery.subs') baseQuerySubs = {
+  @Option('baseFilter.subs') baseFilterSubs = {
     statusHistory: {
       list: (permissions) => {
         if (permissions.isAdmin) return {};

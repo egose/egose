@@ -8,7 +8,7 @@ import {
   GLOBAL_PERMISSIONS_WATERMARK,
   DOC_PERMISSIONS_WATERMARK,
   ROUTE_GUARD_WATERMARK,
-  BASE_QUERY_WATERMARK,
+  BASE_FILTER_WATERMARK,
   VALIDATE_WATERMARK,
   PREPARE_WATERMARK,
   TRANSFORM_WATERMARK,
@@ -85,7 +85,7 @@ export const isDocPermissionsMethod = (obj: object, method: string) => {
 };
 
 export const isBaseQueryMethod = (obj: object, method: string) => {
-  return !!getMethodMetadata(obj, method, BASE_QUERY_WATERMARK);
+  return !!getMethodMetadata(obj, method, BASE_FILTER_WATERMARK);
 };
 
 export const isValidateMethod = (obj: object, method: string) => {

@@ -8,7 +8,7 @@ export const OPTIONS_METADATA = '__opts_metadata__';
 export const GLOBAL_PERMISSIONS_WATERMARK = '__global_permissions__';
 export const DOC_PERMISSIONS_WATERMARK = '__doc_permissions__';
 export const ROUTE_GUARD_WATERMARK = '__route_guard__';
-export const BASE_QUERY_WATERMARK = '__base_query__';
+export const BASE_FILTER_WATERMARK = '__base_filter__';
 export const VALIDATE_WATERMARK = '__validate__';
 export const PREPARE_WATERMARK = '__prepare__';
 export const TRANSFORM_WATERMARK = '__transform__';
@@ -25,7 +25,7 @@ export enum HookParamtypes {
 export const GLOBAL_PERMISSIONS_ARGS = [HookParamtypes.REQUEST];
 export const DOC_PERMISSIONS_ARGS = [HookParamtypes.DOCUMENT, HookParamtypes.PERMISSIONS, HookParamtypes.CONTEXT];
 export const ROUTE_GUARD_ARGS = [HookParamtypes.PERMISSIONS];
-export const BASE_QUERY_ARGS = [HookParamtypes.PERMISSIONS];
+export const BASE_FILTER_ARGS = [HookParamtypes.PERMISSIONS];
 export const VALIDATE_ARGS = [HookParamtypes.DOCUMENT, HookParamtypes.PERMISSIONS, HookParamtypes.CONTEXT];
 export const PREPARE_ARGS = [HookParamtypes.DOCUMENT, HookParamtypes.PERMISSIONS, HookParamtypes.CONTEXT];
 export const TRANSFORM_ARGS = [HookParamtypes.DOCUMENT, HookParamtypes.PERMISSIONS, HookParamtypes.CONTEXT];
@@ -36,7 +36,7 @@ export const ARGS = {
   globalPermissions: GLOBAL_PERMISSIONS_ARGS,
   docPermissions: DOC_PERMISSIONS_ARGS,
   routeGuard: ROUTE_GUARD_ARGS,
-  baseQuery: BASE_QUERY_ARGS,
+  baseFilter: BASE_FILTER_ARGS,
   validate: VALIDATE_ARGS,
   prepare: PREPARE_ARGS,
   transform: TRANSFORM_ARGS,

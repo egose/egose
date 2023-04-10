@@ -38,7 +38,7 @@ export const userRouter = macl.createRouter('User', {
 
     return p;
   },
-  baseQuery: {
+  baseFilter: {
     list: function (permissions: Permissions) {
       if (permissions.isAdmin) return {};
       else return { $or: [{ _id: this._user?._id }, { public: true }] };

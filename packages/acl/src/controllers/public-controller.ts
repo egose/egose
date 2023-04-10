@@ -27,9 +27,9 @@ import {
 } from '../interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
-const filterChildren = (children, query) => {
-  if (isPlainObject(query))
-    return query.$and ? filter(children, (v) => query.$and.every((q) => isMatch(v, q))) : filter(children, query);
+const filterChildren = (children, obj) => {
+  if (isPlainObject(obj))
+    return obj.$and ? filter(children, (v) => obj.$and.every((q) => isMatch(v, q))) : filter(children, obj);
 
   return children;
 };
@@ -61,8 +61,8 @@ export class PublicController extends Controller {
   }
 
   async _list(
+    filter: any,
     {
-      query = {},
       select = this.defaults._listArgs?.select,
       populate = this.defaults._listArgs?.populate,
       sort = this.defaults._listArgs?.sort,
@@ -78,8 +78,8 @@ export class PublicController extends Controller {
     }: PublicListOptions = {},
   ) {
     let docs = await this.find(
+      filter,
       {
-        query,
         select,
         populate,
         sort,
@@ -101,7 +101,7 @@ export class PublicController extends Controller {
 
     if (includeCount) {
       return {
-        count: await this.model.countDocuments(query),
+        count: await this.model.countDocuments(filter),
         rows,
       };
     } else {
@@ -157,14 +157,14 @@ export class PublicController extends Controller {
     }: PublicReadOptions = {},
   ) {
     let access = 'read';
-    const idQuery = await this.req[CORE]._genIDQuery(this.modelName, id);
+    const idFilter = await this.req[CORE]._genIDFilter(this.modelName, id);
 
     let doc = await this.findById(
       id,
       {
         select,
         populate,
-        overrides: { idQuery },
+        overrides: { idFilter },
       },
       { includePermissions, access, populateAccess, lean },
     );
@@ -178,7 +178,7 @@ export class PublicController extends Controller {
         {
           select,
           populate,
-          overrides: { idQuery },
+          overrides: { idFilter },
         },
         { includePermissions, access, populateAccess, lean },
       );
@@ -237,20 +237,20 @@ export class PublicController extends Controller {
     return result;
   }
 
-  async _count(query, access = 'list') {
-    const result = await this.count(query, access);
+  async _count(filter, access = 'list') {
+    const result = await this.count(filter, access);
     return result;
   }
 
   private async getParentDoc(id, sub, access, populate = []) {
-    const parentQuery = await this.req[CORE]._genQuery(
+    const parentFilter = await this.req[CORE]._genFilter(
       this.modelName,
       access,
-      await this.req[CORE]._genIDQuery(this.modelName, id),
+      await this.req[CORE]._genIDFilter(this.modelName, id),
     );
 
-    if (parentQuery === false) return null;
-    return this.model.findOne({ query: parentQuery, select: sub, populate });
+    if (parentFilter === false) return null;
+    return this.model.findOne({ filter: parentFilter, select: sub, populate });
   }
 
   async listSub(id, sub, options = {}) {
@@ -260,12 +260,12 @@ export class PublicController extends Controller {
     if (!parentDoc) return null;
     let result = get(parentDoc, sub);
 
-    const [subQuery, subSelect] = await Promise.all([
-      this.req[CORE]._genQuery(this.modelName, `subs.${sub}.list`, ft),
+    const [subFilter, subSelect] = await Promise.all([
+      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.list`, ft),
       this.req[CORE]._genSelect(this.modelName, 'list', fields, false, [sub, 'sub']),
     ]);
 
-    result = filterChildren(result, subQuery);
+    result = filterChildren(result, subFilter);
     if (subSelect) result = result.map((v) => pick(v, subSelect.concat(['id'])));
     return result;
   }
@@ -277,12 +277,12 @@ export class PublicController extends Controller {
     if (!parentDoc) return null;
     let result = get(parentDoc, sub);
 
-    const [subQuery, subSelect] = await Promise.all([
-      this.req[CORE]._genQuery(this.modelName, `subs.${sub}.read`),
+    const [subFilter, subSelect] = await Promise.all([
+      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.read`),
       this.req[CORE]._genSelect(this.modelName, 'read', fields, false, [sub, 'sub']),
     ]);
 
-    result = filterChildren(result, subQuery);
+    result = filterChildren(result, subFilter);
     result = result.find((v) => String(v._id) === subId);
     if (!result) return null;
 
@@ -295,13 +295,13 @@ export class PublicController extends Controller {
     if (!parentDoc) return null;
     let result = get(parentDoc, sub);
 
-    const [subQuery, subReadSelect, subUpdateSelect] = await Promise.all([
-      this.req[CORE]._genQuery(this.modelName, `subs.${sub}.update`),
+    const [subFilter, subReadSelect, subUpdateSelect] = await Promise.all([
+      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.update`),
       this.req[CORE]._genSelect(this.modelName, 'read', null, false, [sub, 'sub']),
       this.req[CORE]._genSelect(this.modelName, 'update', null, false, [sub, 'sub']),
     ]);
 
-    result = filterChildren(result, subQuery);
+    result = filterChildren(result, subFilter);
     result = result.find((v) => String(v._id) === subId);
     if (!result) return null;
 
@@ -338,9 +338,9 @@ export class PublicController extends Controller {
     if (!parentDoc) return null;
     let result = get(parentDoc, sub);
 
-    const subQuery = await this.req[CORE]._genQuery(this.modelName, `subs.${sub}.delete`);
+    const subFilter = await this.req[CORE]._genFilter(this.modelName, `subs.${sub}.delete`);
 
-    result = filterChildren(result, subQuery);
+    result = filterChildren(result, subFilter);
     result = result.find((v) => String(v._id) === subId);
     if (!result) return null;
 

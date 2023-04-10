@@ -13,7 +13,7 @@ orgRouter.prepare(function (data) {
   return data;
 });
 
-orgRouter.baseQuery({
+orgRouter.baseFilter({
   list: function (permissions: Permissions) {
     return true;
   },
