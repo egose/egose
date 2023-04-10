@@ -29,8 +29,10 @@ import {
   FindByIdOptions,
   CreateArgs,
   CreateOptions,
-  UpdateArgs,
-  UpdateOptions,
+  UpdateOneArgs,
+  UpdateOneOptions,
+  UpdateByIdArgs,
+  UpdateByIdOptions,
 } from '../interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
@@ -210,21 +212,19 @@ export class Controller {
     return this.model.new();
   }
 
-  protected async update(
-    id: string,
+  protected async updateOne(
+    _query: any,
     data,
-    { populate = this.defaults.updateArgs?.populate }: UpdateArgs = {},
+    { populate = this.defaults.updateOneArgs?.populate, overrides = {} }: UpdateOneArgs = {},
     {
-      includePermissions = this.defaults.updateOptions?.includePermissions ?? true,
-      populateAccess = this.defaults.updateOptions?.populateAccess ?? 'read',
-    }: CreateOptions = {},
+      includePermissions = this.defaults.updateOneOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.updateOneOptions?.populateAccess ?? 'read',
+    }: UpdateOneOptions = {},
     decorate?: Function,
   ) {
-    const query = await this.req[CORE]._genQuery(
-      this.modelName,
-      'update',
-      await this.req[CORE]._genIDQuery(this.modelName, id),
-    );
+    const { query: __query, populate: __populate } = overrides;
+
+    const query = __query || (await this.req[CORE]._genQuery(this.modelName, 'update', _query));
     if (query === false) return null;
 
     let doc = await this.model.findOne({ query });
@@ -262,6 +262,33 @@ export class Controller {
     if (populate) await doc.populate(await this.req[CORE]._genPopulate(this.modelName, populateAccess, populate));
     if (isFunction(decorate)) doc = await decorate(doc, context);
     return doc;
+  }
+
+  protected async updateById(
+    id: string,
+    data,
+    { populate: _populate = this.defaults.updateByIdArgs?.populate, overrides = {} }: UpdateByIdArgs = {},
+    {
+      includePermissions = this.defaults.updateByIdOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.updateByIdOptions?.populateAccess ?? 'read',
+    }: UpdateByIdOptions = {},
+    decorate?: Function,
+  ) {
+    const { populate: __populate, idQuery: __idQuery } = overrides;
+    const query = __idQuery || (await this.req[CORE]._genIDQuery(this.modelName, id));
+
+    return this.updateOne(
+      query,
+      data,
+      {
+        populate: _populate,
+        overrides: {
+          populate: __populate,
+        },
+      },
+      { includePermissions, populateAccess },
+      decorate,
+    );
   }
 
   protected async delete(id: string) {

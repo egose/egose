@@ -1,6 +1,13 @@
 import { Validation } from './base';
 import { PublicCreateArgs, CreateArgs, PublicCreateOptions, CreateOptions } from './controller-create';
-import { PublicUpdateArgs, UpdateArgs, PublicUpdateOptions, UpdateOptions } from './controller-update';
+import {
+  PublicUpdateArgs,
+  PublicUpdateOptions,
+  UpdateOneArgs,
+  UpdateOneOptions,
+  UpdateByIdArgs,
+  UpdateByIdOptions,
+} from './controller-update';
 import { PublicListArgs, PublicListOptions } from './controller-list';
 import { PublicReadArgs, PublicReadOptions } from './controller-read';
 import { FindArgs, FindOptions, FindOneArgs, FindOneOptions, FindByIdArgs, FindByIdOptions } from './controller-find';
@@ -20,8 +27,10 @@ export interface Defaults {
   findOptions?: FindOptions;
   createArgs?: CreateArgs;
   createOptions?: CreateOptions;
-  updateArgs?: UpdateArgs;
-  updateOptions?: UpdateOptions;
+  updateOneArgs?: UpdateOneArgs;
+  updateOneOptions?: UpdateOneOptions;
+  updateByIdArgs?: UpdateByIdArgs;
+  updateByIdOptions?: UpdateByIdOptions;
   _listArgs?: DefaultPublicListArgs;
   _listOptions?: PublicListOptions;
   _createArgs?: PublicCreateArgs;

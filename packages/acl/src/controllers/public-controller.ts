@@ -207,7 +207,7 @@ export class PublicController extends Controller {
       populateAccess = this.defaults._updateOptions?.populateAccess ?? 'read',
     }: PublicUpdateOptions = {},
   ) {
-    const result = await this.update(
+    const result = await this.updateById(
       id,
       data,
       { populate },
