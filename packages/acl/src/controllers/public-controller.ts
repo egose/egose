@@ -77,7 +77,7 @@ export class PublicController extends Controller {
       lean = this.defaults._listOptions?.lean ?? false,
     }: PublicListOptions = {},
   ) {
-    let docs = await this.find(
+    const result = await this.find(
       filter,
       {
         select,
@@ -86,7 +86,7 @@ export class PublicController extends Controller {
         limit,
         page,
       },
-      { includePermissions, populateAccess, lean },
+      { includePermissions, includeCount, populateAccess, lean },
       async (doc) => {
         doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'list', [
           '_id',
@@ -96,16 +96,17 @@ export class PublicController extends Controller {
       },
     );
 
-    let rows = await this.req[CORE]._decorateAll(this.modelName, docs, 'list');
-    rows = rows.map((row) => this.req[CORE]._process(this.modelName, row, process));
+    let docs = includeCount ? result.docs : result;
+    docs = await this.req[CORE]._decorateAll(this.modelName, docs, 'list');
+    docs = docs.map((row) => this.req[CORE]._process(this.modelName, row, process));
 
     if (includeCount) {
       return {
-        count: await this.model.countDocuments(filter),
-        rows,
+        count: result.count,
+        rows: docs,
       };
     } else {
-      return rows;
+      return docs;
     }
   }
 

@@ -16,6 +16,7 @@ export interface FindArgs {
 
 export interface FindOptions {
   includePermissions?: boolean;
+  includeCount?: boolean;
   populateAccess?: string;
   lean?: boolean;
 }

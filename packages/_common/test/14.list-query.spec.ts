@@ -68,6 +68,20 @@ describe('List-Query Users', () => {
     expect(response.body.rows[0]._permissions).exist;
   });
 
+  it('should include document count that scopes to the session user', async () => {
+    const userCount = await mongoose.model('User').countDocuments({ $or: [{ name: 'john' }, { public: true }] });
+
+    const response = await request(app)
+      .post('/api/users/__query')
+      .set('user', 'john')
+      .send({ limit: 1, options: { includeCount: true } })
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body.count).to.equal(userCount);
+    expect(response.body.rows.length).to.equal(1);
+  });
+
   it('should not include permissions in documents', async () => {
     const response = await request(app)
       .post('/api/users/__query')
