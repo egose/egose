@@ -8,7 +8,7 @@ The `@egose/deco` package offers [`TypeScript Decorators`](https://www.typescrip
 
 ## Documentation
 
-please see [Egose documentation](https://egose.github.io/egose-deco/philosophy/)
+please see [Egose documentation](https://egose.github.io/egose-deco/philosophy/) for more details.
 
 ## Installation
 
