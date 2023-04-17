@@ -8,11 +8,12 @@
     "type": "git",
     "url": "https://github.com/egose/egose"
   },
-  "homepage": "https://egose.github.io/mongoose-acl/1.philosophy/",
+  "homepage": "https://egose.github.io/egose-acl/philosophy/",
   "keywords": [
     "express",
     "mongoose",
-    "acl"
+    "access control list",
+    "api endpoints"
   ],
   "scripts": {
     "dev": "tsc -w",
@@ -40,8 +41,7 @@
     ],
     "format": [
       "cjs",
-      "esm",
-      "iife"
+      "esm"
     ],
     "dts": true,
     "splitting": false,

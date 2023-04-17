@@ -2,7 +2,7 @@ import {
   Router,
   Prepare,
   DocPermissions,
-  BaseQuery,
+  BaseFilter,
   RouteGuard,
   Request,
   Document,
@@ -30,25 +30,25 @@ export class OrgRouter {
     return { read: false, edit: true };
   }
 
-  @BaseQuery('list')
-  listBaseQuery() {
+  @BaseFilter('list')
+  listBaseFilter() {
     return true;
   }
 
-  @BaseQuery('read')
-  readBaseQuery(@Request() req, @Permissions() permissions) {
+  @BaseFilter('read')
+  readBaseFilter(@Request() req, @Permissions() permissions) {
     if (permissions.isAdmin) return {};
     else return { _id: req._user.orgs };
   }
 
-  @BaseQuery('update')
-  updateBaseQuery(@Request() req, @Permissions() permissions) {
+  @BaseFilter('update')
+  updateBaseFilter(@Request() req, @Permissions() permissions) {
     if (permissions.isAdmin) return {};
     else return { _id: req._user.orgs };
   }
 
-  @BaseQuery('delete')
-  deleteBaseQuery(@Request() req, @Permissions() permissions) {
+  @BaseFilter('delete')
+  deleteBaseFilter(@Request() req, @Permissions() permissions) {
     if (permissions.isAdmin) return {};
     else return { _id: req._user.orgs };
   }

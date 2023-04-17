@@ -1,0 +1,266 @@
+# Quick Start
+
+Before proceeding, make sure to install [`express`](https://www.npmjs.com/package/express) and [`mongoose`](https://www.npmjs.com/package/mongoose) as peer dependencies. These packages are required for the proper functioning of the application and must be installed prior to running the code. You can install them using the npm package manager.
+
+## Installation
+
+```sh
+npm install express mongoose @egose/deco
+npm install @types/express --save-dev
+
+```
+
+```sh
+yarn add express mongoose @egose/deco
+yarn add @types/express --dev
+```
+
+## Backend Configuration
+
+### Mongoose Models
+
+The creation and retrieval of documents from the MongoDB database are handled by the `mongoose models`. In turn, `@egose/acl` relies on obtaining model details from these mongoose model objects.
+
+```ts
+import mongoose from 'mongoose';
+
+const UserSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  role: { type: String, enum: ['admin', 'user'] },
+  public: { type: Boolean, default: false },
+});
+
+export default mongoose.model('User', UserSchema);
+```
+
+### Global Permissions
+
+`Role-based access control (RBAC)` for the backend API endpoints relies on `Global Permissions` as a foundational component. These permissions are utilized to ascertain the requester's access level for each request.
+
+```ts
+import egose from '@egose/acl';
+
+egose.set('globalPermissions', function (req) {
+  const user = req.user;
+
+  if (!user) return { isGuest: true };
+
+  return {
+    isGuest: false,
+    isUser: true,
+    isAdmin: user.role === 'admin',
+  };
+});
+```
+
+Upon execution, the global permission object will be assigned to the Express request object with the field name `_permissions`.
+To modify the name of the permission field, the `permissionField` global option can be adjusted as shown below:
+
+```ts
+egose.set('permissionField', 'mypermissions');
+```
+
+### Model Router
+
+To generate predefined Express routes that bind to a Mongoose model, a model router can be established as follows:
+
+```ts
+const userRouter = egose.createRouter('User', { baseUrl: '/users' });
+```
+
+The first argument provided must match a previously established Mongoose model name.
+
+### Route Guard
+
+The Route Guard function implements `role-based security` and restricts access to the backend API endpoints based on global permissions. It permits only the defined routes, which include `Create`, `Read`, `Update`, `Delete`, and `List` (CRUDL), and excludes any omitted routes. There are several methods to validate access:
+
+- `boolean`: `true` or `false`
+- `string`: considered valid if the key returns `true` in the global permissions
+- `array`: considered valid if any of the keys return `true` in the global permissions
+- `function`: considered valid if the function returns `true`
+
+```ts
+userRouter.routeGuard({
+  // the `list` route is available for any requesters including guests
+  list: true,
+  // the `read` route is available for requesters whose global permissions includes `isAdmin` or `isUser`
+  read: ['isAdmin', 'isUser'],
+  // the `update` route is available for requesters whose global permissions includes `isAdmin`
+  update: 'isAdmin',
+  // the `update` route is available for requesters whose global permissions includes `isAdmin`
+  create: function (globalPermissions) {
+    // `this` refers to Express request object
+    if (globalPermissions.isAdmin) return true;
+    return false;
+  },
+  // the `delete` route is not available for any requesters
+  delete: false,
+});
+```
+
+### Base Filter
+
+The `Base Filter` feature applies `document-level security` to control access to individual documents in a collection. It achieves this by decorating the Mongoose Query object to define the permission guardrails based on the global permissions.
+
+To implement Base Filter, you can use the `baseFilter` method on a model router, passing in an object with functions that define the filters for each CRUD operation like in the code snippet below:
+
+```ts
+userRouter.baseFilter({
+  // the list operation allows all requests
+  list: function (globalPermissions) {
+    return true;
+  },
+  // the read operation returns the document if the requester is an admin or if the document is public
+  read: function (globalPermissions) {
+    if (globalPermissions.isAdmin) return {};
+    else return { $or: [{ _id: this.user._id }, { public: true }] };
+  },
+  // the update operation allows updates only if the requester is an admin or the document belongs to the requester
+  update: function (globalPermissions) {
+    if (globalPermissions.isAdmin) return {};
+    else return { _id: this.user._id };
+  },
+  // the delete operation allows deletion only if the requester is an admin
+  delete: function (globalPermissions) {
+    return globalPermissions.isAdmin;
+  },
+});
+```
+
+Suppose a non-admin user tries to update the user with ID `123456` by providing the filter object `{ _id: '123456' }`.
+To fetch the document, the backend security boundary generates the following Mongoose filter object behind the scenes:
+
+```ts
+const filter = { $and: [{ _id: this.user._id }, { _id: '123456' }] };
+const result = await mongoose.model('User').findOne(filter);
+```
+
+### Document Permissions
+
+`Document permissions` are essential for implementing `field-level security` and can be accessed through applicable middleware hooks.
+Additionally, document permissions can be retrieved in the frontend application and used to implement business logic in the user interface based on the user's permissions.
+
+```ts
+userRouter.docPermissions(function (docOrObject, globalPermissions) {
+  const isMe = String(docOrObject._id) === String(this.user._id);
+
+  return {
+    'edit.name': globalPermissions.isAdmin || isMe,
+    'edit.role': globalPermissions.isAdmin,
+  };
+});
+```
+
+### Permission Schema
+
+The `Permission schema` maps global and optional document permissions to resources, allowing for fine-grained control.
+It provides `field-level security` to restrict access to individual fields in a document, while `Base Filter` provides `document-level security`.
+If no field-level security rule is defined for a field, by default, the field is protected for all actions (list, read, update, and create).
+
+```ts
+userRouter.permissionSchema({
+  name: { list: true, read: true, update: 'edit.name', create: true },
+  role: {
+    list: ['isAdmin', 'isUser'],
+    read: 'isAdmin',
+    update: function (globalPermissions, docPermissions) {
+      // `this` refers to Express request object
+      if (docPermissions['edit.role']) return true;
+      return false;
+    },
+    create: 'isAdmin',
+  },
+});
+```
+
+Note that global permissions are available for all actions, and document permissions are available for `update` and `create` actions.
+For example, `edit.name` is a document permission generated by the router option `docPermissions`.
+
+### Binding the model router routes to the Express router
+
+After configuring the model router, you can bind its routes to an Express router as shown below:
+
+```ts
+import express from 'express';
+
+const app = express();
+const router = express.Router();
+
+// create a model router for the User model
+const userRouter = egose.createRouter('User', { baseUrl: '/users' });
+
+// bind the User model router routes to the Express router
+router.use('/', userRouter.routes);
+app.use('/api', router);
+```
+
+The above code will expose the following API endpoints:
+
+- `GET` /api/users
+- `POST` /api/users/\_\_query
+- `POST` /api/users
+- `POST` /api/users/\_\_mutation
+- `GET` /api/users/new
+- `GET` /api/users/:id
+- `POST` /api/users/\_\_query/:id
+- `PUT` /api/users/:id
+- `PUT` /api/users/\_\_mutation/:id
+- `DELETE` /api/users/:id
+- `GET` /api/users/distinct/:field
+- `POST` /api/users/distinct/:field
+- `GET` /api/users/count
+- `POST` /api/users/count
+
+These endpoints correspond to various CRUD operations for the User model, and also include routes for querying and manipulating data using Mongoose-like syntax.
+
+### Source Code
+
+```ts
+--8<-- 'quick-start-backend.ts'
+```
+
+## Frontend Usage
+
+### Querying selected user list
+
+```js
+const listQueryUrl = '/api/users/__query';
+
+const data = {
+  filter: { role: 'user' },
+  select: ['name', 'role'],
+  sort: '-name',
+  populate: [],
+  page: 1,
+  limit: 2,
+};
+
+const response = await fetch(listQueryUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(data),
+});
+
+const result = response.json();
+```
+
+### Querying a selected user
+
+```js
+const targetUserId = 8;
+const readQueryUrl = `/api/users/__query/${targetUserId}`;
+
+const data = {
+  select: ['name', 'role'],
+  populate: [],
+  options: { includePermissions: true, tryList: true },
+};
+
+const response = await fetch(readQueryUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(data),
+});
+
+const result = response.json();
+```

@@ -13,10 +13,9 @@ import { PublicReadArgs, PublicReadOptions } from './controller-read';
 import { FindArgs, FindOptions, FindOneArgs, FindOneOptions, FindByIdArgs, FindByIdOptions } from './controller-find';
 import { DistinctArgs } from './controller';
 
-interface DefaultFindOneArgs extends Omit<FindOneArgs, 'query' | 'overrides'> {}
+interface DefaultFindOneArgs extends Omit<FindOneArgs, 'overrides'> {}
 interface DefaultFindByIdArgs extends Omit<FindByIdArgs, 'overrides'> {}
-interface DefaultFindArgs extends Omit<FindArgs, 'query' | 'overrides'> {}
-interface DefaultPublicListArgs extends Omit<PublicListArgs, 'query'> {}
+interface DefaultFindArgs extends Omit<FindArgs, 'overrides'> {}
 
 export interface Defaults {
   findOneArgs?: DefaultFindOneArgs;
@@ -31,14 +30,14 @@ export interface Defaults {
   updateOneOptions?: UpdateOneOptions;
   updateByIdArgs?: UpdateByIdArgs;
   updateByIdOptions?: UpdateByIdOptions;
-  _listArgs?: DefaultPublicListArgs;
-  _listOptions?: PublicListOptions;
-  _createArgs?: PublicCreateArgs;
-  _createOptions?: PublicCreateOptions;
-  _readArgs?: PublicReadArgs;
-  _readOptions?: PublicReadOptions;
-  _updateArgs?: PublicUpdateArgs;
-  _updateOptions?: PublicUpdateOptions;
+  publicListArgs?: PublicListArgs;
+  publicListOptions?: PublicListOptions;
+  publicCreateArgs?: PublicCreateArgs;
+  publicCreateOptions?: PublicCreateOptions;
+  publicReadArgs?: PublicReadArgs;
+  publicReadOptions?: PublicReadOptions;
+  publicUpdateArgs?: PublicUpdateArgs;
+  publicUpdateOptions?: PublicUpdateOptions;
 }
 
 export interface GlobalOptions {

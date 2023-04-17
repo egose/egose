@@ -84,7 +84,7 @@ export const isDocPermissionsMethod = (obj: object, method: string) => {
   return !!getMethodMetadata(obj, method, DOC_PERMISSIONS_WATERMARK);
 };
 
-export const isBaseQueryMethod = (obj: object, method: string) => {
+export const isBaseFilterMethod = (obj: object, method: string) => {
   return !!getMethodMetadata(obj, method, BASE_FILTER_WATERMARK);
 };
 

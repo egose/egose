@@ -27,7 +27,7 @@ export function DocPermissions(optionKey: 'default' | 'create' | 'update' | 'lis
   return setMethodMetadata(DOC_PERMISSIONS_WATERMARK, 'docPermissions', optionKey);
 }
 
-export function BaseQuery(optionKey: 'default' | 'update' | 'list' | 'read' | 'delete'): MethodDecorator {
+export function BaseFilter(optionKey: 'default' | 'update' | 'list' | 'read' | 'delete'): MethodDecorator {
   return setMethodMetadata(BASE_FILTER_WATERMARK, 'baseFilter', optionKey);
 }
 

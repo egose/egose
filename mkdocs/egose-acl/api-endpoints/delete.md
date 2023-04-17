@@ -1,0 +1,49 @@
+## Delete Resource
+
+This entrypoint deletes a target resource.
+
+- `DELETE /{base_url}/:id`
+
+### Parameters
+
+| Name | Type   | In    | Description                     |
+| ---- | ------ | ----- | ------------------------------- |
+| `id` | string | param | Resource identifier; `required` |
+
+### Example
+
+#### request
+
+=== "cURL"
+
+    ```bash
+    curl \
+      -X DELETE \
+      -H "Accept: application/json" \
+      https://example.com/users/5d6ede6a0ba62570afcedd3b
+    ```
+
+=== "Javascript"
+
+    ```js
+    const targetId = '5d6ede6a0ba62570afcedd3b';
+
+    const url = 'https://example.com/users/' + targetId;
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    });
+
+    const result = response.json();
+    ```
+
+#### response
+
+```
+Status: 200
+```
+
+```json
+"5d6ede6a0ba62570afcedd3b"
+```

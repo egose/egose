@@ -63,18 +63,18 @@ export class PublicController extends Controller {
   async _list(
     filter: any,
     {
-      select = this.defaults._listArgs?.select,
-      populate = this.defaults._listArgs?.populate,
-      sort = this.defaults._listArgs?.sort,
-      limit = this.defaults._listArgs?.limit,
-      page = this.defaults._listArgs?.page,
-      process = this.defaults._listArgs?.process ?? [],
+      select = this.defaults.publicListArgs?.select,
+      populate = this.defaults.publicListArgs?.populate,
+      sort = this.defaults.publicListArgs?.sort,
+      limit = this.defaults.publicListArgs?.limit,
+      page = this.defaults.publicListArgs?.page,
+      process = this.defaults.publicListArgs?.process ?? [],
     }: PublicListArgs = {},
     {
-      includePermissions = this.defaults._listOptions?.includePermissions ?? true,
-      includeCount = this.defaults._listOptions?.includeCount ?? false,
-      populateAccess = this.defaults._listOptions?.populateAccess ?? 'read',
-      lean = this.defaults._listOptions?.lean ?? false,
+      includePermissions = this.defaults.publicListOptions?.includePermissions ?? true,
+      includeCount = this.defaults.publicListOptions?.includeCount ?? false,
+      populateAccess = this.defaults.publicListOptions?.populateAccess ?? 'read',
+      lean = this.defaults.publicListOptions?.lean ?? false,
     }: PublicListOptions = {},
   ) {
     const result = await this.find(
@@ -113,13 +113,13 @@ export class PublicController extends Controller {
   async _create(
     data,
     {
-      select = this.defaults._createArgs?.select,
-      populate = this.defaults._createArgs?.populate,
-      process = this.defaults._createArgs?.process ?? [],
+      select = this.defaults.publicCreateArgs?.select,
+      populate = this.defaults.publicCreateArgs?.populate,
+      process = this.defaults.publicCreateArgs?.process ?? [],
     }: PublicCreateArgs = {},
     {
-      includePermissions = this.defaults._createOptions?.includePermissions ?? true,
-      populateAccess = this.defaults._createOptions?.populateAccess ?? 'read',
+      includePermissions = this.defaults.publicCreateOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.publicCreateOptions?.populateAccess ?? 'read',
     }: PublicCreateOptions = {},
   ) {
     const result = await this.create(
@@ -146,15 +146,15 @@ export class PublicController extends Controller {
   async _read(
     id,
     {
-      select = this.defaults._readArgs?.select,
-      populate = this.defaults._readArgs?.populate,
-      process = this.defaults._readArgs?.process ?? [],
+      select = this.defaults.publicReadArgs?.select,
+      populate = this.defaults.publicReadArgs?.populate,
+      process = this.defaults.publicReadArgs?.process ?? [],
     }: PublicReadArgs = {},
     {
-      includePermissions = this.defaults._readOptions?.includePermissions ?? true,
-      tryList = this.defaults._readOptions?.tryList ?? true,
-      populateAccess = this.defaults._readOptions?.populateAccess,
-      lean = this.defaults._readOptions?.lean ?? false,
+      includePermissions = this.defaults.publicReadOptions?.includePermissions ?? true,
+      tryList = this.defaults.publicReadOptions?.tryList ?? true,
+      populateAccess = this.defaults.publicReadOptions?.populateAccess,
+      lean = this.defaults.publicReadOptions?.lean ?? false,
     }: PublicReadOptions = {},
   ) {
     let access = 'read';
@@ -198,14 +198,14 @@ export class PublicController extends Controller {
     id: string,
     data,
     {
-      select = this.defaults._updateArgs?.select,
-      populate = this.defaults._updateArgs?.populate,
-      process = this.defaults._updateArgs?.process ?? [],
+      select = this.defaults.publicUpdateArgs?.select,
+      populate = this.defaults.publicUpdateArgs?.populate,
+      process = this.defaults.publicUpdateArgs?.process ?? [],
     }: PublicUpdateArgs = {},
     {
-      returningAll = this.defaults._updateOptions?.returningAll ?? true,
-      includePermissions = this.defaults._updateOptions?.includePermissions ?? true,
-      populateAccess = this.defaults._updateOptions?.populateAccess ?? 'read',
+      returningAll = this.defaults.publicUpdateOptions?.returningAll ?? true,
+      includePermissions = this.defaults.publicUpdateOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.publicUpdateOptions?.populateAccess ?? 'read',
     }: PublicUpdateOptions = {},
   ) {
     const result = await this.updateById(
