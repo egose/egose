@@ -96,13 +96,13 @@ export class PublicController extends Controller {
       },
     );
 
-    let docs = includeCount ? result.docs : result;
+    let docs = result.result;
     docs = await this.req[CORE]._decorateAll(this.modelName, docs, 'list');
     docs = docs.map((row) => this.req[CORE]._process(this.modelName, row, process));
 
     if (includeCount) {
       return {
-        count: result.count,
+        count: result.totalCount,
         rows: docs,
       };
     } else {
@@ -136,7 +136,7 @@ export class PublicController extends Controller {
       },
     );
 
-    return result;
+    return result.count === 1 ? result.result[0] : result.result;
   }
 
   async _empty() {
@@ -160,7 +160,7 @@ export class PublicController extends Controller {
     let access = 'read';
     const idFilter = await this.req[CORE]._genIDFilter(this.modelName, id);
 
-    let doc = await this.findById(
+    let result = await this.findById(
       id,
       {
         select,
@@ -171,10 +171,10 @@ export class PublicController extends Controller {
     );
 
     // if not found, try to get the doc with 'list' access
-    if (!doc && tryList) {
+    if (!result.result && tryList) {
       access = 'list';
 
-      doc = await this.findById(
+      result = await this.findById(
         id,
         {
           select,
@@ -185,9 +185,9 @@ export class PublicController extends Controller {
       );
     }
 
-    if (!doc) return null;
+    if (!result.result) return null;
 
-    doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, access, this.baseFields);
+    let doc = await this.req[CORE]._pickAllowedFields(this.modelName, result.result, access, this.baseFields);
     doc = await this.req[CORE]._decorate(this.modelName, doc, access);
     doc = this.req[CORE]._process(this.modelName, doc, process);
 
@@ -208,7 +208,7 @@ export class PublicController extends Controller {
       populateAccess = this.defaults.publicUpdateOptions?.populateAccess ?? 'read',
     }: PublicUpdateOptions = {},
   ) {
-    const result = await this.updateById(
+    const { result } = await this.updateById(
       id,
       data,
       { populate },
@@ -229,17 +229,17 @@ export class PublicController extends Controller {
   }
 
   async _delete(id: string) {
-    const result = await this.delete(id);
+    const { result } = await this.delete(id);
     return result;
   }
 
   async _distinct(field: string, options: DistinctArgs = {}) {
-    const result = await this.distinct(field, options);
+    const { result } = await this.distinct(field, options);
     return result;
   }
 
   async _count(filter, access = 'list') {
-    const result = await this.count(filter, access);
+    const { result } = await this.count(filter, access);
     return result;
   }
 

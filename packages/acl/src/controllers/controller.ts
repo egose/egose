@@ -74,13 +74,19 @@ export class Controller {
       overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess || access, populate),
     ]);
 
-    if (_filter === false) return null;
+    const info = {
+      filter: _filter,
+      select: _select,
+      populate: _populate,
+    };
+
+    if (_filter === false) return { result: null, info };
 
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
-    if (!doc) return null;
+    if (!doc) return { result: null, info };
 
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, access);
-    return doc;
+    return { result: doc, info };
   }
 
   protected async findById(
@@ -141,7 +147,9 @@ export class Controller {
       this.req[CORE]._genPagination({ limit, page }, this.options.listHardLimit),
     ]);
 
-    if (_filter === false) return [];
+    const info = { filter: _filter, select: _select, populate: _populate, pagination };
+
+    if (_filter === false) return { result: [], count: 0, totalCount: null, info };
 
     // filter populated fields based on select fields
     const filteredPopulate =
@@ -168,14 +176,12 @@ export class Controller {
       }),
     );
 
-    if (includeCount) {
-      return {
-        count: await this.model.countDocuments(_filter),
-        docs,
-      };
-    } else {
-      return docs;
-    }
+    return {
+      result: docs,
+      count: docs.length,
+      totalCount: includeCount ? await this.model.countDocuments(_filter) : null,
+      info,
+    };
   }
 
   protected async create(
@@ -225,7 +231,11 @@ export class Controller {
       }),
     );
 
-    return isArr ? docs : docs[0];
+    return {
+      result: docs,
+      data: items,
+      count: docs.length,
+    };
   }
 
   protected async empty() {
@@ -249,10 +259,10 @@ export class Controller {
       overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
     ]);
 
-    if (_filter === false) return null;
+    if (_filter === false) return { result: null, data: null };
 
     let doc = await this.model.findOne({ filter: _filter });
-    if (!doc) return null;
+    if (!doc) return { result: null, data: null };
 
     const context: MiddlewareContext = {};
 
@@ -285,7 +295,7 @@ export class Controller {
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
     if (_populate) await doc.populate(_populate);
     if (isFunction(decorate)) doc = await decorate(doc, context);
-    return doc;
+    return { result: doc, data: prepared };
   }
 
   protected async updateById(
@@ -321,30 +331,39 @@ export class Controller {
       'delete',
       await this.req[CORE]._genIDFilter(this.modelName, id),
     );
-    if (filter === false) return null;
+
+    const info = { filter };
+
+    if (filter === false) return { result: null, info };
 
     let doc = await this.model.findOneAndRemove(filter);
-    if (!doc) return null;
+    if (!doc) return { result: null, info };
 
     await doc.remove();
-    return doc._id;
+    return { result: doc._id, info };
   }
 
   protected async distinct(field: string, { filter }: DistinctArgs = {}) {
     filter = await this.req[CORE]._genFilter(this.modelName, 'read', filter);
-    if (filter === false) return null;
+
+    const info = { filter };
+
+    if (filter === false) return { result: null, info };
 
     const result = await this.model.distinct(field, filter);
-    if (!result) return null;
+    if (!result) return { result: null, info };
 
-    return result;
+    return { result, info };
   }
 
   protected async count(filter, access = 'list') {
     filter = await this.req[CORE]._genFilter(this.modelName, access, filter);
-    if (filter === false) return 0;
 
-    return this.model.countDocuments(filter);
+    const info = { filter };
+
+    if (filter === false) return { result: 0, info };
+
+    return { result: await this.model.countDocuments(filter), info };
   }
 
   private async operateQuery(filter) {
@@ -352,20 +371,20 @@ export class Controller {
       // @Deprecated option 'query'
       const { model, query, filter, mapper, ...rest } = sq;
       const ctl = this.req.macl(model);
-      const arr = await ctl.find(filter ?? query, rest);
-      if (mapper) {
+      const { result, count } = await ctl.find(filter ?? query, rest);
+      if (mapper && count > 0) {
         const m = mapper.multi === false ? false : true;
         const c = mapper.compact === true;
         const f = mapper.flatten === true;
         const path = mapper.path || mapper;
-        if (!m) return get(arr[0], path, isNil(mapper.defaultValue) ? null : mapper.defaultValue);
+        if (!m) return get(result[0], path, isNil(mapper.defaultValue) ? null : mapper.defaultValue);
 
-        let items = arr.map((v) => get(v, path));
+        let items = result.map((v) => get(v, path));
         if (f) items = flatten(items);
         if (c) items = compact(items);
         return items;
       }
-      return arr;
+      return result;
     });
 
     return result;
