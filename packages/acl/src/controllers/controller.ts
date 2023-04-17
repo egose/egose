@@ -41,7 +41,6 @@ export class Controller {
   model: Model;
   options: ModelRouterOptions;
   defaults: Defaults;
-  baseFields: string[];
 
   constructor(req: Request, modelName: string) {
     this.req = req;
@@ -49,7 +48,6 @@ export class Controller {
     this.model = new Model(modelName);
     this.options = getModelOptions(modelName);
     this.defaults = this.options.defaults || {};
-    this.baseFields = ['_id', this.options.permissionField];
   }
 
   protected async findOne(
