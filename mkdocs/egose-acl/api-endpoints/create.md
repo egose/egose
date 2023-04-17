@@ -1,0 +1,145 @@
+## Create Resource
+
+This entrypoint creates a new resource.
+
+- `POST /{base_url}`
+
+### Parameters
+
+| Name                  | Type    | In    | Description                             | Default |
+| --------------------- | ------- | ----- | --------------------------------------- | ------- |
+| `include_permissions` | boolean | query | Whether to include document permissions | true    |
+
+### Example
+
+#### request
+
+=== "cURL"
+
+    ```bash
+    curl \
+      -X POST \
+      -H "Accept: application/json" \
+      https://example.com/users \
+      -d '{ "name": "Jane" }'
+    ```
+
+=== "Javascript"
+
+    ```js
+    const data = { name: 'Jane' };
+
+    const url = 'https://example.com/users';
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const result = response.json();
+    ```
+
+#### response
+
+```
+Status: 201
+```
+
+```json
+{
+  "_id": "5d6ede6a0ba62570afcedd3b",
+  "name": "Jane",
+  "address": null,
+  "roles": ["user"],
+  "creditBalance": 0,
+  "loginDate": null
+}
+```
+
+## Create Resource - Advanced
+
+This entrypoint creates a new resource and returns selective data fields.
+
+- `POST /{base_url}/__mutation`
+- The suffix `__mutation` can be configured using a model option, as demonstrated below:
+  ```ts
+  modelRouter.set('mutationPath', '_mutable_');
+  ```
+
+### Parameters
+
+| Name                         | Type                             | In    | Description                                              | Default |
+| ---------------------------- | -------------------------------- | ----- | -------------------------------------------------------- | ------- |
+| `include_permissions`        | boolean                          | query | Whether to include document permissions                  | true    |
+| `data`                       | object                           | body  | Document data to create                                  |         |
+| `select`                     | object \| array<string\>         | body  | Document fields to include or exclude after the creation |         |
+| `populate`                   | array<string\> \| array<object\> | body  | Document fields to populate after the creation           |         |
+| `options.includePermissions` | boolean                          | body  | Whether to include document permissions                  | true    |
+| `options.populateAccess`     | 'list' \| 'read'                 | body  | The access level to use in `populate` method             | read    |
+
+### Example
+
+#### request
+
+=== "cURL"
+
+    ```bash
+    curl \
+      -X POST \
+      -H "Accept: application/json" \
+      https://example.com/users/__mutation \
+      -d '{
+        "data": { "name": "Jane" },
+        "select": ["name", "address"],
+        "populate": ["address"],
+        "options": {
+          "includePermissions": true,
+          "populateAccess": "list",
+        }
+      }'
+    ```
+
+=== "Javascript"
+
+    ```js
+    const data = {
+      data: { name: 'Jane' },
+      select: ['name', 'address'],
+      populate: ['address'],
+      options: {
+        includePermissions: true,
+        populateAccess: 'list',
+      },
+    };
+
+    const url = 'https://example.com/users/__mutation';
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const result = response.json();
+    ```
+
+#### response
+
+```
+Status: 201
+```
+
+```json
+{
+  "_id": "5d6ede6a0ba62570afcedd3b",
+  "name": "Andrew Jackso",
+  "address": {
+    "city": "Seattle",
+    "country": "USA"
+  },
+  "_permissions": {
+    "edit": false
+  }
+}
+```

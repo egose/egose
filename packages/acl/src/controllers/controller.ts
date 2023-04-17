@@ -1,5 +1,4 @@
 import compact from 'lodash/compact';
-import filter from 'lodash/filter';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import isArray from 'lodash/isArray';
@@ -29,8 +28,10 @@ import {
   FindByIdOptions,
   CreateArgs,
   CreateOptions,
-  UpdateArgs,
-  UpdateOptions,
+  UpdateOneArgs,
+  UpdateOneOptions,
+  UpdateByIdArgs,
+  UpdateByIdOptions,
 } from '../interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
@@ -52,10 +53,10 @@ export class Controller {
   }
 
   protected async findOne(
+    filter: any,
     {
-      query: _query = {},
-      select: _select = this.defaults.findOneArgs?.select,
-      populate: _populate = this.defaults.findOneArgs?.populate,
+      select = this.defaults.findOneArgs?.select,
+      populate = this.defaults.findOneArgs?.populate,
       overrides = {},
     }: FindOneArgs = {},
     {
@@ -65,28 +66,34 @@ export class Controller {
       lean = this.defaults.findOneOptions?.lean ?? false,
     }: FindOneOptions = {},
   ) {
-    const { query: __query, select: __select, populate: __populate } = overrides;
+    const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
-    let [query, select, populate] = await Promise.all([
-      __query || this.req[CORE]._genQuery(this.modelName, access, _query),
-      __select || this.req[CORE]._genSelect(this.modelName, access, _select),
-      __populate || this.req[CORE]._genPopulate(this.modelName, populateAccess || access, _populate),
+    let [_filter, _select, _populate] = await Promise.all([
+      overrideFilter || this.req[CORE]._genFilter(this.modelName, access, filter),
+      overrideSelect || this.req[CORE]._genSelect(this.modelName, access, select),
+      overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess || access, populate),
     ]);
 
-    if (query === false) return null;
+    const info = {
+      filter: _filter,
+      select: _select,
+      populate: _populate,
+    };
 
-    let doc = await this.model.findOne({ query, select, populate, lean });
-    if (!doc) return null;
+    if (_filter === false) return { result: null, info };
+
+    let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
+    if (!doc) return { result: null, info };
 
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, access);
-    return doc;
+    return { result: doc, info };
   }
 
   protected async findById(
     id,
     {
-      select: _select = this.defaults.findByIdArgs?.select,
-      populate: _populate = this.defaults.findByIdArgs?.populate,
+      select = this.defaults.findByIdArgs?.select,
+      populate = this.defaults.findByIdArgs?.populate,
       overrides = {},
     }: FindByIdArgs = {},
     {
@@ -96,17 +103,17 @@ export class Controller {
       lean = this.defaults.findOneOptions?.lean ?? false,
     }: FindByIdOptions = {},
   ) {
-    const { select: __select, populate: __populate, idQuery: __idQuery } = overrides;
-    const query = __idQuery || (await this.req[CORE]._genIDQuery(this.modelName, id));
+    const { select: overrideSelect, populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
+    const filter = overrideIdFilter || (await this.req[CORE]._genIDFilter(this.modelName, id));
 
     return this.findOne(
+      filter,
       {
-        query,
-        select: _select,
-        populate: _populate,
+        select,
+        populate,
         overrides: {
-          select: __select,
-          populate: __populate,
+          select: overrideSelect,
+          populate: overridePopulate,
         },
       },
       { includePermissions, access, populateAccess, lean },
@@ -114,46 +121,67 @@ export class Controller {
   }
 
   protected async find(
+    filter: any,
     {
-      query: _query = {},
-      select: _select = this.defaults.findArgs?.select,
-      populate: _populate = this.defaults.findArgs?.populate,
+      select = this.defaults.findArgs?.select,
+      populate = this.defaults.findArgs?.populate,
       sort = this.defaults.findArgs?.sort,
       limit = this.defaults.findArgs?.limit,
       page = this.defaults.findArgs?.page,
       overrides = {},
     }: FindArgs = {},
     {
-      includePermissions = this.defaults.findOneOptions?.includePermissions ?? true,
-      populateAccess = this.defaults.findOneOptions?.populateAccess ?? 'read',
-      lean = this.defaults.findOneOptions?.lean ?? false,
+      includePermissions = this.defaults.findOptions?.includePermissions ?? true,
+      includeCount = this.defaults.findOptions?.includeCount ?? false,
+      populateAccess = this.defaults.findOptions?.populateAccess ?? 'read',
+      lean = this.defaults.findOptions?.lean ?? false,
     }: FindOptions = {},
     decorate?: Function,
   ) {
-    const { query: __query, select: __select, populate: __populate } = overrides;
+    const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
-    let [query, select, populate, pagination] = await Promise.all([
-      __query || this.req[CORE]._genQuery(this.modelName, 'list', this.operateQuery(_query)),
-      __select || this.req[CORE]._genSelect(this.modelName, 'list', _select),
-      __populate || this.req[CORE]._genPopulate(this.modelName, populateAccess, _populate),
+    const [_filter, _select, _populate, pagination] = await Promise.all([
+      overrideFilter || this.req[CORE]._genFilter(this.modelName, 'list', this.operateQuery(filter)),
+      overrideSelect || this.req[CORE]._genSelect(this.modelName, 'list', select),
+      overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
       this.req[CORE]._genPagination({ limit, page }, this.options.listHardLimit),
     ]);
 
-    if (query === false) return [];
+    const info = { filter: _filter, select: _select, populate: _populate, pagination };
 
-    // prevent populate paths from updating query select fields
-    if (select) populate = (populate as Populate[]).filter((p) => (select as string[]).includes(p.path.split('.')[0]));
+    if (_filter === false) return { result: [], count: 0, totalCount: null, info };
 
-    let docs = await this.model.find({ query, select, sort, populate, lean, ...pagination });
+    // filter populated fields based on select fields
+    const filteredPopulate =
+      Array.isArray(_select) && Array.isArray(_populate)
+        ? _populate.filter((p) => _select.includes(p.path.split('.')[0]))
+        : _populate;
+
+    let docs = await this.model.find({
+      filter: _filter,
+      select: _select,
+      populate: filteredPopulate,
+      sort,
+      lean,
+      ...pagination,
+    });
+
+    const _decorate = isFunction(decorate) ? decorate : (v) => v;
+
     docs = await Promise.all(
       docs.map(async (doc) => {
         if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'list');
-        if (isFunction(decorate)) doc = await decorate(doc);
+        doc = await _decorate(doc);
         return doc;
       }),
     );
 
-    return docs;
+    return {
+      result: docs,
+      count: docs.length,
+      totalCount: includeCount ? await this.model.countDocuments(_filter) : null,
+      info,
+    };
   }
 
   protected async create(
@@ -203,32 +231,38 @@ export class Controller {
       }),
     );
 
-    return isArr ? docs : docs[0];
+    return {
+      result: docs,
+      data: items,
+      count: docs.length,
+    };
   }
 
   protected async empty() {
     return this.model.new();
   }
 
-  protected async update(
-    id: string,
+  protected async updateOne(
+    filter: any,
     data,
-    { populate = this.defaults.updateArgs?.populate }: UpdateArgs = {},
+    { populate = this.defaults.updateOneArgs?.populate, overrides = {} }: UpdateOneArgs = {},
     {
-      includePermissions = this.defaults.updateOptions?.includePermissions ?? true,
-      populateAccess = this.defaults.updateOptions?.populateAccess ?? 'read',
-    }: CreateOptions = {},
+      includePermissions = this.defaults.updateOneOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.updateOneOptions?.populateAccess ?? 'read',
+    }: UpdateOneOptions = {},
     decorate?: Function,
   ) {
-    const query = await this.req[CORE]._genQuery(
-      this.modelName,
-      'update',
-      await this.req[CORE]._genIDQuery(this.modelName, id),
-    );
-    if (query === false) return null;
+    const { filter: overrideFilter, populate: overridePopulate } = overrides;
 
-    let doc = await this.model.findOne({ query });
-    if (!doc) return null;
+    const [_filter, _populate] = await Promise.all([
+      overrideFilter || this.req[CORE]._genFilter(this.modelName, 'update', filter),
+      overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
+    ]);
+
+    if (_filter === false) return { result: null, data: null };
+
+    let doc = await this.model.findOne({ filter: _filter });
+    if (!doc) return { result: null, data: null };
 
     const context: MiddlewareContext = {};
 
@@ -259,61 +293,98 @@ export class Controller {
     context.modifiedPaths = doc.modifiedPaths();
     doc = await doc.save();
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
-    if (populate) await doc.populate(await this.req[CORE]._genPopulate(this.modelName, populateAccess, populate));
+    if (_populate) await doc.populate(_populate);
     if (isFunction(decorate)) doc = await decorate(doc, context);
-    return doc;
+    return { result: doc, data: prepared };
+  }
+
+  protected async updateById(
+    id: string,
+    data,
+    { populate = this.defaults.updateByIdArgs?.populate, overrides = {} }: UpdateByIdArgs = {},
+    {
+      includePermissions = this.defaults.updateByIdOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.updateByIdOptions?.populateAccess ?? 'read',
+    }: UpdateByIdOptions = {},
+    decorate?: Function,
+  ) {
+    const { populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
+    const filter = overrideIdFilter || (await this.req[CORE]._genIDFilter(this.modelName, id));
+
+    return this.updateOne(
+      filter,
+      data,
+      {
+        populate,
+        overrides: {
+          populate: overridePopulate,
+        },
+      },
+      { includePermissions, populateAccess },
+      decorate,
+    );
   }
 
   protected async delete(id: string) {
-    const query = await this.req[CORE]._genQuery(
+    const filter = await this.req[CORE]._genFilter(
       this.modelName,
       'delete',
-      await this.req[CORE]._genIDQuery(this.modelName, id),
+      await this.req[CORE]._genIDFilter(this.modelName, id),
     );
-    if (query === false) return null;
 
-    let doc = await this.model.findOneAndRemove(query);
-    if (!doc) return null;
+    const info = { filter };
+
+    if (filter === false) return { result: null, info };
+
+    let doc = await this.model.findOneAndRemove(filter);
+    if (!doc) return { result: null, info };
 
     await doc.remove();
-    return doc._id;
+    return { result: doc._id, info };
   }
 
-  protected async distinct(field: string, { query }: DistinctArgs = {}) {
-    query = await this.req[CORE]._genQuery(this.modelName, 'read', query);
-    if (query === false) return null;
+  protected async distinct(field: string, { filter }: DistinctArgs = {}) {
+    filter = await this.req[CORE]._genFilter(this.modelName, 'read', filter);
 
-    const result = await this.model.distinct(field, query);
-    if (!result) return null;
+    const info = { filter };
 
-    return result;
+    if (filter === false) return { result: null, info };
+
+    const result = await this.model.distinct(field, filter);
+    if (!result) return { result: null, info };
+
+    return { result, info };
   }
 
-  protected async count(query, access = 'list') {
-    query = await this.req[CORE]._genQuery(this.modelName, access, query);
-    if (query === false) return 0;
+  protected async count(filter, access = 'list') {
+    filter = await this.req[CORE]._genFilter(this.modelName, access, filter);
 
-    return this.model.countDocuments(query);
+    const info = { filter };
+
+    if (filter === false) return { result: 0, info };
+
+    return { result: await this.model.countDocuments(filter), info };
   }
 
-  private async operateQuery(query) {
-    const result = await iterateQuery(query, async (sq, key) => {
-      const { model, mapper, ...rest } = sq;
+  private async operateQuery(filter) {
+    const result = await iterateQuery(filter, async (sq, key) => {
+      // @Deprecated option 'query'
+      const { model, query, filter, mapper, ...rest } = sq;
       const ctl = this.req.macl(model);
-      const arr = await ctl.find(rest);
-      if (mapper) {
+      const { result, count } = await ctl.find(filter ?? query, rest);
+      if (mapper && count > 0) {
         const m = mapper.multi === false ? false : true;
         const c = mapper.compact === true;
         const f = mapper.flatten === true;
         const path = mapper.path || mapper;
-        if (!m) return get(arr[0], path, isNil(mapper.defaultValue) ? null : mapper.defaultValue);
+        if (!m) return get(result[0], path, isNil(mapper.defaultValue) ? null : mapper.defaultValue);
 
-        let items = arr.map((v) => get(v, path));
+        let items = result.map((v) => get(v, path));
         if (f) items = flatten(items);
         if (c) items = compact(items);
         return items;
       }
-      return arr;
+      return result;
     });
 
     return result;

@@ -21,7 +21,7 @@ router.get('/user-custom', [
   guard('isAdmin'),
   async (req, res, next) => {
     const model = req.macl('User');
-    const user = await model.findOne({ options: { lean: false } });
+    const { result: user } = await model.findOne({ options: { lean: false } });
     res.json(user.permissions);
   },
 ]);

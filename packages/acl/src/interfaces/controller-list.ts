@@ -1,7 +1,6 @@
 import { Projection, Populate } from './base';
 
 export interface PublicListArgs {
-  query?: any;
   select?: Projection;
   populate?: Populate[] | string;
   sort?: string[] | string;

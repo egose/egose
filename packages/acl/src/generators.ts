@@ -42,7 +42,7 @@ const callMiddleware = async (
   return doc;
 };
 
-export async function genIDQuery(modelName: string, id: string) {
+export async function genIDFilter(modelName: string, id: string) {
   const identifier = getModelOption(modelName, 'identifier', '_id');
 
   if (isString(identifier)) {
@@ -54,18 +54,20 @@ export async function genIDQuery(modelName: string, id: string) {
   return { _id: id };
 }
 
-export async function genQuery(modelName: string, access: string = 'read', _query: any = null) {
-  const baseQueryFn = getModelOption(modelName, `baseQuery.${access}`, null);
-  if (!isFunction(baseQueryFn)) return _query || {};
+export async function genFilter(modelName: string, access: string = 'read', _filter: any = null) {
+  let baseFilterFn = getModelOption(modelName, `baseFilter.${access}`, null);
+  // @Deprecated option 'baseQuery'
+  if (!baseFilterFn) baseFilterFn = getModelOption(modelName, `baseQuery.${access}`, null);
+  if (!isFunction(baseFilterFn)) return _filter || {};
 
   const permissions = this[PERMISSIONS];
 
-  const baseQuery = await baseQueryFn.call(this, permissions);
-  if (baseQuery === false) return false;
-  if (baseQuery === true || isEmpty(baseQuery)) return _query || {};
-  if (!_query) return baseQuery;
+  const baseFilter = await baseFilterFn.call(this, permissions);
+  if (baseFilter === false) return false;
+  if (baseFilter === true || isEmpty(baseFilter)) return _filter || {};
+  if (!_filter) return baseFilter;
 
-  return { $and: [baseQuery, _query] };
+  return { $and: [baseFilter, _filter] };
 }
 
 export function genPagination(
@@ -235,10 +237,10 @@ export async function genPopulate(modelName: string, access: string = 'read', _p
 
         if (!isString(p) && p.access) access = p.access;
         ret.select = await this[CORE]._genSelect(refModelName, access, ret.select, false);
-        const query = await this[CORE]._genQuery(refModelName, access, null);
-        if (query === false) return null;
+        const filter = await this[CORE]._genFilter(refModelName, access, null);
+        if (filter === false) return null;
 
-        ret.match = query;
+        ret.match = filter;
         return ret;
       }),
     ),
@@ -386,8 +388,8 @@ export function getPublicController(modelName: string) {
 }
 
 export interface MaclCore {
-  _genIDQuery: typeof genIDQuery;
-  _genQuery: typeof genQuery;
+  _genIDFilter: typeof genIDFilter;
+  _genFilter: typeof genFilter;
   _genPagination: typeof genPagination;
   _genAllowedFields: typeof genAllowedFields;
   _genSelect: typeof genSelect;
@@ -413,8 +415,8 @@ export type ControllerFactory = typeof getController;
 export async function setGenerators(req, res, next) {
   if (req[MIDDLEWARE]) return next();
   req[CORE] = {
-    _genIDQuery: genIDQuery.bind(req),
-    _genQuery: genQuery.bind(req),
+    _genIDFilter: genIDFilter.bind(req),
+    _genFilter: genFilter.bind(req),
     _genPagination: genPagination.bind(req),
     _genAllowedFields: genAllowedFields.bind(req),
     _genSelect: genSelect.bind(req),

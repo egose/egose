@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 interface FindProps {
-  query: any;
+  filter: any;
   select?: any;
   sort?: any;
   populate?: any;
@@ -11,7 +11,7 @@ interface FindProps {
 }
 
 interface FindOneProps {
-  query: any;
+  filter: any;
   select?: any;
   populate?: any;
   lean?: boolean;
@@ -53,10 +53,10 @@ class Model {
     return this.model.create(data);
   }
 
-  find({ query, select, sort, populate, limit, skip, lean }: FindProps) {
+  find({ filter, select, sort, populate, limit, skip, lean }: FindProps) {
     // sort = this.pruneSort(sort);
 
-    let builder = this.model.find(query);
+    let builder = this.model.find(filter);
     if (select) builder = builder.select(select);
     if (skip) builder = builder.skip(skip);
     if (limit) builder = builder.limit(limit);
@@ -84,8 +84,8 @@ class Model {
     return ret;
   }
 
-  findOne({ query, select, populate, lean }: FindOneProps) {
-    let builder = this.model.findOne(query);
+  findOne({ filter, select, populate, lean }: FindOneProps) {
+    let builder = this.model.findOne(filter);
     if (select) builder = builder.select(select);
     if (populate) builder = builder.populate(populate);
     if (lean) builder = builder.lean();

@@ -3,7 +3,7 @@ import {
   GLOBAL_PERMISSIONS_WATERMARK,
   DOC_PERMISSIONS_WATERMARK,
   ROUTE_GUARD_WATERMARK,
-  BASE_QUERY_WATERMARK,
+  BASE_FILTER_WATERMARK,
   VALIDATE_WATERMARK,
   PREPARE_WATERMARK,
   TRANSFORM_WATERMARK,
@@ -27,8 +27,8 @@ export function DocPermissions(optionKey: 'default' | 'create' | 'update' | 'lis
   return setMethodMetadata(DOC_PERMISSIONS_WATERMARK, 'docPermissions', optionKey);
 }
 
-export function BaseQuery(optionKey: 'default' | 'update' | 'list' | 'read' | 'delete'): MethodDecorator {
-  return setMethodMetadata(BASE_QUERY_WATERMARK, 'baseQuery', optionKey);
+export function BaseFilter(optionKey: 'default' | 'update' | 'list' | 'read' | 'delete'): MethodDecorator {
+  return setMethodMetadata(BASE_FILTER_WATERMARK, 'baseFilter', optionKey);
 }
 
 export function Validate(optionKey: 'default' | 'create' | 'update'): MethodDecorator {

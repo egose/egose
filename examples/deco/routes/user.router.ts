@@ -1,14 +1,21 @@
 import {
+  // class decorator
   Router,
-  Prepare,
+  // method decorators
   DocPermissions,
-  BaseQuery,
+  BaseFilter,
+  Validate,
+  Prepare,
+  Transform,
   Decorate,
+  DecorateAll,
   RouteGuard,
+  // parameter decorators
   Request,
   Document,
   Permissions,
   Context,
+  // property decorator
   Option,
 } from '@egose/deco';
 
@@ -21,14 +28,35 @@ export class UserRouter {
     delete: 'isAdmin',
     create: ['isAdmin', 'dummy'],
     subs: {
-      statusHistory: { list: true, read: true, update: true, delete: 'isAdmin', create: 'isAdmin' },
+      statusHistory: {
+        list: true,
+        read: true,
+        update: true,
+        delete: 'isAdmin',
+        create: 'isAdmin',
+      },
     },
   };
 
   @Option() permissionSchema = {
-    name: { list: true, read: true, update: ['edit.name', 'edit.dummy'], create: true },
-    role: { list: 'isAdmin', read: true, update: 'edit.role', create: 'isAdmin' },
-    public: { list: false, read: true, update: 'edit.public', create: true },
+    name: {
+      list: true,
+      read: true,
+      update: ['edit.name', 'edit.dummy'],
+      create: true,
+    },
+    role: {
+      list: 'isAdmin',
+      read: true,
+      update: 'edit.role',
+      create: 'isAdmin',
+    },
+    public: {
+      list: false,
+      read: true,
+      update: 'edit.public',
+      create: true,
+    },
     statusHistory: {
       list: (permissions) => {
         return false;
@@ -54,7 +82,7 @@ export class UserRouter {
     return { name: id };
   };
 
-  @Option('baseQuery.subs') baseQuerySubs = {
+  @Option('baseFilter.subs') baseFilterSubs = {
     statusHistory: {
       list: (permissions) => {
         if (permissions.isAdmin) return {};
@@ -90,26 +118,26 @@ export class UserRouter {
     return p;
   }
 
-  @BaseQuery('list')
-  listBaseQuery(@Request() req, @Permissions() permissions) {
+  @BaseFilter('list')
+  listBaseFilter(@Request() req, @Permissions() permissions) {
     if (permissions.isAdmin) return {};
     else return { $or: [{ _id: req._user?._id }, { public: true }] };
   }
 
-  @BaseQuery('read')
-  readBaseQuery(@Request() req, @Permissions() permissions) {
+  @BaseFilter('read')
+  readBaseFilter(@Request() req, @Permissions() permissions) {
     if (permissions.isAdmin) return {};
     else return { _id: req._user?._id };
   }
 
-  @BaseQuery('update')
-  updateBaseQuery(@Request() req, @Permissions() permissions) {
+  @BaseFilter('update')
+  updateBaseFilter(@Request() req, @Permissions() permissions) {
     if (permissions.isAdmin) return {};
     else return { _id: req._user?._id };
   }
 
-  @BaseQuery('delete')
-  deleteBaseQuery(@Request() req, @Permissions() permissions) {
+  @BaseFilter('delete')
+  deleteBaseFilter(@Request() req, @Permissions() permissions) {
     if (permissions.isAdmin) return {};
     else return { _id: req._user?._id };
   }

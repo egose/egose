@@ -6,7 +6,19 @@ export interface PublicUpdateArgs {
   process?: any;
 }
 
-export interface UpdateArgs extends Omit<PublicUpdateArgs, 'select' | 'process'> {}
+export interface UpdateOneArgs extends Omit<PublicUpdateArgs, 'select' | 'process'> {
+  overrides?: {
+    filter?: any;
+    populate?: Populate[] | string;
+  };
+}
+
+export interface UpdateByIdArgs extends Omit<UpdateOneArgs, 'overrides'> {
+  overrides?: {
+    populate?: Populate[] | string;
+    idFilter?: any;
+  };
+}
 
 export interface PublicUpdateOptions {
   returningAll?: boolean;
@@ -14,4 +26,5 @@ export interface PublicUpdateOptions {
   populateAccess?: string;
 }
 
-export interface UpdateOptions extends Omit<PublicUpdateOptions, 'returningAll'> {}
+export interface UpdateOneOptions extends Omit<PublicUpdateOptions, 'returningAll'> {}
+export interface UpdateByIdOptions extends UpdateOneOptions {}

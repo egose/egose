@@ -1,5 +1,17 @@
+dev_addr: 127.0.0.1:8888
+
+# Project information
 site_name: Egose
 site_url: https://egose.github.io
+site_author: Junmin Ahn
+
+# Repository
+repo_name: egose/egose
+repo_url: https://github.com/egose/egose
+
+# Copyright
+copyright: Copyright &copy; 2020 - 2023 Junmin Ahn
+
 docs_dir: mkdocs
 
 theme:
@@ -11,7 +23,8 @@ theme:
   language: en
   features:
   - content.code.annotate
-    # - content.tabs.link
+  - content.code.copy
+  - content.tabs.link
     # - header.autohide
     # - navigation.expand
   - navigation.indexes
@@ -46,21 +59,68 @@ theme:
   icon:
     logo: logo
 
+nav:
+- Home: index.md
+- Egose ACL:
+  - Philosophy: egose-acl/philosophy.md
+  - Quick Start: egose-acl/quick-start.md
+  - Options:
+    - egose-acl/options/index.md
+    - Global Options: egose-acl/options/global-options.md
+    - Model Options: egose-acl/options/model-options.md
+    - Model Middleware: egose-acl/options/model-middleware.md
+  - CRUD Lifecycle:
+    - egose-acl/crud-lifecycle/index.md
+    - List: egose-acl/crud-lifecycle/list.md
+    - Read: egose-acl/crud-lifecycle/read.md
+    - Create: egose-acl/crud-lifecycle/create.md
+    - Update: egose-acl/crud-lifecycle/update.md
+  - API Endpoints:
+    - egose-acl/api-endpoints/index.md
+    - List: egose-acl/api-endpoints/list.md
+    - Read: egose-acl/api-endpoints/read.md
+    - Create: egose-acl/api-endpoints/create.md
+    - Update: egose-acl/api-endpoints/update.md
+    - Delete: egose-acl/api-endpoints/delete.md
+    - New: egose-acl/api-endpoints/new.md
+    - Count: egose-acl/api-endpoints/count.md
+    - Distinct: egose-acl/api-endpoints/distinct.md
+- Egose Deco:
+  - Philosophy: egose-deco/philosophy.md
+  - Quick Start: egose-deco/quick-start.md
+
 # Extensions
 markdown_extensions:
 - abbr
 - admonition
 - attr_list
+- codehilite
 - def_list
 - footnotes
 - meta
 - md_in_html
+- pymdownx.highlight:
+    anchor_linenums: true
+    line_spans: __span
+    pygments_lang_class: true
+- pymdownx.inlinehilite
+- pymdownx.arithmatex
+- pymdownx.details
+- pymdownx.superfences
+- pymdownx.tabbed:
+    alternate_style: true
+- pymdownx.tilde
+- pymdownx.snippets:
+    base_path:
+    - mkdocs/.snippets
+    - mkdocs/.samples
 - toc:
     permalink: true
 
 extra_javascript:
-- https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/highlight.min.js
+- https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
+- https://polyfill.io/v3/polyfill.min.js?features=es6
 - javascripts/highlight.js
 
 extra_css:
-- https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.0/styles/base16/solarized-dark.min.css
+- https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css
