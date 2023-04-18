@@ -42,7 +42,15 @@ export interface RootQueryEntry {
 
 export interface Request {
   query: Record<
-    'limit' | 'page' | 'lean' | 'try_list' | 'include_permissions' | 'include_count' | 'returning_all',
+    | 'skip'
+    | 'limit'
+    | 'page'
+    | 'page_size'
+    | 'lean'
+    | 'try_list'
+    | 'include_permissions'
+    | 'include_count'
+    | 'returning_all',
     string
   >;
   params: Record<string, string>;

@@ -12,6 +12,7 @@ import isFunction from 'lodash/isFunction';
 import isNaN from 'lodash/isNaN';
 import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
+import isNil from 'lodash/isNil';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
 import set from 'lodash/set';
@@ -72,21 +73,30 @@ export async function genFilter(modelName: string, access: string = 'read', _fil
 
 export function genPagination(
   {
-    page = 1,
+    skip,
     limit,
+    page,
+    pageSize,
   }: {
+    skip?: number | string;
+    limit?: number | string;
     page?: number | string;
-    limit: any;
+    pageSize?: number | string;
   },
   hardLimit,
 ) {
-  limit = Number(limit);
-  page = Number(page);
-  if (isNaN(limit) || limit > hardLimit) limit = hardLimit;
+  let _skip = 0;
+  let _limit = Number(limit ?? pageSize);
+  if (isNaN(_limit) || _limit > hardLimit) _limit = hardLimit;
 
-  const options: { limit: string; skip?: number } = { limit };
-  if (page > 1) options.skip = (page - 1) * limit;
-  return options;
+  if (!isNil(skip)) {
+    _skip = Number(skip);
+  } else if (!isNil(page)) {
+    const npage = Number(page);
+    if (npage > 1) _skip = (npage - 1) * _limit;
+  }
+
+  return { skip: _skip, limit: _limit };
 }
 
 function getDocPermissions(modelName, doc) {

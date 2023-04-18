@@ -5,8 +5,10 @@ export interface FindArgs {
   select?: Projection;
   populate?: Populate[] | string;
   sort?: string[] | string;
+  skip?: string | number;
   limit?: string | number;
   page?: string | number;
+  pageSize?: string | number;
   overrides?: {
     filter?: any;
     select?: Projection;

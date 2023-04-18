@@ -72,19 +72,19 @@ export class Controller {
       overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess || access, populate),
     ]);
 
-    const info = {
+    const query = {
       filter: _filter,
       select: _select,
       populate: _populate,
     };
 
-    if (_filter === false) return { result: null, info };
+    if (_filter === false) return { success: false, code: 'forbidden', data: null, query };
 
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
-    if (!doc) return { result: null, info };
+    if (!doc) return { success: false, code: 'not_found', data: null, query };
 
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, access);
-    return { result: doc, info };
+    return { success: true, data: doc, query };
   }
 
   protected async findById(
@@ -124,8 +124,10 @@ export class Controller {
       select = this.defaults.findArgs?.select,
       populate = this.defaults.findArgs?.populate,
       sort = this.defaults.findArgs?.sort,
+      skip = this.defaults.findArgs?.skip,
       limit = this.defaults.findArgs?.limit,
       page = this.defaults.findArgs?.page,
+      pageSize = this.defaults.findArgs?.pageSize,
       overrides = {},
     }: FindArgs = {},
     {
@@ -142,12 +144,8 @@ export class Controller {
       overrideFilter || this.req[CORE]._genFilter(this.modelName, 'list', this.operateQuery(filter)),
       overrideSelect || this.req[CORE]._genSelect(this.modelName, 'list', select),
       overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
-      this.req[CORE]._genPagination({ limit, page }, this.options.listHardLimit),
+      this.req[CORE]._genPagination({ skip, limit, page, pageSize }, this.options.listHardLimit),
     ]);
-
-    const info = { filter: _filter, select: _select, populate: _populate, pagination };
-
-    if (_filter === false) return { result: [], count: 0, totalCount: null, info };
 
     // filter populated fields based on select fields
     const filteredPopulate =
@@ -155,13 +153,13 @@ export class Controller {
         ? _populate.filter((p) => _select.includes(p.path.split('.')[0]))
         : _populate;
 
+    const query = { filter: _filter, select: _select, populate: filteredPopulate, sort, ...pagination };
+
+    if (_filter === false) return { success: false, code: 'forbidden', data: [], count: 0, totalCount: null, query };
+
     let docs = await this.model.find({
-      filter: _filter,
-      select: _select,
-      populate: filteredPopulate,
-      sort,
+      ...query,
       lean,
-      ...pagination,
     });
 
     const _decorate = isFunction(decorate) ? decorate : (v) => v;
@@ -175,10 +173,11 @@ export class Controller {
     );
 
     return {
-      result: docs,
+      success: true,
+      data: docs,
       count: docs.length,
       totalCount: includeCount ? await this.model.countDocuments(_filter) : null,
-      info,
+      query,
     };
   }
 
@@ -196,8 +195,9 @@ export class Controller {
 
     const contexts: MiddlewareContext[] = [];
 
+    let validationError = null;
     const items = await Promise.all(
-      arr.map(async (item) => {
+      arr.map(async (item, index) => {
         const context: MiddlewareContext = { originalData: item };
 
         const allowedFields = await this.req[CORE]._genAllowedFields(this.modelName, item, 'create');
@@ -205,10 +205,15 @@ export class Controller {
 
         const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'create', context);
         if (isBoolean(validated)) {
-          if (!validated) throw new CustomError({ statusCode: 400, message: 'validation failed' });
+          if (!validated) {
+            validationError = { success: false, code: 'bad_request', data: null };
+            return;
+          }
         } else if (isArray(validated)) {
-          if (validated.length > 0)
-            throw new CustomError({ statusCode: 400, message: 'validation failed', errors: validated });
+          if (validated.length > 0) {
+            validationError = { success: false, code: 'bad_request', data: null, errors: validated };
+            return;
+          }
         }
 
         const preparedData = await this.req[CORE]._prepare(this.modelName, allowedData, 'create', context);
@@ -218,6 +223,8 @@ export class Controller {
         return preparedData;
       }),
     );
+
+    if (validationError) return validationError;
 
     let docs = await this.model.create(items);
     docs = await Promise.all(
@@ -230,8 +237,10 @@ export class Controller {
     );
 
     return {
-      result: docs,
-      data: items,
+      success: true,
+      code: 'success',
+      data: docs,
+      input: items,
       count: docs.length,
     };
   }
@@ -257,10 +266,12 @@ export class Controller {
       overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
     ]);
 
-    if (_filter === false) return { result: null, data: null };
+    const query = { filter: _filter, populate: _populate };
+
+    if (_filter === false) return { success: false, code: 'forbidden', data: null, query };
 
     let doc = await this.model.findOne({ filter: _filter });
-    if (!doc) return { result: null, data: null };
+    if (!doc) return { success: false, code: 'not_found', data: null, query };
 
     const context: MiddlewareContext = {};
 
@@ -275,10 +286,9 @@ export class Controller {
 
     const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'update', context);
     if (isBoolean(validated)) {
-      if (!validated) throw new CustomError({ statusCode: 400, message: 'validation failed' });
+      if (!validated) return { success: false, code: 'bad_request', data: null };
     } else if (isArray(validated)) {
-      if (validated.length > 0)
-        throw new CustomError({ statusCode: 400, message: 'validation failed', errors: validated });
+      if (validated.length > 0) return { success: false, code: 'bad_request', data: null, errors: validated };
     }
 
     const prepared = await this.req[CORE]._prepare(this.modelName, allowedData, 'update', context);
@@ -293,7 +303,7 @@ export class Controller {
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
     if (_populate) await doc.populate(_populate);
     if (isFunction(decorate)) doc = await decorate(doc, context);
-    return { result: doc, data: prepared };
+    return { success: true, data: doc, input: prepared };
   }
 
   protected async updateById(
@@ -330,38 +340,50 @@ export class Controller {
       await this.req[CORE]._genIDFilter(this.modelName, id),
     );
 
-    const info = { filter };
+    const query = { filter };
 
-    if (filter === false) return { result: null, info };
+    if (filter === false) return { success: false, code: 'forbidden', data: null, query };
 
     let doc = await this.model.findOneAndRemove(filter);
-    if (!doc) return { result: null, info };
+    if (!doc) return { success: false, code: 'not_found', data: null, query };
 
     await doc.remove();
-    return { result: doc._id, info };
+    return { success: true, data: doc._id, query };
   }
 
   protected async distinct(field: string, { filter }: DistinctArgs = {}) {
     filter = await this.req[CORE]._genFilter(this.modelName, 'read', filter);
 
-    const info = { filter };
+    const query = { filter };
 
-    if (filter === false) return { result: null, info };
+    if (filter === false) return { success: false, code: 'forbidden', data: null, query };
 
     const result = await this.model.distinct(field, filter);
-    if (!result) return { result: null, info };
 
-    return { result, info };
+    return { success: true, data: result, query };
   }
 
   protected async count(filter, access = 'list') {
     filter = await this.req[CORE]._genFilter(this.modelName, access, filter);
 
-    const info = { filter };
+    const query = { filter };
 
-    if (filter === false) return { result: 0, info };
+    if (filter === false) return { success: false, code: 'forbidden', data: 0, query };
 
-    return { result: await this.model.countDocuments(filter), info };
+    return { success: true, data: await this.model.countDocuments(filter), query };
+  }
+
+  protected handleErrorResult({ code, errors = [] }: { code?: string; errors?: string[] } = {}) {
+    switch (code) {
+      case 'bad_request':
+        throw new CustomError({ statusCode: 400, message: 'Bad Request', errors });
+      case 'forbidden':
+        throw new CustomError({ statusCode: 403, message: 'Forbidden', errors });
+      case 'not_found':
+        throw new CustomError({ statusCode: 404, message: 'Not Found', errors });
+      default:
+        throw new CustomError();
+    }
   }
 
   private async operateQuery(filter) {
@@ -369,20 +391,20 @@ export class Controller {
       // @Deprecated option 'query'
       const { model, query, filter, mapper, ...rest } = sq;
       const ctl = this.req.macl(model);
-      const { result, count } = await ctl.find(filter ?? query, rest);
+      const { data, count } = await ctl.find(filter ?? query, rest);
       if (mapper && count > 0) {
         const m = mapper.multi === false ? false : true;
         const c = mapper.compact === true;
         const f = mapper.flatten === true;
         const path = mapper.path || mapper;
-        if (!m) return get(result[0], path, isNil(mapper.defaultValue) ? null : mapper.defaultValue);
+        if (!m) return get(data[0], path, isNil(mapper.defaultValue) ? null : mapper.defaultValue);
 
-        let items = result.map((v) => get(v, path));
+        let items = data.map((v) => get(v, path));
         if (f) items = flatten(items);
         if (c) items = compact(items);
         return items;
       }
-      return result;
+      return data;
     });
 
     return result;

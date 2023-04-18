@@ -17,7 +17,7 @@ describe('Model Option - validate', () => {
       .expect('Content-Type', /json/)
       .expect(400);
 
-    expect(response.body.message).to.equal('validation failed');
+    expect(response.body.message).to.equal('Bad Request');
     expect(response.body.errors.length).to.equal(0);
   });
 
@@ -31,7 +31,7 @@ describe('Model Option - validate', () => {
       .expect('Content-Type', /json/)
       .expect(400);
 
-    expect(response.body.message).to.equal('validation failed');
+    expect(response.body.message).to.equal('Bad Request');
     expect(response.body.errors.length).to.equal(2);
     expect(response.body.errors[0]).to.equal('error1');
     expect(response.body.errors[1]).to.equal('error2');
@@ -47,7 +47,7 @@ describe('Model Option - validate', () => {
       .expect('Content-Type', /json/)
       .expect(400);
 
-    expect(response.body.message).to.equal('validation failed');
+    expect(response.body.message).to.equal('Bad Request');
     expect(response.body.errors.length).to.equal(0);
   });
 
@@ -61,7 +61,7 @@ describe('Model Option - validate', () => {
       .expect('Content-Type', /json/)
       .expect(400);
 
-    expect(response.body.message).to.equal('validation failed');
+    expect(response.body.message).to.equal('Bad Request');
     expect(response.body.errors.length).to.equal(2);
     expect(response.body.errors[0]).to.equal('error1');
     expect(response.body.errors[1]).to.equal('error2');

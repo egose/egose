@@ -22,12 +22,12 @@ describe('Read User', () => {
       .get('/api/users/lucy?try_list=false')
       .set('user', 'john')
       .expect('Content-Type', /json/)
-      .expect(200);
+      .expect(404);
 
-    expect(response.body).to.null;
+    expect(response.body.message).to.equal('Not Found');
   });
 
-  it('should not return the target user by list privilege', async () => {
+  it('should return the target user by list privilege', async () => {
     const response = await request(app)
       .get('/api/users/lucy2?try_list=true')
       .set('user', 'john')

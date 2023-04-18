@@ -66,8 +66,10 @@ export class PublicController extends Controller {
       select = this.defaults.publicListArgs?.select,
       populate = this.defaults.publicListArgs?.populate,
       sort = this.defaults.publicListArgs?.sort,
+      skip = this.defaults.publicListArgs?.skip,
       limit = this.defaults.publicListArgs?.limit,
       page = this.defaults.publicListArgs?.page,
+      pageSize = this.defaults.publicListArgs?.pageSize,
       process = this.defaults.publicListArgs?.process ?? [],
     }: PublicListArgs = {},
     {
@@ -79,13 +81,7 @@ export class PublicController extends Controller {
   ) {
     const result = await this.find(
       filter,
-      {
-        select,
-        populate,
-        sort,
-        limit,
-        page,
-      },
+      { select, populate, sort, skip, limit, page, pageSize },
       { includePermissions, includeCount, populateAccess, lean },
       async (doc) => {
         doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'list', [
@@ -96,7 +92,11 @@ export class PublicController extends Controller {
       },
     );
 
-    let docs = result.result;
+    if (!result.success) {
+      this.handleErrorResult(result);
+    }
+
+    let docs = result.data;
     docs = await this.req[CORE]._decorateAll(this.modelName, docs, 'list');
     docs = docs.map((row) => this.req[CORE]._process(this.modelName, row, process));
 
@@ -136,7 +136,11 @@ export class PublicController extends Controller {
       },
     );
 
-    return result.count === 1 ? result.result[0] : result.result;
+    if (!result.success) {
+      this.handleErrorResult(result);
+    }
+
+    return result.count === 1 ? result.data[0] : result.data;
   }
 
   async _empty() {
@@ -171,7 +175,7 @@ export class PublicController extends Controller {
     );
 
     // if not found, try to get the doc with 'list' access
-    if (!result.result && tryList) {
+    if (!result.data && tryList) {
       access = 'list';
 
       result = await this.findById(
@@ -185,9 +189,11 @@ export class PublicController extends Controller {
       );
     }
 
-    if (!result.result) return null;
+    if (!result.success) {
+      this.handleErrorResult(result);
+    }
 
-    let doc = await this.req[CORE]._pickAllowedFields(this.modelName, result.result, access, this.baseFields);
+    let doc = await this.req[CORE]._pickAllowedFields(this.modelName, result.data, access, this.baseFields);
     doc = await this.req[CORE]._decorate(this.modelName, doc, access);
     doc = this.req[CORE]._process(this.modelName, doc, process);
 
@@ -208,7 +214,7 @@ export class PublicController extends Controller {
       populateAccess = this.defaults.publicUpdateOptions?.populateAccess ?? 'read',
     }: PublicUpdateOptions = {},
   ) {
-    const { result } = await this.updateById(
+    const result = await this.updateById(
       id,
       data,
       { populate },
@@ -225,22 +231,41 @@ export class PublicController extends Controller {
       },
     );
 
-    return result;
+    if (!result.success) {
+      this.handleErrorResult(result);
+    }
+
+    return result.data;
   }
 
   async _delete(id: string) {
-    const { result } = await this.delete(id);
-    return result;
+    const result = await this.delete(id);
+
+    if (!result.success) {
+      this.handleErrorResult(result);
+    }
+
+    return result.data;
   }
 
   async _distinct(field: string, options: DistinctArgs = {}) {
-    const { result } = await this.distinct(field, options);
-    return result;
+    const result = await this.distinct(field, options);
+
+    if (!result.success) {
+      this.handleErrorResult(result);
+    }
+
+    return result.data;
   }
 
   async _count(filter, access = 'list') {
-    const { result } = await this.count(filter, access);
-    return result;
+    const result = await this.count(filter, access);
+
+    if (!result.success) {
+      this.handleErrorResult(result);
+    }
+
+    return result.data;
   }
 
   private async getParentDoc(id, sub, access, populate = []) {

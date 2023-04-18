@@ -147,7 +147,7 @@ export const createValidator = (fn: (key) => boolean) => {
 };
 
 export class CustomError extends Error {
-  constructor({ statusCode = 422, message = 'Unprocessable Entity', errors = [] } = {}) {
+  constructor({ statusCode = 422, message = 'Unprocessable Content', errors = [] } = {}) {
     super(message);
 
     if (Error.captureStackTrace) {

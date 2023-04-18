@@ -21,3 +21,7 @@ The `@egose/deco` package offers [`TypeScript Decorators`](https://www.typescrip
 <a href="https://www.npmjs.com/package/@egose/deco" target="_blank"><img src="https://img.shields.io/npm/dm/@egose/deco.svg" alt="NPM Downloads" /></a>
 
 - see more details on [Egose Deco](https://egose.github.io/egose-deco/philosophy/).
+
+## References
+
+- [HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110.html)
