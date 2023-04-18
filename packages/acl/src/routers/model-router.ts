@@ -27,8 +27,8 @@ const addLeadingSlash = (str) => (str.startsWith('/') ? str : `/${str}`);
 const clientErrors = JsonRouter.clientErrors;
 
 type setOptionType = {
-  (option: any): void;
-  (key: string, option: any): void;
+  (option: any): ModelRouter;
+  (key: string, option: any): ModelRouter;
 };
 
 function setOption(parentKey: string, optionKey: any, option?: any) {
@@ -36,6 +36,7 @@ function setOption(parentKey: string, optionKey: any, option?: any) {
   const value = isUndefined(option) ? optionKey : option;
 
   setModelOption(this.modelName, key, value);
+  return this;
 }
 
 const parseBooleanString = (str: string, defaultValue?: any) => (str ? str === 'true' : defaultValue);
@@ -435,6 +436,7 @@ export class ModelRouter {
 
   set(optionKey: string, option: any) {
     setModelOption(this.modelName, optionKey, option);
+    return this;
   }
 
   /**

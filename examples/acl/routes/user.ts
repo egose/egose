@@ -92,19 +92,19 @@ export const userRouter = macl.createRouter('User', {
   },
 });
 
-userRouter.routeGuard({
-  list: true,
-  read: true,
-  update: true,
-  delete: 'isAdmin',
-  create: ['isAdmin', 'dummy'],
-  subs: {
-    statusHistory: { list: true, read: true, update: true, delete: 'isAdmin', create: 'isAdmin' },
-  },
-});
-
-userRouter.identifier(function (id) {
-  return { name: id };
-});
+userRouter
+  .routeGuard({
+    list: true,
+    read: true,
+    update: true,
+    delete: 'isAdmin',
+    create: ['isAdmin', 'dummy'],
+    subs: {
+      statusHistory: { list: true, read: true, update: true, delete: 'isAdmin', create: 'isAdmin' },
+    },
+  })
+  .identifier(function (id) {
+    return { name: id };
+  });
 
 export default userRouter.routes;
