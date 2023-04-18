@@ -2,26 +2,16 @@
 
 Options for model routers can be passed to the instance constructor or to individual setter methods.
 
-### baseUrl
+### basePath
 
-The `baseUrl` option sets the base URL path for the routes used by the Mongoose Model.
+The `basePath` option sets the base URL path for the routes used by the Mongoose Model.
 
 It is only applicable when creating the model router and can be passed as an option object to the `createRouter()` method.
 
 ```ts
 import egose from '@egose/acl';
 
-const userRouter = egose.createRouter('User', { baseUrl: '/users' });
-```
-
-### idParam
-
-The `idParam` option is used to specify the `Express Route Parameter` that is used to capture the `Document ID` value. This option is only applicable when creating the model router and is set to `id` by default.
-
-```ts
-import egose from '@egose/acl';
-
-const userRouter = egose.createRouter('User', { idParam: 'doc_id' });
+const userRouter = egose.createRouter('User', { basePath: '/users' });
 ```
 
 ### queryPath
@@ -37,6 +27,16 @@ const userRouter = egose.createRouter('User', { queryPath: '__q__' });
 ### mutationPath
 
 The `mutationPath` option is used to set the path name (suffix) for `Advanced Write Routes`. This option is only applicable when creating the model router and is set to `__mutation` by default.
+
+### idParam
+
+The `idParam` option is used to specify the `Express Route Parameter` that is used to capture the `Document ID` value. This option is only applicable when creating the model router and is set to `id` by default.
+
+```ts
+import egose from '@egose/acl';
+
+const userRouter = egose.createRouter('User', { idParam: 'doc_id' });
+```
 
 ```ts
 import egose from '@egose/acl';

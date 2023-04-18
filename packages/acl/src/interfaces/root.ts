@@ -49,7 +49,7 @@ export interface GlobalOptions {
 }
 
 export interface RootRouterOptions {
-  baseUrl: string | false;
+  basePath: string;
   routeGuard?: Validation;
 }
 
@@ -76,7 +76,10 @@ interface DocPermissions {
 }
 
 export interface ModelRouterOptions {
-  baseUrl?: string | false;
+  basePath?: string;
+  queryPath?: string;
+  mutationPath?: string;
+  idParam?: string;
   listHardLimit?: number;
   permissionSchema?: PermissionSchema;
   permissionSchemaKeys?: string[];
@@ -92,7 +95,4 @@ export interface ModelRouterOptions {
   transform?: any;
   identifier?: string | Function;
   defaults?: Defaults;
-  idParam?: string;
-  queryPath?: string;
-  mutationPath?: string;
 }

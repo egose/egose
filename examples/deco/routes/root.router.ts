@@ -1,7 +1,7 @@
 import { Router } from '@egose/deco';
 
 @Router({
-  baseUrl: '/macl',
+  basePath: '/macl',
   routeGuard: true,
 })
 export class RootRouter {}

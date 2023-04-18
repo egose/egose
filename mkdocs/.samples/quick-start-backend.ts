@@ -25,7 +25,7 @@ egose.set('globalPermissions', function (req) {
   };
 });
 
-const userRouter = egose.createRouter('User', { baseUrl: '/users' });
+const userRouter = egose.createRouter('User', { basePath: '/users' });
 
 userRouter.routeGuard({
   list: true,

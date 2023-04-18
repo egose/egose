@@ -50,7 +50,7 @@ export class EgoseFactoryStatic {
     this.bootstrapGlobalScope(module);
 
     const expressRouter = express.Router();
-    const baseUrl = globalOptions.baseUrl || '/';
+    const basePath = globalOptions.basePath || '/';
 
     for (let x = 0; x < routers.length; x++) {
       const router = routers[x];
@@ -58,7 +58,7 @@ export class EgoseFactoryStatic {
       else if (isModelRouter(router)) this.bootstrapRouterScope(router, expressRouter);
     }
 
-    this._expressApp.use(baseUrl, expressRouter);
+    this._expressApp.use(basePath, expressRouter);
 
     if (globalOptions.handleErrors) {
       // catch 404 and forward to error handler

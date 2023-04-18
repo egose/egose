@@ -2,7 +2,7 @@ import macl from '@egose/acl';
 import { Permissions } from '@egose/acl';
 
 export const userRouter = macl.createRouter('User', {
-  baseUrl: null,
+  basePath: null,
   permissionSchema: {
     name: { list: true, read: true, update: ['edit.name', 'edit.dummy'], create: true },
     role: { list: 'isAdmin', read: true, update: 'edit.role', create: 'isAdmin' },

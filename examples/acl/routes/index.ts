@@ -8,7 +8,7 @@ import userRoutes from './user';
 import orgRoutes from './org';
 
 const rootRouter = macl.createRouter({
-  baseUrl: '/macl',
+  basePath: '/macl',
   routeGuard: true,
 });
 

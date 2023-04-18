@@ -23,6 +23,7 @@ import { RootRouterOptions, ModelRouterOptions, Validation, RootQueryEntry, Requ
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
 const pluralize = mongoose.pluralize();
+const addLeadingSlash = (str) => (str.startsWith('/') ? str : `/${str}`);
 const clientErrors = JsonRouter.clientErrors;
 
 type setOptionType = {
@@ -55,12 +56,12 @@ export class ModelRouter {
     this.router = new JsonRouter();
     this.model = new Model(modelName);
 
-    if (_options.baseUrl === false) {
-      this.basename = '';
-    } else if (isNil(_options.baseUrl)) {
+    if (isNil(_options.basePath)) {
       this.basename = `/${pluralize(modelName)}`;
+    } else if (isString(_options.basePath)) {
+      this.basename = addLeadingSlash(_options.basePath);
     } else {
-      this.basename = _options.baseUrl;
+      this.basename = '';
     }
 
     this.idParam = _options.idParam || getGlobalOption('idParam', 'id');

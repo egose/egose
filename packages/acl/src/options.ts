@@ -32,7 +32,7 @@ export const getGlobalOption = (key: string, defaultValue?: any) => get(currentG
 // Model Options //
 ////////////////////
 const defaultModelOptions: ModelRouterOptions = {
-  baseUrl: null,
+  basePath: null,
   listHardLimit: 1000,
   permissionField: '_permissions',
   mandatoryFields: [],

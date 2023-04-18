@@ -23,7 +23,7 @@ export class OrgRouter {
 
   @Option() permissionSchema = { name: { list: true, read: true, create: true } };
 
-  @Option() baseUrl = null;
+  @Option() basePath = null;
 
   @DocPermissions('default')
   docPermissions() {
