@@ -33,6 +33,7 @@ import {
   UpdateByIdArgs,
   UpdateByIdOptions,
 } from '../interfaces';
+import { Codes, StatusCodes } from '../enums';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
 export class Controller {
@@ -81,7 +82,7 @@ export class Controller {
     if (_filter === false) return { success: false, code: 'forbidden', data: null, query };
 
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
-    if (!doc) return { success: false, code: 'not_found', data: null, query };
+    if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, access);
     return { success: true, data: doc, query };
@@ -206,12 +207,12 @@ export class Controller {
         const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'create', context);
         if (isBoolean(validated)) {
           if (!validated) {
-            validationError = { success: false, code: 'bad_request', data: null };
+            validationError = { success: false, code: Codes.BadRequest, data: null };
             return;
           }
         } else if (isArray(validated)) {
           if (validated.length > 0) {
-            validationError = { success: false, code: 'bad_request', data: null, errors: validated };
+            validationError = { success: false, code: Codes.BadRequest, data: null, errors: validated };
             return;
           }
         }
@@ -238,7 +239,7 @@ export class Controller {
 
     return {
       success: true,
-      code: 'success',
+      code: Codes.Success,
       data: docs,
       input: items,
       count: docs.length,
@@ -268,10 +269,10 @@ export class Controller {
 
     const query = { filter: _filter, populate: _populate };
 
-    if (_filter === false) return { success: false, code: 'forbidden', data: null, query };
+    if (_filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
 
     let doc = await this.model.findOne({ filter: _filter });
-    if (!doc) return { success: false, code: 'not_found', data: null, query };
+    if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
     const context: MiddlewareContext = {};
 
@@ -286,9 +287,9 @@ export class Controller {
 
     const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'update', context);
     if (isBoolean(validated)) {
-      if (!validated) return { success: false, code: 'bad_request', data: null };
+      if (!validated) return { success: false, code: Codes.BadRequest, data: null };
     } else if (isArray(validated)) {
-      if (validated.length > 0) return { success: false, code: 'bad_request', data: null, errors: validated };
+      if (validated.length > 0) return { success: false, code: Codes.BadRequest, data: null, errors: validated };
     }
 
     const prepared = await this.req[CORE]._prepare(this.modelName, allowedData, 'update', context);
@@ -342,10 +343,10 @@ export class Controller {
 
     const query = { filter };
 
-    if (filter === false) return { success: false, code: 'forbidden', data: null, query };
+    if (filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
 
     let doc = await this.model.findOneAndRemove(filter);
-    if (!doc) return { success: false, code: 'not_found', data: null, query };
+    if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
     await doc.remove();
     return { success: true, data: doc._id, query };
@@ -356,7 +357,7 @@ export class Controller {
 
     const query = { filter };
 
-    if (filter === false) return { success: false, code: 'forbidden', data: null, query };
+    if (filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
 
     const result = await this.model.distinct(field, filter);
 
@@ -368,19 +369,19 @@ export class Controller {
 
     const query = { filter };
 
-    if (filter === false) return { success: false, code: 'forbidden', data: 0, query };
+    if (filter === false) return { success: false, code: Codes.Forbidden, data: 0, query };
 
     return { success: true, data: await this.model.countDocuments(filter), query };
   }
 
   protected handleErrorResult({ code, errors = [] }: { code?: string; errors?: string[] } = {}) {
     switch (code) {
-      case 'bad_request':
-        throw new CustomError({ statusCode: 400, message: 'Bad Request', errors });
-      case 'forbidden':
-        throw new CustomError({ statusCode: 403, message: 'Forbidden', errors });
-      case 'not_found':
-        throw new CustomError({ statusCode: 404, message: 'Not Found', errors });
+      case Codes.BadRequest:
+        throw new CustomError({ statusCode: StatusCodes.BadRequest, message: 'Bad Request', errors });
+      case Codes.Forbidden:
+        throw new CustomError({ statusCode: StatusCodes.Forbidden, message: 'Forbidden', errors });
+      case Codes.NotFound:
+        throw new CustomError({ statusCode: StatusCodes.NotFound, message: 'Not Found', errors });
       default:
         throw new CustomError();
     }
