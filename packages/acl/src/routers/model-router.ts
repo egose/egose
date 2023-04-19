@@ -9,7 +9,6 @@ import isUndefined from 'lodash/isUndefined';
 import pick from 'lodash/pick';
 import Model from '../model';
 import { checkIfReady, listen, getModelSub } from '../meta';
-
 import { setGenerators, MaclCore } from '../generators';
 import {
   getGlobalOption,
@@ -19,14 +18,14 @@ import {
   DEFAULT_QUERY_PATH,
   DEFAULT_MUTATION_PATH,
 } from '../options';
+import { addLeadingSlash } from '../lib';
 import { RootRouterOptions, ModelRouterOptions, Validation, RootQueryEntry, Request } from '../interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
 const pluralize = mongoose.pluralize();
-const addLeadingSlash = (str) => (str.startsWith('/') ? str : `/${str}`);
 const clientErrors = JsonRouter.clientErrors;
 
-type setOptionType = {
+type SetTargetOption = {
   (option: any): ModelRouter;
   (key: string, option: any): ModelRouter;
 };
@@ -442,39 +441,39 @@ export class ModelRouter {
   /**
    * The maximum limit of the number of documents returned from the `list` operation.
    */
-  public listHardLimit: setOptionType = setOption.bind(this, 'listHardLimit');
+  public listHardLimit: SetTargetOption = setOption.bind(this, 'listHardLimit');
 
   /**
    * The object schema to define the access control policy for each model field.
    */
-  public permissionSchema: setOptionType = setOption.bind(this, 'permissionSchema');
+  public permissionSchema: SetTargetOption = setOption.bind(this, 'permissionSchema');
 
   /**
    * The object field to store the document permissions.
    */
-  public permissionField: setOptionType = setOption.bind(this, 'permissionField');
+  public permissionField: SetTargetOption = setOption.bind(this, 'permissionField');
 
   /**
    * The essential model fields involved in generating document permissions.
    */
-  public mandatoryFields: setOptionType = setOption.bind(this, 'mandatoryFields');
+  public mandatoryFields: SetTargetOption = setOption.bind(this, 'mandatoryFields');
 
   /**
    * The function called in the process of generating document permissions.
    */
-  public docPermissions: setOptionType = setOption.bind(this, 'docPermissions');
+  public docPermissions: SetTargetOption = setOption.bind(this, 'docPermissions');
 
   /**
    * The access control policy for CRUDL endpoints.
    * @operation `create`, `list`, `read`, `update`, `delete`
    */
-  public routeGuard: setOptionType = setOption.bind(this, 'routeGuard');
+  public routeGuard: SetTargetOption = setOption.bind(this, 'routeGuard');
 
   /**
    * The base query definitions applied in every query transaction.
    * @operation `list`, `read`, `update`, `delete`
    */
-  public baseFilter: setOptionType = setOption.bind(this, 'baseFilter');
+  public baseFilter: SetTargetOption = setOption.bind(this, 'baseFilter');
 
   /**
    * Middleware
@@ -482,7 +481,7 @@ export class ModelRouter {
    * The function called before a new/update document data is processed in `prepare` hooks. This method is used to validate `write data` and throw an error if not valid.
    * @operation `create`, `update`
    */
-  public validate: setOptionType = setOption.bind(this, 'validate');
+  public validate: SetTargetOption = setOption.bind(this, 'validate');
 
   /**
    * Middleware
@@ -490,7 +489,7 @@ export class ModelRouter {
    * The function called before a new document is created or an existing document is updated. This method is used to process raw data passed into the API endpoints.
    * @operation `create`, `update`
    */
-  public prepare: setOptionType = setOption.bind(this, 'prepare');
+  public prepare: SetTargetOption = setOption.bind(this, 'prepare');
 
   /**
    * Middleware
@@ -498,7 +497,7 @@ export class ModelRouter {
    * The function called before an updated document is saved.
    * @operation `update`
    */
-  public transform: setOptionType = setOption.bind(this, 'transform');
+  public transform: SetTargetOption = setOption.bind(this, 'transform');
 
   /**
    * Middleware
@@ -506,7 +505,7 @@ export class ModelRouter {
    * The function called before response data is sent. This method is used to process raw data to apply custom logic before sending the result.
    * @operation `list`, `read`, `create`, `update`
    */
-  public decorate: setOptionType = setOption.bind(this, 'decorate');
+  public decorate: SetTargetOption = setOption.bind(this, 'decorate');
 
   /**
    * Middleware
@@ -514,19 +513,19 @@ export class ModelRouter {
    * The function are called before response data is sent and after `decorate` middleware runs. This method is used to process and filter multiple document objects before sending the result.
    * @operation `list`
    */
-  public decorateAll: setOptionType = setOption.bind(this, 'decorateAll');
+  public decorateAll: SetTargetOption = setOption.bind(this, 'decorateAll');
 
   /**
    * The document selector definition with the `id` param.
    * @option `string` | `Function`
    * @operation `read`, `update`, `delete`
    */
-  public identifier: setOptionType = setOption.bind(this, 'identifier');
+  public identifier: SetTargetOption = setOption.bind(this, 'identifier');
 
   /**
    * The default values used when missing in the operations.
    */
-  public defaults: setOptionType = setOption.bind(this, 'defaults');
+  public defaults: SetTargetOption = setOption.bind(this, 'defaults');
 
   get options() {
     return getModelOptions(this.modelName);
