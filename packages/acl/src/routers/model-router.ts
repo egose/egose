@@ -6,10 +6,12 @@ import isArray from 'lodash/isArray';
 import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
+import forEach from 'lodash/forEach';
 import pick from 'lodash/pick';
+import padEnd from 'lodash/padEnd';
 import Model from '../model';
 import { checkIfReady, listen, getModelSub } from '../meta';
-import { setGenerators, MaclCore } from '../generators';
+import { setGenerators } from '../generators';
 import {
   getGlobalOption,
   setModelOptions,
@@ -21,6 +23,7 @@ import {
 import { addLeadingSlash } from '../lib';
 import { RootRouterOptions, ModelRouterOptions, Validation, RootQueryEntry, Request } from '../interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
+import { logger } from '../logger';
 
 const pluralize = mongoose.pluralize();
 const clientErrors = JsonRouter.clientErrors;
@@ -426,11 +429,9 @@ export class ModelRouter {
   }
 
   private logEndpoints() {
-    // listEndpoints(this.routes).forEach((endpoint) => {
-    //   if (endpoint.path.startsWith(this.basename)) {
-    //     console.log(`ACL: ${endpoint.path} (${endpoint.methods.join(', ')})`);
-    //   }
-    // });
+    forEach(this.router.endpoints, ({ method, path }) => {
+      logger.info(`${padEnd(method, 6)} ${path}`);
+    });
   }
 
   set(optionKey: string, option: any) {
