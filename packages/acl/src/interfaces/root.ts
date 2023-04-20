@@ -43,9 +43,6 @@ export interface Defaults {
 export interface GlobalOptions {
   permissionField?: string;
   globalPermissions?: (req: any) => any;
-  idParam?: string;
-  queryPath?: string;
-  mutationPath?: string;
 }
 
 export interface RootRouterOptions {
@@ -76,6 +73,7 @@ interface DocPermissions {
 }
 
 export interface ModelRouterOptions {
+  modelName?: string;
   basePath?: string;
   queryPath?: string;
   mutationPath?: string;

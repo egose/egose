@@ -10,8 +10,8 @@ import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import pick from 'lodash/pick';
 import Model from '../model';
-import { setModelOptions, setModelOption, getModelOptions } from '../options';
-import { normalizeSelect, iterateQuery, CustomError } from '../helpers';
+import { getModelOptions } from '../options';
+import { iterateQuery, CustomError } from '../helpers';
 import {
   ModelRouterOptions,
   MiddlewareContext,
