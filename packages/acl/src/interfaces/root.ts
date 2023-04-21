@@ -75,6 +75,7 @@ interface DocPermissions {
 export interface ModelRouterOptions {
   modelName?: string;
   basePath?: string;
+  parentPath?: string;
   queryPath?: string;
   mutationPath?: string;
   idParam?: string;

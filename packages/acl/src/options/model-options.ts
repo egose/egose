@@ -18,7 +18,6 @@ const modelOptions: Record<string, OptionsManager<ModelRouterOptions>> = {};
 const createModelOptions = (modelName: string) => {
   const manager = new OptionsManager<ModelRouterOptions>({ ...defaultModelOptions, modelName });
 
-  // TODO: explore way to listen on a specific property
   manager
     .onchange('permissionSchema', function (newval, key, target, oldval) {
       target['permissionSchemaKeys'] = Object.keys(newval);

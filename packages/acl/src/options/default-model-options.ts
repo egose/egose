@@ -9,6 +9,7 @@ const defaultModelOptions = new OptionsManager<ModelRouterOptions>({
   permissionField: '_permissions',
   idParam: 'id',
   identifier: '_id',
+  parentPath: '/',
   queryPath: DEFAULT_QUERY_PATH,
   mutationPath: DEFAULT_MUTATION_PATH,
   routeGuard: false,

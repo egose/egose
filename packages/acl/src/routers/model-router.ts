@@ -431,7 +431,7 @@ export class ModelRouter {
 
   private logEndpoints() {
     forEach(this.router.endpoints, ({ method, path }) => {
-      logger.info(`${padEnd(method, 6)} ${path}`);
+      logger.info(`${padEnd(method, 6)} ${this.options.parentPath}${path}`);
     });
   }
 
