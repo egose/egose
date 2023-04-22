@@ -75,7 +75,7 @@ describe('Sub-Document User', () => {
     const oldApproved = firstStatus.approved;
 
     const response = await request(app)
-      .put(`/api/users/lucy2/statusHistory/${subId}`)
+      .patch(`/api/users/lucy2/statusHistory/${subId}`)
       .set('user', 'admin')
       .send({ name: newName, approved: !firstStatus.approved })
       .expect('Content-Type', /json/)

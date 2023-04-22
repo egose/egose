@@ -511,7 +511,7 @@ export class Factory {
     ////////////
     // UPDATE //
     ////////////
-    set(this._document.paths, `${prefix}/:${idParam}.put`, {
+    set(this._document.paths, `${prefix}/:${idParam}.patch`, {
       tags: [router.modelName.toLowerCase()],
       summary: `Updates a target ${modelName} resource.`,
       description: '',
@@ -545,7 +545,7 @@ export class Factory {
     ///////////////////////
     // UPDATE - MUTATION //
     ///////////////////////
-    set(this._document.paths, `${prefix}/${mutationPath}/:${idParam}.put`, {
+    set(this._document.paths, `${prefix}/${mutationPath}/:${idParam}.patch`, {
       tags: [router.modelName.toLowerCase()],
       summary: `Updates a target ${modelName} resource and returns selective data fields.`,
       description: '',

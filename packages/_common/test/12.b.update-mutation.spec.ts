@@ -7,7 +7,7 @@ import { app } from './00.setup.spec';
 describe('Update Users', () => {
   it('should update an user `john` by admin', async () => {
     const response = await request(app)
-      .put('/api/users/__mutation/nick')
+      .patch('/api/users/__mutation/nick')
       .set('user', 'admin')
       .send({
         data: { role: 'admin' },

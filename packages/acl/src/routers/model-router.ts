@@ -207,7 +207,7 @@ export class ModelRouter {
     ////////////
     // UPDATE //
     ////////////
-    this.router.put(`${this.options.basePath}/:${this.options.idParam}`, setGenerators, async (req: Request) => {
+    this.router.patch(`${this.options.basePath}/:${this.options.idParam}`, setGenerators, async (req: Request) => {
       const allowed = await req[CORE]._isAllowed(this.modelName, 'update');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -221,7 +221,7 @@ export class ModelRouter {
     ///////////////////////
     // UPDATE - MUTATION //
     ///////////////////////
-    this.router.put(
+    this.router.patch(
       `${this.options.basePath}/${this.options.mutationPath}/:${this.options.idParam}`,
       setGenerators,
       async (req: Request) => {
@@ -380,7 +380,7 @@ export class ModelRouter {
       ////////////
       // UPDATE //
       ////////////
-      this.router.put(
+      this.router.patch(
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
         setGenerators,
         async (req: Request) => {

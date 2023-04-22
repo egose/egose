@@ -11,7 +11,7 @@ describe('Update Users', () => {
     const statusDocument = await mongoose.model('Document').create({ name: 'registration form' });
 
     const response = await request(app)
-      .put('/api/users/john')
+      .patch('/api/users/john')
       .set('user', 'admin')
       .send({
         orgs: orgs.map((org) => org._id),
@@ -30,7 +30,7 @@ describe('Update Users', () => {
     const statusDocument = await mongoose.model('Document').create({ name: 'registration form' });
 
     const response = await request(app)
-      .put('/api/users/lucy')
+      .patch('/api/users/lucy')
       .set('user', 'admin')
       .send({
         orgs: orgs.map((org) => org._id),
@@ -49,7 +49,7 @@ describe('Update Users', () => {
 
   it('should update allowed fields for `lucy`', async () => {
     const response = await request(app)
-      .put('/api/users/lucy')
+      .patch('/api/users/lucy')
       .set('user', 'lucy')
       .send({
         name: 'lucy2',
@@ -66,7 +66,7 @@ describe('Update Users', () => {
 
   it('should returning all fields', async () => {
     const response = await request(app)
-      .put('/api/users/lucy2')
+      .patch('/api/users/lucy2')
       .set('user', 'admin')
       .send({
         public: false,
@@ -83,7 +83,7 @@ describe('Update Users', () => {
 
   it('should returning updated fields only', async () => {
     const response = await request(app)
-      .put('/api/users/lucy2?returning_all=false')
+      .patch('/api/users/lucy2?returning_all=false')
       .set('user', 'admin')
       .send({
         public: true,
@@ -100,7 +100,7 @@ describe('Update Users', () => {
 
   it('should generate permission data again after updating doc', async () => {
     const response = await request(app)
-      .put('/api/users/lucy2')
+      .patch('/api/users/lucy2')
       .set('user', 'admin')
       .send({
         public: false,
@@ -111,7 +111,7 @@ describe('Update Users', () => {
     expect(response.body._permissions['test:public']).to.equal(false);
 
     const response2 = await request(app)
-      .put('/api/users/lucy2')
+      .patch('/api/users/lucy2')
       .set('user', 'admin')
       .send({
         public: true,

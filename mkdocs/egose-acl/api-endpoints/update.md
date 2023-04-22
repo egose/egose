@@ -2,7 +2,7 @@
 
 This entrypoint updates a target resource.
 
-- `PUT /{base_url}/:id`
+- `PATCH /{base_url}/:id`
 
 ### Parameters
 
@@ -19,7 +19,7 @@ This entrypoint updates a target resource.
 
     ```bash
     curl \
-      -X PUT \
+      -X PATCH \
       -H "Accept: application/json" \
       https://example.com/users/5d6ede6a0ba62570afcedd3b?returning_all=false \
       -d '{ "name": "Andrew-2nd" }'
@@ -37,7 +37,7 @@ This entrypoint updates a target resource.
     const url = 'https://example.com/users/' + targetId + new URLSearchParams(params);
 
     const response = await fetch(url, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
     });
 
@@ -60,7 +60,7 @@ Status: 200
 
 This entrypoint updates a target resource and returns selective data fields.
 
-- `PUT /{base_url}/__mutation/:id`
+- `PATCH /{base_url}/__mutation/:id`
 
 ### Parameters
 
@@ -83,7 +83,7 @@ This entrypoint updates a target resource and returns selective data fields.
 
     ```bash
     curl \
-      -X PUT \
+      -X PATCH \
       -H "Accept: application/json" \
       https://example.com/users/5d6ede6a0ba62570afcedd3b \
       -d '{
@@ -115,7 +115,7 @@ This entrypoint updates a target resource and returns selective data fields.
     const url = 'https://example.com/users/__mutation/' + targetId;
 
     const response = await fetch(url, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });

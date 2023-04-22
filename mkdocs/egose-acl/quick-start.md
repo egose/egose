@@ -203,8 +203,8 @@ The above code will expose the following API endpoints:
 - `GET` /api/users/new
 - `GET` /api/users/:id
 - `POST` /api/users/\_\_query/:id
-- `PUT` /api/users/:id
-- `PUT` /api/users/\_\_mutation/:id
+- `PATCH` /api/users/:id
+- `PATCH` /api/users/\_\_mutation/:id
 - `DELETE` /api/users/:id
 - `GET` /api/users/distinct/:field
 - `POST` /api/users/distinct/:field
