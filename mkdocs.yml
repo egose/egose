@@ -16,6 +16,7 @@ docs_dir: mkdocs
 
 theme:
   name: material
+  logo: assets/logo.png
 
   include_search_page: false
   search_index_only: true
@@ -55,7 +56,7 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  # favicon: assets/favicon.png
+  favicon: assets/logo.png
   icon:
     logo: logo
 
