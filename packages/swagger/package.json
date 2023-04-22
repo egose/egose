@@ -21,8 +21,7 @@
     "dev": "tsc -w",
     "build": "tsc -d",
     "bundle": "tsup",
-    "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint",
-    "test": "mocha --exit"
+    "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint"
   },
   "engines": {
     "node": ">=14"
@@ -51,15 +50,5 @@
     "sourcemap": true,
     "clean": true,
     "minify": false
-  },
-  "mocha": {
-    "require": [
-      "ts-node/register",
-      "tsconfig-paths/register"
-    ],
-    "spec": [
-      "test/**/*.spec.ts",
-      "../_common/test/**/*.spec.ts"
-    ]
   }
 }
