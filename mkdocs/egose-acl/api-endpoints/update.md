@@ -69,8 +69,8 @@ This entrypoint updates a target resource and returns selective data fields.
 | `id`                         | string                           | param | Resource identifier; `required`                            |         |
 | `returning_all`              | boolean                          | query | Whether to return entire document or partial document; 2nd | true    |
 | `data`                       | object                           | body  | Document data to create                                    |         |
-| `select`                     | object \| array<string\>         | body  | Document fields to include or exclude after the creation   |         |
-| `populate`                   | array<string\> \| array<object\> | body  | Document fields to populate after the creation             |         |
+| `select`                     | object \| array<string\>         | body  | Document fields to include or exclude after the update     |         |
+| `populate`                   | array<string\> \| array<object\> | body  | Document fields to populate after the update               |         |
 | `options.returningAll`       | boolean                          | body  | Whether to return entire document or partial document; 1st | true    |
 | `options.includePermissions` | boolean                          | body  | Whether to include document permissions                    | true    |
 | `options.populateAccess`     | 'list' \| 'read'                 | body  | The access level to use in `populate` method               | read    |

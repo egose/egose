@@ -83,8 +83,10 @@ This entrypoint returns a set of filtered resources that includes selective data
 | `select`                     | object \| array<string\>         | body | Document fields to include or exclude                                |            |
 | `populate`                   | array<string\> \| array<object\> | body | Document fields to populate                                          |            |
 | `sort`                       | string \| object                 | body | Document sort order                                                  |            |
-| `limit`                      | number                           | body | The maximum number of documents                                      | 1000 (max) |
+| `skip`                       | number                           | body | The number of documents to skip; used over `page` if specified       |            |
+| `limit`                      | number                           | body | The maximum number of documents; used over `pageSize` if specified   | 1000 (max) |
 | `page`                       | number                           | body | The page number of documents; starts from 1                          | 1          |
+| `pageSize`                   | number                           | body | The maximum number of documents                                      | 1          |
 | `options.includePermissions` | boolean                          | body | Whether to include document permissions                              | true       |
 | `options.includeCount`       | boolean                          | body | Whether to include total results count                               | false      |
 | `options.populateAccess`     | 'list' \| 'read'                 | body | The access level to use in `populate` method                         | read       |

@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 
 import macl, { guard } from '@egose/acl';
+import { createOpenAPI } from '@egose/swagger';
 import auth from './auth';
 import { NODE_ENV } from '../config';
 import userRoutes from './user';
@@ -13,9 +14,13 @@ const rootRouter = macl.createRouter({
 });
 
 router.use('/auth', auth);
-router.use('/', userRoutes);
-router.use('/', orgRoutes);
+router.use('/', userRoutes.routes);
+router.use('/', orgRoutes.routes);
 router.use('/', rootRouter.routes);
+
+const swagger = createOpenAPI([userRoutes, orgRoutes], { baseUrl: 'http://localhost:3000' });
+router.use('/api-docs', swagger.serve);
+router.get('/api-docs', swagger.setup);
 
 router.get('/user-custom', [
   guard('isAdmin'),

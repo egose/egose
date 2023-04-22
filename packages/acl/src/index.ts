@@ -30,6 +30,7 @@ export * from './permission';
 export * from './plugins';
 export * from './interfaces';
 export * from './symbols';
+export * from './enums';
 
 type CreateRouter = {
   (modelName: string, options: ModelRouterOptions): ModelRouter;

@@ -13,13 +13,13 @@ please see [Egose documentation](https://egose.github.io/egose-acl/philosophy/) 
 ## Installation
 
 ```sh
-npm install express mongoose @egose/deco
+npm install express mongoose @egose/acl
 npm install @types/express --save-dev
 
 ```
 
 ```sh
-yarn add express mongoose @egose/deco
+yarn add express mongoose @egose/acl
 yarn add @types/express --dev
 ```
 

@@ -1,4 +1,4 @@
-import * as mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 interface FindProps {
   filter: any;
@@ -31,7 +31,7 @@ const reducer2 = (baseObj, key) => ({ ...baseObj, [key]: true });
 
 class Model {
   modelName: string;
-  model: any;
+  model: mongoose.Model<any>;
   indexKeys: string[];
   indexMap: any;
 

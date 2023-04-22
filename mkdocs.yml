@@ -89,6 +89,9 @@ nav:
 - Egose Deco:
   - Philosophy: egose-deco/philosophy.md
   - Quick Start: egose-deco/quick-start.md
+- Egose Swagger:
+  - Philosophy: egose-swagger/philosophy.md
+  - Quick Start: egose-swagger/quick-start.md
 
 # Extensions
 markdown_extensions:

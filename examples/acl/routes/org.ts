@@ -39,4 +39,4 @@ orgRouter
     create: 'isAdmin',
   });
 
-export default orgRouter.routes;
+export default orgRouter;

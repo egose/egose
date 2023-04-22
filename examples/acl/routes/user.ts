@@ -108,4 +108,4 @@ userRouter
     return { name: id };
   });
 
-export default userRouter.routes;
+export default userRouter;

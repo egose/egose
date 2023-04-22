@@ -79,7 +79,7 @@ export class Controller {
       populate: _populate,
     };
 
-    if (_filter === false) return { success: false, code: 'forbidden', data: null, query };
+    if (_filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
 
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
