@@ -24,3 +24,5 @@ export const toAsyncFn = function toAsyncFn(fn: Function, defaultValue?: any) {
     return isPromise(ret) ? ret : Promise.resolve(ret);
   };
 };
+
+export const addLeadingSlash = (str) => (str.startsWith('/') ? str : `/${str}`);

@@ -9,7 +9,7 @@ export function permissionsPlugin(schema, options: Options) {
   if (!options?.modelName) return;
 
   schema.virtual(options?.permissionField || 'permissions').get(function () {
-    const docPermissionField = getModelOption(options.modelName, 'permissionField', '_permissions');
+    const docPermissionField = getModelOption(options.modelName, 'permissionField');
     return this._doc[docPermissionField];
   });
 }

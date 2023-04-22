@@ -67,7 +67,8 @@ nav:
   - Options:
     - egose-acl/options/index.md
     - Global Options: egose-acl/options/global-options.md
-    - Model Options: egose-acl/options/model-options.md
+    - Default Model Router Options: egose-acl/options/default-model-options.md
+    - Model Router Options: egose-acl/options/model-options.md
     - Model Middleware: egose-acl/options/model-middleware.md
   - CRUD Lifecycle:
     - egose-acl/crud-lifecycle/index.md
@@ -88,6 +89,9 @@ nav:
 - Egose Deco:
   - Philosophy: egose-deco/philosophy.md
   - Quick Start: egose-deco/quick-start.md
+- Egose Swagger:
+  - Philosophy: egose-swagger/philosophy.md
+  - Quick Start: egose-swagger/quick-start.md
 
 # Extensions
 markdown_extensions:

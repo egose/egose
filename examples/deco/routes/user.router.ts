@@ -76,7 +76,7 @@ export class UserRouter {
     orgs: { list: true, read: true, update: 'edit.orgs', create: true },
   };
 
-  @Option() baseUrl = null;
+  @Option() basePath = null;
 
   @Option() identifier = (id) => {
     return { name: id };

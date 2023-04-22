@@ -6,7 +6,7 @@ import { Module, Option, GlobalPermissions, Request } from '@egose/deco';
 
 @Module({
   routers: [RootRouter, UserRouter, OrgRouter],
-  options: { baseUrl: '/api' },
+  options: { basePath: '/api' },
 })
 export class RoutersModule {
   @Option() permissionField = '_permissions';

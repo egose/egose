@@ -44,7 +44,7 @@ const callMiddleware = async (
 };
 
 export async function genIDFilter(modelName: string, id: string) {
-  const identifier = getModelOption(modelName, 'identifier', '_id');
+  const identifier = getModelOption(modelName, 'identifier');
 
   if (isString(identifier)) {
     return { [identifier]: id };
@@ -100,7 +100,7 @@ export function genPagination(
 }
 
 function getDocPermissions(modelName, doc) {
-  const docPermissionField = getModelOption(modelName, 'permissionField', '_permissions');
+  const docPermissionField = getModelOption(modelName, 'permissionField');
   let docPermissions = {};
   if (isDocument(doc)) {
     docPermissions = (doc._doc && doc._doc[docPermissionField]) || {};
@@ -297,7 +297,7 @@ export async function genDocPermissions(modelName: string, doc: any, access: str
 }
 
 export async function permit(modelName: string, doc: any, access: string, context: MiddlewareContext = {}) {
-  const docPermissionField = getModelOption(modelName, 'permissionField', '_permissions');
+  const docPermissionField = getModelOption(modelName, 'permissionField');
   const docPermissions = await this[CORE]._genDocPermissions(modelName, doc, access, context);
   setDocPermissions(doc, docPermissionField, docPermissions);
 

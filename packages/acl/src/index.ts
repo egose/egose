@@ -1,49 +1,77 @@
-import { Request, Response, NextFunction } from 'express';
 import isNil from 'lodash/isNil';
 import isUndefined from 'lodash/isUndefined';
-import middleware from './middleware';
+import middleware, { guard } from './middleware';
 import { RootRouter, ModelRouter } from './routers';
-import { setGlobalOption, setGlobalOptions, getGlobalOption } from './options';
+import {
+  setGlobalOptions,
+  setGlobalOption,
+  getGlobalOptions,
+  getGlobalOption,
+  setDefaultModelOptions,
+  setDefaultModelOption,
+  getDefaultModelOptions,
+  getDefaultModelOption,
+} from './options';
 import { GlobalOptions, RootRouterOptions, ModelRouterOptions } from './interfaces';
-export { guard } from './middleware';
+export {
+  RootRouter,
+  ModelRouter,
+  guard,
+  setGlobalOptions,
+  setGlobalOption,
+  getGlobalOptions,
+  getGlobalOption,
+  setDefaultModelOptions,
+  setDefaultModelOption,
+  getDefaultModelOptions,
+  getDefaultModelOption,
+};
 export * from './permission';
-export * from './routers';
-export * from './options';
 export * from './plugins';
 export * from './interfaces';
 export * from './symbols';
-
-type Middleware = () => (req: Request, res: Response, next: NextFunction) => Promise<void>;
-interface ModelRouterConstructor {
-  new (modelName: string, options: ModelRouterOptions): ModelRouter;
-}
+export * from './enums';
 
 type CreateRouter = {
   (modelName: string, options: ModelRouterOptions): ModelRouter;
   (options: RootRouterOptions): RootRouter;
 };
 
-interface MACL {
+interface Egose {
   createRouter: CreateRouter;
   set: (keyOrOptions: string | GlobalOptions, value?: any) => void;
-  setGlobalOption: (optionKey: string, value: any) => void;
-  setGlobalOptions: (options: GlobalOptions) => void;
-  getGlobalOption: (optionKey: string, defaultValue?: any) => any;
-  ModelRouter: ModelRouterConstructor;
+  setGlobalOptions: typeof setGlobalOptions;
+  setGlobalOption: typeof setGlobalOption;
+  getGlobalOptions: typeof getGlobalOptions;
+  getGlobalOption: typeof getGlobalOption;
+  setDefaultModelOptions: typeof setDefaultModelOptions;
+  setDefaultModelOption: typeof setDefaultModelOption;
+  getDefaultModelOptions: typeof getDefaultModelOptions;
+  getDefaultModelOption: typeof getDefaultModelOption;
+  RootRouter: typeof RootRouter;
+  ModelRouter: typeof ModelRouter;
 }
 
-const macl = middleware as Middleware & MACL;
-macl.createRouter = function (modelName: string | RootRouterOptions, options: ModelRouterOptions | undefined) {
+const egose = middleware as typeof middleware & Egose;
+
+egose.createRouter = function (modelName: string | RootRouterOptions, options: ModelRouterOptions | undefined) {
   return isUndefined(options)
     ? new RootRouter(modelName as RootRouterOptions)
     : new ModelRouter(modelName as string, options);
 } as CreateRouter;
 
-macl.set = (keyOrOptions, value) =>
+egose.set = (keyOrOptions, value) =>
   isNil(value) ? setGlobalOptions(keyOrOptions as GlobalOptions) : setGlobalOption(keyOrOptions as string, value);
-macl.setGlobalOption = setGlobalOption;
-macl.setGlobalOptions = setGlobalOptions;
-macl.getGlobalOption = getGlobalOption;
-macl.ModelRouter = ModelRouter;
 
-export default macl;
+egose.setGlobalOptions = setGlobalOptions;
+egose.setGlobalOption = setGlobalOption;
+egose.getGlobalOptions = getGlobalOptions;
+egose.getGlobalOption = getGlobalOption;
+egose.setDefaultModelOptions = setDefaultModelOptions;
+egose.setDefaultModelOption = setDefaultModelOption;
+egose.getDefaultModelOptions = getDefaultModelOptions;
+egose.getDefaultModelOption = getDefaultModelOption;
+egose.RootRouter = RootRouter;
+egose.ModelRouter = ModelRouter;
+
+export default egose;

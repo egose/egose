@@ -65,7 +65,7 @@ egose.set('permissionField', 'mypermissions');
 To generate predefined Express routes that bind to a Mongoose model, a model router can be established as follows:
 
 ```ts
-const userRouter = egose.createRouter('User', { baseUrl: '/users' });
+const userRouter = egose.createRouter('User', { basePath: '/users' });
 ```
 
 The first argument provided must match a previously established Mongoose model name.
@@ -187,7 +187,7 @@ const app = express();
 const router = express.Router();
 
 // create a model router for the User model
-const userRouter = egose.createRouter('User', { baseUrl: '/users' });
+const userRouter = egose.createRouter('User', { basePath: '/users' });
 
 // bind the User model router routes to the Express router
 router.use('/', userRouter.routes);

@@ -1,9 +1,13 @@
-import macl from '@egose/acl';
+import egose from '@egose/acl';
 import { Permissions } from '@egose/acl';
 
-export const userRouter = macl.createRouter('User', {
-  baseUrl: null,
-  permissionSchema: {
+export const userRouter = egose.createRouter('User', {
+  basePath: null,
+  parentPath: '/api',
+});
+
+userRouter
+  .permissionSchema({
     name: { list: true, read: true, update: ['edit.name', 'edit.dummy'], create: true },
     role: { list: 'isAdmin', read: true, update: 'edit.role', create: 'isAdmin' },
     public: { list: false, read: true, update: 'edit.public', create: true },
@@ -24,8 +28,8 @@ export const userRouter = macl.createRouter('User', {
       },
     },
     orgs: { list: true, read: true, update: 'edit.orgs', create: true },
-  },
-  docPermissions: function (doc, permissions) {
+  })
+  .docPermissions(function (doc, permissions) {
     const isMe = String(doc._id) === String(this._user?._id);
     const p = {
       'edit.name': permissions.isAdmin || isMe,
@@ -37,8 +41,8 @@ export const userRouter = macl.createRouter('User', {
     };
 
     return p;
-  },
-  baseFilter: {
+  })
+  .baseFilter({
     list: function (permissions: Permissions) {
       if (permissions.isAdmin) return {};
       else return { $or: [{ _id: this._user?._id }, { public: true }] };
@@ -75,8 +79,8 @@ export const userRouter = macl.createRouter('User', {
         },
       },
     },
-  },
-  decorate: {
+  })
+  .decorate({
     default: [
       function (doc) {
         return doc;
@@ -89,22 +93,19 @@ export const userRouter = macl.createRouter('User', {
       doc._createdBy = 'egose';
       return doc;
     },
-  },
-});
+  })
+  .routeGuard({
+    list: true,
+    read: true,
+    update: true,
+    delete: 'isAdmin',
+    create: ['isAdmin', 'dummy'],
+    subs: {
+      statusHistory: { list: true, read: true, update: true, delete: 'isAdmin', create: 'isAdmin' },
+    },
+  })
+  .identifier(function (id) {
+    return { name: id };
+  });
 
-userRouter.routeGuard({
-  list: true,
-  read: true,
-  update: true,
-  delete: 'isAdmin',
-  create: ['isAdmin', 'dummy'],
-  subs: {
-    statusHistory: { list: true, read: true, update: true, delete: 'isAdmin', create: 'isAdmin' },
-  },
-});
-
-userRouter.identifier(function (id) {
-  return { name: id };
-});
-
-export default userRouter.routes;
+export default userRouter;

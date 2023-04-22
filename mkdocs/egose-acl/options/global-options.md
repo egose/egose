@@ -1,6 +1,6 @@
 ## Global Options for Library and Model Routers
 
-Global options define the library-level or default options for model routers.
+Global options refer to the options that are set at the library-level.
 
 ### globalPermissions
 
@@ -32,34 +32,4 @@ This option specifies the name of the object field that is used to set the globa
 import egose from '@egose/acl';
 
 egose.set('permissionField', '__access');
-```
-
-### idParam
-
-This option specifies the default name of the `Route parameter` that is used to capture the document ID. It is used if the model option `idParam` is omitted. By default, it is set to `id`.
-
-```ts
-import egose from '@egose/acl';
-
-egose.set('idParam', 'identifier');
-```
-
-### queryPath
-
-This option specifies the default path name (suffix) for `Advanced View Routes`. It is used if the model option `queryPath` is not specified. By default, it is set to `__query`.
-
-```ts
-import egose from '@egose/acl';
-
-egose.set('queryPath', '__q__');
-```
-
-### mutationPath
-
-This option specifies the default path name (suffix) for `Advanced Write Routes`. It is used if the model option `mutationPath` is not specified. By default, it is set to `__mutation`.
-
-```ts
-import egose from '@egose/acl';
-
-egose.set('mutationPath', '__m__');
 ```

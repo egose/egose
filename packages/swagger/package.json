@@ -1,40 +1,41 @@
 {
-  "name": "@egose/acl",
+  "name": "@egose/swagger",
   "version": "0.0.0-PLACEHOLDER",
-  "description": "REST API Access control built in Express and Mongoose",
+  "description": "OpenAPI (Swagger) integration of @egose/acl",
   "license": "MIT",
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/egose/egose"
   },
-  "homepage": "https://egose.github.io/egose-acl/philosophy/",
+  "homepage": "https://egose.github.io/egose-swagger/philosophy/",
   "keywords": [
     "express",
     "mongoose",
     "access control list",
-    "api endpoints"
+    "api endpoints",
+    "openapi",
+    "swagger"
   ],
   "scripts": {
     "dev": "tsc -w",
     "build": "tsc -d",
     "bundle": "tsup",
-    "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint",
-    "test": "mocha --exit"
+    "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint"
   },
   "engines": {
     "node": ">=14"
   },
   "dependencies": {
-    "express-json-router": "0.6.0",
     "lodash": "^4.17.21",
-    "winston": "^3.8.2"
+    "mongoose-to-swagger": "^1.4.0",
+    "swagger-ui-express": "^4.6.2"
   },
   "peerDependencies": {
+    "@egose/acl": "0.0.0-PLACEHOLDER",
     "express": "^4.17.2",
     "mongoose": "^6.1.4"
   },
-  "devDependencies": {},
   "tsup": {
     "target": "node14",
     "entry": [
@@ -49,15 +50,5 @@
     "sourcemap": true,
     "clean": true,
     "minify": false
-  },
-  "mocha": {
-    "require": [
-      "ts-node/register",
-      "tsconfig-paths/register"
-    ],
-    "spec": [
-      "test/**/*.spec.ts",
-      "../_common/test/**/*.spec.ts"
-    ]
   }
 }

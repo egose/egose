@@ -1,32 +1,32 @@
 ## Options for Model Routers
 
-Options for model routers can be passed to the instance constructor or to individual setter methods.
+Model router options refer to the specific options that are applied to an individual model router. These options can be provided either to the instance constructor or to individual setter methods.
 
-### baseUrl
+### basePath
 
-The `baseUrl` option sets the base URL path for the routes used by the Mongoose Model.
+The `basePath` option sets the base URL path for the routes used by the Mongoose Model.
 
 It is only applicable when creating the model router and can be passed as an option object to the `createRouter()` method.
 
 ```ts
 import egose from '@egose/acl';
 
-const userRouter = egose.createRouter('User', { baseUrl: '/users' });
+const userRouter = egose.createRouter('User', { basePath: '/users' });
 ```
 
-### idParam
+### parentPath
 
-The `idParam` option is used to specify the `Express Route Parameter` that is used to capture the `Document ID` value. This option is only applicable when creating the model router and is set to `id` by default.
+The `parentPath` option is a configuration setting that allows you to specify the path name between the `host` and the `basePath` for each model router. This option is used to build the full path for each router. This option is only applicable when creating a model router and will use the value from the [`default model router options - parentPath`](../default-model-options/#parentpath) if it is not explicitly defined.
 
 ```ts
 import egose from '@egose/acl';
 
-const userRouter = egose.createRouter('User', { idParam: 'doc_id' });
+const userRouter = egose.createRouter('User', { parentPath: '/api' });
 ```
 
 ### queryPath
 
-The `queryPath` option is used to set the path name (suffix) for `Advanced View Routes`. This option is only applicable when creating the model router and is set to `__query` by default.
+The `queryPath` option is used to specify the path name (suffix) for `Advanced View Routes`. This option is only applicable when creating a model router and will use the value from the [`default model router options - queryPath`](../default-model-options/#querypath) if it is not explicitly defined.
 
 ```ts
 import egose from '@egose/acl';
@@ -36,7 +36,7 @@ const userRouter = egose.createRouter('User', { queryPath: '__q__' });
 
 ### mutationPath
 
-The `mutationPath` option is used to set the path name (suffix) for `Advanced Write Routes`. This option is only applicable when creating the model router and is set to `__mutation` by default.
+The `mutationPath` option is used to specify the path name (suffix) for `Advanced Write Routes`. This option is only applicable when creating a model router and will use the value from the [`default model router options - mutationPath`](../default-model-options/#mutationpath) if it is not explicitly defined.
 
 ```ts
 import egose from '@egose/acl';
@@ -44,9 +44,19 @@ import egose from '@egose/acl';
 const userRouter = egose.createRouter('User', { mutationPath: '__m__' });
 ```
 
+### idParam
+
+The `idParam` option is used to specify the `Express Route Parameter` that is used to capture the `Document ID` value. This option is only applicable when creating a model router and will use the value from the [`default model router options - idParam`](../default-model-options/#idparam) if it is not explicitly defined.
+
+```ts
+import egose from '@egose/acl';
+
+const userRouter = egose.createRouter('User', { idParam: 'doc_id' });
+```
+
 ### listHardLimit
 
-The `listHardLimit` option specifies the maximum number of documents to return from a query. It is useful for limiting the amount of data that is retrieved from the database, which can improve performance and reduce the risk of overloading the server or client.
+The `listHardLimit` option specifies the maximum number of documents to return from a query. It is useful for limiting the amount of data that is retrieved from the database, which can improve performance and reduce the risk of overloading the server or client. It will use the value from the [`default model router options - listHardLimit`](../default-model-options/#listhardlimit) if it is not explicitly defined.
 
 ```ts
 import egose from '@egose/acl';
@@ -66,7 +76,7 @@ If the `listHardLimit` option is set to `100` and a request is made with a limit
 
 ### permissionField
 
-The `permissionField` option specifies the name of the object field that is used to set the model permissions in the Mongoose document or document object. By default, it is set to `_permissions`.
+The `permissionField` option specifies the name of the object field that is used to set the model permissions in the Mongoose document or document object. It will use the value from the [`default model router options - permissionField`](../default-model-options/#permissionfield) if it is not explicitly defined.
 
 ```ts
 import egose from '@egose/acl';
@@ -106,7 +116,9 @@ userRouter.set('mandatoryFields', mandatoryFields);
 
 ### identifier
 
-The option `identifier` defines how `id param` is used to find the target document, defaults to `_id` field; there is more than one way to define the relation:
+The option `identifier` defines how `id param` is used to find the target document and will use the value from the [`default model router options - identifier`](../default-model-options/#identifier) if it is not explicitly defined.
+
+There is more than one way to define the relation:
 
 - `string`: Mongoose document field key
 - `function`: Function returns a Mongoose query to find the target document.
@@ -230,6 +242,8 @@ userRouter.set('docPermissions.update', update);
 The `routeGuard` option enables you to control access to the backend API endpoints based on the requester's global permissions. With this option, you can specify which routes are allowed and which ones are excluded, using the familiar CRUDL model (Create, Read, Update, Delete, and List).
 
 By using `routeGuard`, you can ensure that only authorized users can access and modify your data, helping to protect the confidentiality and integrity of your information.
+
+It will use the value from the [`default model router options - routeGuard`](../default-model-options/#routeguard) if it is not explicitly defined.
 
 ```ts
 import egose from '@egose/acl';

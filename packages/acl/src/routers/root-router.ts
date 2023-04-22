@@ -11,11 +11,11 @@ export class RootRouter {
   basename: string;
   routeGuard: Validation;
 
-  constructor(options: RootRouterOptions = { baseUrl: '', routeGuard: true }) {
-    const { baseUrl, routeGuard } = options;
+  constructor(options: RootRouterOptions = { basePath: '', routeGuard: true }) {
+    const { basePath, routeGuard } = options;
 
     this.router = new JsonRouter();
-    this.basename = baseUrl || '';
+    this.basename = basePath || '';
     this.routeGuard = routeGuard;
 
     this.setRoutes();

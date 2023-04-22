@@ -8,6 +8,7 @@
     "removeComments": false,
     "preserveConstEnums": true,
     "sourceMap": false,
+    "resolveJsonModule": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
@@ -16,6 +17,8 @@
       "@egose/acl/*": ["./packages/acl/src/*"],
       "@egose/deco": ["./packages/deco/src/index"],
       "@egose/deco/*": ["./packages/deco/src/*"],
+      "@egose/swagger": ["./packages/swagger/src/index"],
+      "@egose/swagger/*": ["./packages/swagger/src/*"],
       "@egose/_common/*": ["./packages/_common/*"],
       "@examples/*": ["./examples/*"]
     }
