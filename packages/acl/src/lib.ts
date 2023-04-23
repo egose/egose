@@ -26,3 +26,7 @@ export const toAsyncFn = function toAsyncFn(fn: Function, defaultValue?: any) {
 };
 
 export const addLeadingSlash = (str) => (str.startsWith('/') ? str : `/${str}`);
+
+export const removeConsecutiveSlashesFromUrl = (url) => url.replace(/\/{2,}/g, '/');
+
+export const processUrl = (url) => addLeadingSlash(removeConsecutiveSlashesFromUrl(url));

@@ -154,8 +154,8 @@ export class Factory {
   }
 
   private buildPaths(router: ModelRouter) {
-    const { parentPath, basePath, queryPath, mutationPath, idParam, modelName } = router.options;
-    const prefix = `${parentPath}${basePath}`;
+    const { fullBasePath: prefix } = router;
+    const { queryPath, mutationPath, idParam, modelName } = router.options;
     const modelRef = `#/components/schemas/${modelName}`;
 
     const pathParams = {

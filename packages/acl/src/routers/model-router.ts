@@ -6,6 +6,7 @@ import Model from '../model';
 import { checkIfReady, listen, getModelSub } from '../meta';
 import { setGenerators } from '../generators';
 import { setModelOptions, setModelOption } from '../options';
+import { processUrl } from '../lib';
 import { ModelRouterOptions, Request } from '../interfaces';
 import { CORE } from '../symbols';
 import { logger } from '../logger';
@@ -32,9 +33,11 @@ export class ModelRouter {
   readonly router: JsonRouter;
   readonly model: Model;
   readonly options: ModelRouterOptions;
+  readonly fullBasePath: string;
 
   constructor(modelName: string, initialOptions: ModelRouterOptions) {
     this.options = setModelOptions(modelName, initialOptions);
+    this.fullBasePath = processUrl(this.options.parentPath + this.options.basePath);
     this.modelName = modelName;
     this.router = new JsonRouter();
     this.model = new Model(modelName);
@@ -431,7 +434,7 @@ export class ModelRouter {
 
   private logEndpoints() {
     forEach(this.router.endpoints, ({ method, path }) => {
-      logger.info(`${padEnd(method, 6)} ${this.options.parentPath}${path}`);
+      logger.info(`${padEnd(method, 6)} ${processUrl(this.options.parentPath + path)}`);
     });
   }
 
