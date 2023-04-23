@@ -33,7 +33,7 @@
   },
   "peerDependencies": {
     "express": "^4.17.2",
-    "mongoose": "^6.1.4",
+    "mongoose": ">=6",
     "reflect-metadata": "^0.1.13"
   },
   "tsup": {

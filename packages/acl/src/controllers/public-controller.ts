@@ -370,7 +370,7 @@ export class PublicController extends Controller {
     result = result.find((v) => String(v._id) === subId);
     if (!result) return null;
 
-    await result.remove();
+    await result.deleteOne();
     await parentDoc.save();
     return result._id;
   }

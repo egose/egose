@@ -142,7 +142,7 @@ export class Controller {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     const [_filter, _select, _populate, pagination] = await Promise.all([
-      overrideFilter || this.req[CORE]._genFilter(this.modelName, 'list', this.operateQuery(filter)),
+      overrideFilter || this.req[CORE]._genFilter(this.modelName, 'list', await this.operateQuery(filter)),
       overrideSelect || this.req[CORE]._genSelect(this.modelName, 'list', select),
       overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
       this.req[CORE]._genPagination({ skip, limit, page, pageSize }, this.options.listHardLimit),
@@ -348,7 +348,7 @@ export class Controller {
     let doc = await this.model.findOneAndRemove(filter);
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
-    await doc.remove();
+    await doc.deleteOne();
     return { success: true, data: doc._id, query };
   }
 
