@@ -1,3 +1,4 @@
+import express from 'express';
 import { Validation } from './base';
 import { PublicCreateArgs, CreateArgs, PublicCreateOptions, CreateOptions } from './controller-create';
 import {
@@ -42,7 +43,7 @@ export interface Defaults {
 
 export interface GlobalOptions {
   permissionField?: string;
-  globalPermissions?: (req: any) => any;
+  globalPermissions?: (req: express.Request) => any;
 }
 
 export interface RootRouterOptions {

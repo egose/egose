@@ -17,7 +17,6 @@ const defaultModelOptions = new OptionsManager<ModelRouterOptions>({
 
 export const setDefaultModelOptions = (options: ModelRouterOptions) => {
   defaultModelOptions.assign(options);
-  return defaultModelOptions.fetch();
 };
 
 export const setDefaultModelOption = (key: string, value: any) => {

@@ -1,14 +1,14 @@
 import express from 'express';
 const router = express.Router();
 
-import macl, { guard } from '@egose/acl';
+import egose, { guard } from '@egose/acl';
 import { createOpenAPI } from '@egose/swagger';
 import auth from './auth';
 import { NODE_ENV } from '../config';
 import userRoutes from './user';
 import orgRoutes from './org';
 
-const rootRouter = macl.createRouter({
+const rootRouter = egose.createRouter({
   basePath: '/macl',
   routeGuard: true,
 });

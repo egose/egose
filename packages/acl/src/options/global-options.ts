@@ -8,7 +8,6 @@ const globalOptions = new OptionsManager<GlobalOptions>({
 
 export const setGlobalOptions = (options: GlobalOptions) => {
   globalOptions.assign(options);
-  return globalOptions.fetch();
 };
 
 export const setGlobalOption = (key: string, value: any) => {

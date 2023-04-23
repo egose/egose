@@ -53,14 +53,12 @@ export const setModelOptions = (modelName: string, options: ModelRouterOptions) 
   const defaultOptions = getDefaultModelOptions();
 
   manager.assign({ ...modelOptions, ...defaultOptions, ...options });
-  return manager.fetch();
 };
 
 export const setModelOption = (modelName: string, key: string, value: any) => {
   const manager = getOrCreateModelOptions(modelName);
 
   manager.set(key, value);
-  return manager.fetch();
 };
 
 export const getModelOptions = (modelName: string) => {

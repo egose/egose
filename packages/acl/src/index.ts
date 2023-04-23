@@ -1,4 +1,5 @@
-import isNil from 'lodash/isNil';
+import isString from 'lodash/isString';
+import isObject from 'lodash/isObject';
 import isUndefined from 'lodash/isUndefined';
 import middleware, { guard } from './middleware';
 import { RootRouter, ModelRouter } from './routers';
@@ -7,6 +8,10 @@ import {
   setGlobalOption,
   getGlobalOptions,
   getGlobalOption,
+  setModelOptions,
+  setModelOption,
+  getModelOptions,
+  getModelOption,
   setDefaultModelOptions,
   setDefaultModelOption,
   getDefaultModelOptions,
@@ -21,6 +26,10 @@ export {
   setGlobalOption,
   getGlobalOptions,
   getGlobalOption,
+  setModelOptions,
+  setModelOption,
+  getModelOptions,
+  getModelOption,
   setDefaultModelOptions,
   setDefaultModelOption,
   getDefaultModelOptions,
@@ -37,13 +46,22 @@ type CreateRouter = {
   (options: RootRouterOptions): RootRouter;
 };
 
+type EgoseSet = {
+  <K extends keyof GlobalOptions>(key: K, value: GlobalOptions[K]): void;
+  (options: { [K in keyof GlobalOptions]: GlobalOptions[K] }): void;
+};
+
 interface Egose {
   createRouter: CreateRouter;
-  set: (keyOrOptions: string | GlobalOptions, value?: any) => void;
+  set: EgoseSet;
   setGlobalOptions: typeof setGlobalOptions;
   setGlobalOption: typeof setGlobalOption;
   getGlobalOptions: typeof getGlobalOptions;
   getGlobalOption: typeof getGlobalOption;
+  setModelOptions: typeof setModelOptions;
+  setModelOption: typeof setModelOption;
+  getModelOptions: typeof getModelOptions;
+  getModelOption: typeof getModelOption;
   setDefaultModelOptions: typeof setDefaultModelOptions;
   setDefaultModelOption: typeof setDefaultModelOption;
   getDefaultModelOptions: typeof getDefaultModelOptions;
@@ -60,13 +78,24 @@ egose.createRouter = function (modelName: string | RootRouterOptions, options: M
     : new ModelRouter(modelName as string, options);
 } as CreateRouter;
 
-egose.set = (keyOrOptions, value) =>
-  isNil(value) ? setGlobalOptions(keyOrOptions as GlobalOptions) : setGlobalOption(keyOrOptions as string, value);
+egose.set = function (keyOrOptions, value?: unknown) {
+  if (arguments.length === 2 && isString(keyOrOptions)) {
+    return setGlobalOption(keyOrOptions, value);
+  }
+
+  if (arguments.length === 1 && isObject(keyOrOptions)) {
+    return setGlobalOptions(keyOrOptions);
+  }
+};
 
 egose.setGlobalOptions = setGlobalOptions;
 egose.setGlobalOption = setGlobalOption;
 egose.getGlobalOptions = getGlobalOptions;
 egose.getGlobalOption = getGlobalOption;
+egose.setModelOptions = setModelOptions;
+egose.setModelOption = setModelOption;
+egose.getModelOptions = getModelOptions;
+egose.getModelOption = getModelOption;
 egose.setDefaultModelOptions = setDefaultModelOptions;
 egose.setDefaultModelOption = setDefaultModelOption;
 egose.getDefaultModelOptions = getDefaultModelOptions;

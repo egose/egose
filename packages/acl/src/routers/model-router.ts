@@ -5,7 +5,7 @@ import padEnd from 'lodash/padEnd';
 import Model from '../model';
 import { checkIfReady, listen, getModelSub } from '../meta';
 import { setGenerators } from '../generators';
-import { setModelOptions, setModelOption } from '../options';
+import { setModelOptions, setModelOption, getModelOptions } from '../options';
 import { processUrl } from '../lib';
 import { ModelRouterOptions, Request } from '../interfaces';
 import { CORE } from '../symbols';
@@ -36,7 +36,8 @@ export class ModelRouter {
   readonly fullBasePath: string;
 
   constructor(modelName: string, initialOptions: ModelRouterOptions) {
-    this.options = setModelOptions(modelName, initialOptions);
+    setModelOptions(modelName, initialOptions);
+    this.options = getModelOptions(modelName);
     this.fullBasePath = processUrl(this.options.parentPath + this.options.basePath);
     this.modelName = modelName;
     this.router = new JsonRouter();

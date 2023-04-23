@@ -10,13 +10,13 @@ import db from '../shared/db';
 import loadModels from '../shared/models';
 import routes from './routes';
 import { DATABASE_URI, COOKIE_SESSION_NAME, COOKIE_SESSION_SECRET } from './config';
-import macl from '@egose/acl';
+import egose from '@egose/acl';
 
 console.log(!!loadModels());
 
-macl.setGlobalOption('permissionField', '_permissions');
+egose.setGlobalOption('permissionField', '_permissions');
 
-macl.set('globalPermissions', async function (req) {
+egose.set('globalPermissions', async function (req) {
   const User = mongoose.model('User');
   const userName = req.headers.user;
 
@@ -74,7 +74,7 @@ const initExpresss = async (options?: Props) => {
 
   expressServer.set('trust proxy', 1);
 
-  expressServer.use(macl());
+  expressServer.use(egose());
 
   expressServer.use('/api', routes);
 

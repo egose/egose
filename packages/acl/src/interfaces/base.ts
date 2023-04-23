@@ -1,3 +1,4 @@
+import express from 'express';
 import { CORE } from '../symbols';
 import { MaclCore, ControllerFactory } from '../generators';
 
@@ -40,7 +41,7 @@ export interface RootQueryEntry {
   arguments: any[];
 }
 
-export interface Request {
+export interface Request extends express.Request {
   query: Record<
     | 'skip'
     | 'limit'
@@ -53,9 +54,6 @@ export interface Request {
     | 'returning_all',
     string
   >;
-  params: Record<string, string>;
-  body: any;
   [CORE]: MaclCore;
   macl: ControllerFactory;
-  [key: string]: any;
 }
