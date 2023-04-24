@@ -14,6 +14,7 @@ import { CORE } from '../symbols';
 import { logger } from '../logger';
 
 const clientErrors = JsonRouter.clientErrors;
+const success = JsonRouter.success;
 
 type SetTargetOption = {
   (option: any): ModelRouter;
@@ -121,7 +122,7 @@ export class ModelRouter {
       const ctl = req[CORE]._public(this.modelName);
       const doc = await ctl._create(req.body, {}, { includePermissions: parseBooleanString(include_permissions) });
 
-      res.status(201).json(doc);
+      return new success.Created(doc);
     });
 
     ///////////////////////
@@ -145,7 +146,7 @@ export class ModelRouter {
           { includePermissions: includePermissions ?? parseBooleanString(include_permissions), populateAccess },
         );
 
-        res.status(201).json(doc);
+        return new success.Created(doc);
       },
     );
 
