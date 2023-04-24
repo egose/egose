@@ -1,4 +1,4 @@
-import { Projection, Populate } from './base';
+import { Projection, Populate, PopulateAccess } from './base';
 
 export interface PublicUpdateArgs {
   select?: Projection;
@@ -23,7 +23,7 @@ export interface UpdateByIdArgs extends Omit<UpdateOneArgs, 'overrides'> {
 export interface PublicUpdateOptions {
   returningAll?: boolean;
   includePermissions?: boolean;
-  populateAccess?: string;
+  populateAccess?: PopulateAccess;
 }
 
 export interface UpdateOneOptions extends Omit<PublicUpdateOptions, 'returningAll'> {}

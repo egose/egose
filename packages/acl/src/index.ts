@@ -1,5 +1,6 @@
 import isString from 'lodash/isString';
 import isObject from 'lodash/isObject';
+import isPlainObject from 'lodash/isPlainObject';
 import isUndefined from 'lodash/isUndefined';
 import middleware, { guard } from './middleware';
 import { RootRouter, ModelRouter } from './routers';
@@ -78,13 +79,13 @@ egose.createRouter = function (modelName: string | RootRouterOptions, options: M
     : new ModelRouter(modelName as string, options);
 } as CreateRouter;
 
-egose.set = function (keyOrOptions, value?: unknown) {
+egose.set = function <K extends keyof GlobalOptions>(keyOrOptions: K | GlobalOptions, value?: unknown) {
   if (arguments.length === 2 && isString(keyOrOptions)) {
-    return setGlobalOption(keyOrOptions, value);
+    return setGlobalOption(keyOrOptions as K, value as GlobalOptions[K]);
   }
 
-  if (arguments.length === 1 && isObject(keyOrOptions)) {
-    return setGlobalOptions(keyOrOptions);
+  if (arguments.length === 1 && isPlainObject(keyOrOptions)) {
+    return setGlobalOptions(keyOrOptions as GlobalOptions);
   }
 };
 

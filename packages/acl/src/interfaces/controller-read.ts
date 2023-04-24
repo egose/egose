@@ -1,4 +1,4 @@
-import { Projection, Populate } from './base';
+import { Projection, Populate, PopulateAccess } from './base';
 
 export interface PublicReadArgs {
   select?: Projection;
@@ -7,7 +7,7 @@ export interface PublicReadArgs {
 }
 
 export interface PublicReadOptions {
-  populateAccess?: string;
+  populateAccess?: PopulateAccess;
   lean?: boolean;
   includePermissions?: boolean;
   tryList?: boolean;

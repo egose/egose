@@ -1,4 +1,6 @@
 import JsonRouter from 'express-json-router';
+import isString from 'lodash/isString';
+import isPlainObject from 'lodash/isPlainObject';
 import isUndefined from 'lodash/isUndefined';
 import forEach from 'lodash/forEach';
 import padEnd from 'lodash/padEnd';
@@ -7,7 +9,7 @@ import { checkIfReady, listen, getModelSub } from '../meta';
 import { setGenerators } from '../generators';
 import { setModelOptions, setModelOption, getModelOptions } from '../options';
 import { processUrl } from '../lib';
-import { ModelRouterOptions, Request } from '../interfaces';
+import { ModelRouterOptions, ExtendedModelRouterOptions, Request } from '../interfaces';
 import { CORE } from '../symbols';
 import { logger } from '../logger';
 
@@ -22,7 +24,7 @@ function setOption(parentKey: string, optionKey: any, option?: any) {
   const key = isUndefined(option) ? parentKey : `${parentKey}.${optionKey}`;
   const value = isUndefined(option) ? optionKey : option;
 
-  setModelOption(this.modelName, key, value);
+  setModelOption(this.modelName, key as keyof ExtendedModelRouterOptions, value);
   return this;
 }
 
@@ -322,7 +324,7 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}`,
         setGenerators,
         async (req: Request) => {
-          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.list`);
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.list` as any);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
@@ -338,7 +340,7 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/${this.options.queryPath}`,
         setGenerators,
         async (req: Request) => {
-          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.list`);
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.list` as any);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
@@ -354,7 +356,7 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
         setGenerators,
         async (req: Request) => {
-          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.read`);
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.read` as any);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
@@ -371,7 +373,7 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId/${this.options.queryPath}`,
         setGenerators,
         async (req: Request) => {
-          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.read`);
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.read` as any);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
@@ -388,7 +390,7 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
         setGenerators,
         async (req: Request) => {
-          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.update`);
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.update` as any);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
@@ -405,7 +407,7 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}`,
         setGenerators,
         async (req: Request) => {
-          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.create`);
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.create` as any);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
@@ -421,7 +423,7 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
         setGenerators,
         async (req: Request) => {
-          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.delete`);
+          const allowed = await req[CORE]._isAllowed(this.modelName, `subs.${sub}.delete` as any);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
@@ -439,8 +441,25 @@ export class ModelRouter {
     });
   }
 
-  set(optionKey: string, option: any) {
-    setModelOption(this.modelName, optionKey, option);
+  set<K extends keyof ExtendedModelRouterOptions>(keyOrOptions: K | ModelRouterOptions, value?: unknown) {
+    if (arguments.length === 2 && isString(keyOrOptions)) {
+      setModelOption(this.modelName, keyOrOptions as K, value as ExtendedModelRouterOptions[K]);
+    }
+
+    if (arguments.length === 1 && isPlainObject(keyOrOptions)) {
+      setModelOptions(this.modelName, keyOrOptions as ModelRouterOptions);
+    }
+
+    return this;
+  }
+
+  setOption<K extends keyof ExtendedModelRouterOptions>(key: K, option: ExtendedModelRouterOptions[K]) {
+    setModelOption(this.modelName, key, option);
+    return this;
+  }
+
+  setOptions(options: ModelRouterOptions) {
+    setModelOptions(this.modelName, options);
     return this;
   }
 

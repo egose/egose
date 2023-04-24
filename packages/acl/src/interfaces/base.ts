@@ -10,11 +10,14 @@ interface KeyValueProjection {
 
 export type Projection = string[] | string | KeyValueProjection;
 
+export type FindAccess = 'list' | 'read';
+export type PopulateAccess = 'list' | 'read';
+
 export interface Populate {
   path: string;
   select?: Projection;
   match?: any;
-  access?: string;
+  access?: PopulateAccess;
 }
 
 export interface SubPopulate {

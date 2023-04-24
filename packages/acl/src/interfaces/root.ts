@@ -73,26 +73,99 @@ interface DocPermissions {
   update?: Function;
 }
 
-export interface ModelRouterOptions {
-  modelName?: string;
-  basePath?: string;
+export interface DefaultModelRouterOptions {
+  listHardLimit?: number;
+  permissionField?: string;
+  idParam?: string;
+  identifier?: string | Function;
   parentPath?: string;
   queryPath?: string;
   mutationPath?: string;
-  idParam?: string;
-  listHardLimit?: number;
+  routeGuard?: Validation | Access;
+}
+
+export interface ExtendedDefaultModelRouterOptions extends DefaultModelRouterOptions {
+  'routeGuard.default'?: Validation;
+  'routeGuard.list'?: Validation;
+  'routeGuard.read'?: Validation;
+  'routeGuard.update'?: Validation;
+  'routeGuard.delete'?: Validation;
+  'routeGuard.create'?: Validation;
+  'routeGuard.distinct'?: Validation;
+  'routeGuard.count'?: Validation;
+  'routeGuard.subs'?: any;
+}
+
+export interface ModelRouterOptions extends DefaultModelRouterOptions {
+  modelName?: string;
+  basePath?: string;
   permissionSchema?: PermissionSchema;
   permissionSchemaKeys?: string[];
-  permissionField?: string;
   mandatoryFields?: string[];
   docPermissions?: DocPermissions | Function;
-  routeGuard?: Validation | Access;
   baseFilter?: any;
   decorate?: any;
   decorateAll?: any;
   validate?: any;
   prepare?: any;
   transform?: any;
-  identifier?: string | Function;
   defaults?: Defaults;
 }
+
+export interface ExtendedModelRouterOptions extends ModelRouterOptions, ExtendedDefaultModelRouterOptions {
+  'docPermissions.default'?: Function;
+  'docPermissions.list'?: Function;
+  'docPermissions.create'?: Function;
+  'docPermissions.read'?: Function;
+  'docPermissions.update'?: Function;
+  'baseFilter.default'?: any;
+  'baseFilter.list'?: any;
+  'baseFilter.read'?: any;
+  'baseFilter.update'?: any;
+  'baseFilter.delete'?: any;
+  'decorate.default'?: any;
+  'decorate.list'?: any;
+  'decorate.create'?: any;
+  'decorate.read'?: any;
+  'decorate.update'?: any;
+  'decorateAll.default'?: any;
+  'decorateAll.list'?: any;
+  'validate.default'?: any;
+  'validate.create'?: any;
+  'validate.update'?: any;
+  'prepare.default'?: any;
+  'prepare.create'?: any;
+  'prepare.update'?: any;
+  'transform.default'?: any;
+  'transform.update'?: any;
+  'defaults.findOneArgs'?: DefaultFindOneArgs;
+  'defaults.findOneOptions'?: FindOneOptions;
+  'defaults.findByIdArgs'?: DefaultFindByIdArgs;
+  'defaults.findByIdOptions'?: FindByIdOptions;
+  'defaults.findArgs'?: DefaultFindArgs;
+  'defaults.findOptions'?: FindOptions;
+  'defaults.createArgs'?: CreateArgs;
+  'defaults.createOptions'?: CreateOptions;
+  'defaults.updateOneArgs'?: UpdateOneArgs;
+  'defaults.updateOneOptions'?: UpdateOneOptions;
+  'defaults.updateByIdArgs'?: UpdateByIdArgs;
+  'defaults.updateByIdOptions'?: UpdateByIdOptions;
+  'defaults.publicListArgs'?: PublicListArgs;
+  'defaults.publicListOptions'?: PublicListOptions;
+  'defaults.publicCreateArgs'?: PublicCreateArgs;
+  'defaults.publicCreateOptions'?: PublicCreateOptions;
+  'defaults.publicReadArgs'?: PublicReadArgs;
+  'defaults.publicReadOptions'?: PublicReadOptions;
+  'defaults.publicUpdateArgs'?: PublicUpdateArgs;
+  'defaults.publicUpdateOptions'?: PublicUpdateOptions;
+}
+
+export type SelectAccess = 'list' | 'create' | 'read' | 'update';
+export type RouteGuardAccess = 'list' | 'read' | 'update' | 'delete' | 'create' | 'distinct' | 'count' | 'subs';
+export type DocPermissionsAccess = 'list' | 'create' | 'read' | 'update';
+export type BaseFilterAccess = 'list' | 'read' | 'update' | 'delete';
+export type DecorateAccess = 'list' | 'create' | 'read' | 'update';
+export type DecorateAllAccess = 'list';
+export type ValidateAccess = 'create' | 'update';
+export type PrepareAccess = 'create' | 'update';
+export type TransformAccess = 'update';

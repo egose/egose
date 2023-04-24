@@ -13,6 +13,7 @@ import { normalizeSelect, iterateQuery, CustomError } from '../helpers';
 import { Controller } from './controller';
 import {
   MiddlewareContext,
+  FindAccess,
   SubPopulate,
   PublicListArgs,
   PublicListOptions,
@@ -24,6 +25,7 @@ import {
   PublicUpdateOptions,
   DistinctArgs,
   Request,
+  BaseFilterAccess,
 } from '../interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
@@ -161,7 +163,7 @@ export class PublicController extends Controller {
       lean = this.defaults.publicReadOptions?.lean ?? false,
     }: PublicReadOptions = {},
   ) {
-    let access = 'read';
+    let access: FindAccess = 'read';
     const idFilter = await this.req[CORE]._genIDFilter(this.modelName, id);
 
     let result = await this.findById(
@@ -258,7 +260,7 @@ export class PublicController extends Controller {
     return result.data;
   }
 
-  async _count(filter, access = 'list') {
+  async _count(filter, access: BaseFilterAccess = 'list') {
     const result = await this.count(filter, access);
 
     if (!result.success) {
@@ -287,7 +289,7 @@ export class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subFilter, subSelect] = await Promise.all([
-      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.list`, ft),
+      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.list` as any, ft),
       this.req[CORE]._genSelect(this.modelName, 'list', fields, false, [sub, 'sub']),
     ]);
 
@@ -304,7 +306,7 @@ export class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subFilter, subSelect] = await Promise.all([
-      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.read`),
+      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.read` as any),
       this.req[CORE]._genSelect(this.modelName, 'read', fields, false, [sub, 'sub']),
     ]);
 
@@ -322,7 +324,7 @@ export class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subFilter, subReadSelect, subUpdateSelect] = await Promise.all([
-      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.update`),
+      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.update` as any),
       this.req[CORE]._genSelect(this.modelName, 'read', null, false, [sub, 'sub']),
       this.req[CORE]._genSelect(this.modelName, 'update', null, false, [sub, 'sub']),
     ]);
@@ -364,7 +366,7 @@ export class PublicController extends Controller {
     if (!parentDoc) return null;
     let result = get(parentDoc, sub);
 
-    const subFilter = await this.req[CORE]._genFilter(this.modelName, `subs.${sub}.delete`);
+    const subFilter = await this.req[CORE]._genFilter(this.modelName, `subs.${sub}.delete` as any);
 
     result = filterChildren(result, subFilter);
     result = result.find((v) => String(v._id) === subId);

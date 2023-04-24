@@ -1,4 +1,4 @@
-import { Projection, Populate } from './base';
+import { Projection, Populate, PopulateAccess } from './base';
 
 export interface PublicListArgs {
   select?: Projection;
@@ -14,6 +14,6 @@ export interface PublicListArgs {
 export interface PublicListOptions {
   includePermissions?: boolean;
   includeCount?: boolean;
-  populateAccess?: string;
+  populateAccess?: PopulateAccess;
   lean?: boolean;
 }

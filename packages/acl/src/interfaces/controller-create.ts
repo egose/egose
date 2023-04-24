@@ -1,4 +1,4 @@
-import { Projection, Populate } from './base';
+import { Projection, Populate, PopulateAccess } from './base';
 
 export interface PublicCreateArgs {
   select?: Projection;
@@ -10,7 +10,7 @@ export interface CreateArgs extends Omit<PublicCreateArgs, 'select' | 'process'>
 
 export interface PublicCreateOptions {
   includePermissions?: boolean;
-  populateAccess?: string;
+  populateAccess?: PopulateAccess;
 }
 
 export interface CreateOptions extends PublicCreateOptions {}

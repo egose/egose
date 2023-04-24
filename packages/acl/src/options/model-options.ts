@@ -3,7 +3,7 @@ import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import { addLeadingSlash } from '../lib';
 import { OptionsManager } from './manager';
-import { ModelRouterOptions } from '../interfaces';
+import { ModelRouterOptions, DefaultModelRouterOptions, ExtendedModelRouterOptions } from '../interfaces';
 import { getDefaultModelOption, getDefaultModelOptions } from './default-model-options';
 
 const pluralize = mongoose.pluralize();
@@ -13,14 +13,17 @@ const defaultModelOptions: ModelRouterOptions = {
   mandatoryFields: [],
 };
 
-const modelOptions: Record<string, OptionsManager<ModelRouterOptions>> = {};
+const modelOptions: Record<string, OptionsManager<ModelRouterOptions, ExtendedModelRouterOptions>> = {};
 
 const createModelOptions = (modelName: string) => {
-  const manager = new OptionsManager<ModelRouterOptions>({ ...defaultModelOptions, modelName });
+  const manager = new OptionsManager<ModelRouterOptions, ExtendedModelRouterOptions>({
+    ...defaultModelOptions,
+    modelName,
+  });
 
   manager
     .onchange('permissionSchema', function (newval, key, target, oldval) {
-      target['permissionSchemaKeys'] = Object.keys(newval);
+      target.permissionSchemaKeys = Object.keys(newval);
     })
     .onchange('basePath', function (newval, key, target, oldval) {
       let basePath = '';
@@ -55,7 +58,11 @@ export const setModelOptions = (modelName: string, options: ModelRouterOptions) 
   manager.assign({ ...modelOptions, ...defaultOptions, ...options });
 };
 
-export const setModelOption = (modelName: string, key: string, value: any) => {
+export const setModelOption = <K extends keyof ExtendedModelRouterOptions>(
+  modelName: string,
+  key: K,
+  value: ExtendedModelRouterOptions[K],
+) => {
   const manager = getOrCreateModelOptions(modelName);
 
   manager.set(key, value);
@@ -66,9 +73,13 @@ export const getModelOptions = (modelName: string) => {
   return manager.fetch();
 };
 
-export const getModelOption = (modelName: string, key: string, defaultValue?: any) => {
+export const getModelOption = <K extends keyof ExtendedModelRouterOptions>(
+  modelName: string,
+  key: K,
+  defaultValue?: ExtendedModelRouterOptions[K],
+) => {
   const manager = getOrCreateModelOptions(modelName);
-  const defaultModelValue = getDefaultModelOption(key, defaultValue);
+  const defaultModelValue = getDefaultModelOption(key as keyof DefaultModelRouterOptions, defaultValue);
 
   const keys = key.split('.');
   if (keys.length === 1) return manager.get(key, defaultModelValue);
@@ -76,8 +87,8 @@ export const getModelOption = (modelName: string, key: string, defaultValue?: an
   let option = manager.get(key, undefined);
   if (option) return option;
 
-  const parentKey = keys.slice(0, -1).join('.');
-  option = manager.get(`${parentKey}.default`);
+  const parentKey = keys.slice(0, -1).join('.') as keyof ModelRouterOptions;
+  option = manager.get(`${parentKey}.default` as any);
 
   if (option === undefined) option = manager.get(parentKey, defaultModelValue);
   return option;

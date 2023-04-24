@@ -32,6 +32,7 @@ import {
   UpdateOneOptions,
   UpdateByIdArgs,
   UpdateByIdOptions,
+  BaseFilterAccess,
 } from '../interfaces';
 import { Codes, StatusCodes } from '../enums';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
@@ -364,7 +365,7 @@ export class Controller {
     return { success: true, data: result, query };
   }
 
-  protected async count(filter, access = 'list') {
+  protected async count(filter, access: BaseFilterAccess = 'list') {
     filter = await this.req[CORE]._genFilter(this.modelName, access, filter);
 
     const query = { filter };

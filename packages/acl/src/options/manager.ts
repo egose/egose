@@ -2,16 +2,17 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import assign from 'lodash/assign';
 
-export class OptionsManager<T extends object> {
-  private readonly defaultOptions: T;
-  private currentOptions: T;
-  private listeners: Record<string, Function> = {};
+export class OptionsManager<T1 extends object, T2 extends object> {
+  private readonly defaultOptions: T1;
+  private currentOptions: T1;
+  private listeners: { [key in keyof T1]?: Function };
 
-  constructor(defaultOptions: T) {
+  constructor(defaultOptions: T1) {
     this.defaultOptions = defaultOptions;
+    this.listeners = {};
     const _this = this;
 
-    this.currentOptions = new Proxy({} as T, {
+    this.currentOptions = new Proxy({} as T1, {
       set(target, key, value) {
         const keystr = String(key);
         const oldvalue = target[key];
@@ -27,11 +28,11 @@ export class OptionsManager<T extends object> {
     return this;
   }
 
-  get(key: string, defaultValue?: any) {
+  get<K extends keyof T2>(key: K, defaultValue?: T2[K]) {
     return get(this.currentOptions, key, defaultValue);
   }
 
-  set(key: string, value: any) {
+  set<K extends keyof T2>(key: K, value: T2[K]) {
     set(this.currentOptions, key, value);
   }
 
@@ -39,12 +40,12 @@ export class OptionsManager<T extends object> {
     return { ...this.currentOptions };
   }
 
-  assign(options: T) {
+  assign(options: T1) {
     assign(this.currentOptions, options);
   }
 
-  onchange(key: string, func: Function) {
-    this.listeners[key] = func;
+  onchange<K extends keyof T1>(key: K, func: Function) {
+    set(this.listeners, key, func);
     return this;
   }
 }

@@ -1,6 +1,6 @@
 import express, { Express, Router } from 'express';
 import { get, isArray, castArray, compact, isFunction, orderBy } from 'lodash';
-import egose, { RootRouter, ModelRouter } from '@egose/acl';
+import egose, { RootRouter, ModelRouter, GlobalOptions, ExtendedModelRouterOptions } from '@egose/acl';
 import {
   ROOT_ROUTER_WATERMARK,
   ROUTER_WATERMARK,
@@ -150,26 +150,26 @@ export class EgoseFactoryStatic {
     };
   }
 
-  private setGlobalMethodOptions(methodName: string, optionKey: string, arrayType = false) {
+  private setGlobalMethodOptions(methodName: string, optionKey: keyof GlobalOptions, arrayType = false) {
     const fn = this.wrapMethod(this._moduleInstance, methodName, optionKey);
     if (!fn) return;
 
     if (arrayType) {
       const curr = castArray(compact(egose.getGlobalOption(optionKey)));
-      egose.set(optionKey, [...curr, fn]);
+      egose.setGlobalOption(optionKey, [...curr, fn] as any);
     } else {
-      egose.set(optionKey, fn);
+      egose.setGlobalOption(optionKey, fn);
     }
   }
 
   private setGlobalPropertyOptions() {
-    const optionProps: { optionKey: string; propertyKey: string }[] =
+    const optionProps: { optionKey: keyof GlobalOptions; propertyKey: string }[] =
       getMetadata(this._moduleInstance, OPTIONS_METADATA) || [];
 
     for (let x = 0; x < optionProps.length; x++) {
       const optionProp = optionProps[x];
       const value = this._moduleInstance[optionProp.propertyKey];
-      egose.set(optionProp.optionKey, value);
+      egose.setGlobalOption(optionProp.optionKey, value);
     }
   }
 
@@ -185,21 +185,21 @@ export class EgoseFactoryStatic {
 
       if (arrayType) {
         const curr = castArray(compact(get(this._router.options, key)));
-        this._router.set(key, [...curr, fn]);
+        this._router.setOption(key, [...curr, fn]);
       } else {
-        this._router.set(key, fn);
+        this._router.setOption(key, fn);
       }
     }
   }
 
   private setRouterPropertyOptions() {
-    const optionProps: { optionKey: string; propertyKey: string }[] =
+    const optionProps: { optionKey: keyof ExtendedModelRouterOptions; propertyKey: string }[] =
       getMetadata(this._routerInstance, OPTIONS_METADATA) || [];
 
     for (let x = 0; x < optionProps.length; x++) {
       const optionProp = optionProps[x];
       const value = this._routerInstance[optionProp.propertyKey];
-      this._router.set(optionProp.optionKey, value);
+      this._router.setOption(optionProp.optionKey, value);
     }
   }
 }

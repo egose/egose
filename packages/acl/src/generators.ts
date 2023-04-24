@@ -18,7 +18,21 @@ import pick from 'lodash/pick';
 import set from 'lodash/set';
 import { getGlobalOption, getModelOption } from './options';
 import { getModelRef } from './meta';
-import { Populate, Projection, MiddlewareContext, Validation } from './interfaces';
+import {
+  Populate,
+  Projection,
+  MiddlewareContext,
+  Validation,
+  SelectAccess,
+  RouteGuardAccess,
+  DocPermissionsAccess,
+  BaseFilterAccess,
+  DecorateAccess,
+  DecorateAllAccess,
+  ValidateAccess,
+  PrepareAccess,
+  TransformAccess,
+} from './interfaces';
 import Permission, { Permissions } from './permission';
 import { Controller, PublicController } from './controllers';
 import { normalizeSelect, arrToObj, createValidator } from './helpers';
@@ -55,10 +69,10 @@ export async function genIDFilter(modelName: string, id: string) {
   return { _id: id };
 }
 
-export async function genFilter(modelName: string, access: string = 'read', _filter: any = null) {
+export async function genFilter(modelName: string, access: BaseFilterAccess = 'read', _filter: any = null) {
   let baseFilterFn = getModelOption(modelName, `baseFilter.${access}`, null);
   // @Deprecated option 'baseQuery'
-  if (!baseFilterFn) baseFilterFn = getModelOption(modelName, `baseQuery.${access}`, null);
+  if (!baseFilterFn) baseFilterFn = getModelOption(modelName, `baseQuery.${access}` as any, null);
   if (!isFunction(baseFilterFn)) return _filter || {};
 
   const permissions = this[PERMISSIONS];
@@ -127,7 +141,7 @@ function toObject(doc) {
   return isDocument(doc) ? doc.toObject() : doc;
 }
 
-export async function genAllowedFields(modelName: string, doc: any, access: string, baseFields = []) {
+export async function genAllowedFields(modelName: string, doc: any, access: SelectAccess, baseFields = []) {
   let fields = [...baseFields] || [];
 
   const permissionSchema = getModelOption(modelName, 'permissionSchema');
@@ -163,14 +177,14 @@ export async function genAllowedFields(modelName: string, doc: any, access: stri
   return fields;
 }
 
-export async function pickAllowedFields(modelName: string, doc: any, access: string, baseFields = []) {
+export async function pickAllowedFields(modelName: string, doc: any, access: SelectAccess, baseFields = []) {
   const allowed = await this[CORE]._genAllowedFields(modelName, doc, access, baseFields);
   return pick(toObject(doc), allowed);
 }
 
 export async function genSelect(
   modelName: string,
-  access: string,
+  access: SelectAccess,
   targetFields: Projection = null,
   skipChecks = true,
   subPaths = [],
@@ -178,7 +192,7 @@ export async function genSelect(
   let normalizedSelect = normalizeSelect(targetFields);
   let fields = [];
 
-  const permissionSchema = getModelOption(modelName, ['permissionSchema'].concat(subPaths).join('.'));
+  const permissionSchema = getModelOption(modelName, ['permissionSchema'].concat(subPaths).join('.') as any);
   if (!permissionSchema) return fields;
 
   const permissions = this[PERMISSIONS];
@@ -228,7 +242,7 @@ export async function genSelect(
   return fields.concat(mandatoryFields);
 }
 
-export async function genPopulate(modelName: string, access: string = 'read', _populate: any = null) {
+export async function genPopulate(modelName: string, access: SelectAccess = 'read', _populate: any = null) {
   if (!_populate) return [];
 
   let populate = Array.isArray(_populate) ? _populate : [_populate];
@@ -259,7 +273,12 @@ export async function genPopulate(modelName: string, access: string = 'read', _p
   return populate;
 }
 
-export async function validate(modelName: string, allowedData: any, access: string, context: MiddlewareContext = {}) {
+export async function validate(
+  modelName: string,
+  allowedData: any,
+  access: ValidateAccess,
+  context: MiddlewareContext = {},
+) {
   const validate = getModelOption(modelName, `validate.${access}`, null);
 
   if (isFunction(validate)) {
@@ -272,19 +291,29 @@ export async function validate(modelName: string, allowedData: any, access: stri
   }
 }
 
-export async function prepare(modelName: string, allowedData: any, access: string, context: MiddlewareContext = {}) {
+export async function prepare(
+  modelName: string,
+  allowedData: any,
+  access: PrepareAccess,
+  context: MiddlewareContext = {},
+) {
   const prepare = getModelOption(modelName, `prepare.${access}`, null);
   const permissions = this[PERMISSIONS];
   return callMiddleware(this, prepare, allowedData, permissions, context);
 }
 
-export async function transform(modelName: string, doc: any, access: string, context: MiddlewareContext = {}) {
+export async function transform(modelName: string, doc: any, access: TransformAccess, context: MiddlewareContext = {}) {
   const transform = getModelOption(modelName, `transform.${access}`, null);
   const permissions = this[PERMISSIONS];
   return callMiddleware(this, transform, doc, permissions, context);
 }
 
-export async function genDocPermissions(modelName: string, doc: any, access: string, context: MiddlewareContext = {}) {
+export async function genDocPermissions(
+  modelName: string,
+  doc: any,
+  access: DocPermissionsAccess,
+  context: MiddlewareContext = {},
+) {
   const permit = getModelOption(modelName, `docPermissions.${access}`, null);
   let docPermissions = {};
 
@@ -296,7 +325,12 @@ export async function genDocPermissions(modelName: string, doc: any, access: str
   return docPermissions;
 }
 
-export async function permit(modelName: string, doc: any, access: string, context: MiddlewareContext = {}) {
+export async function permit(
+  modelName: string,
+  doc: any,
+  access: DocPermissionsAccess,
+  context: MiddlewareContext = {},
+) {
   const docPermissionField = getModelOption(modelName, 'permissionField');
   const docPermissions = await this[CORE]._genDocPermissions(modelName, doc, access, context);
   setDocPermissions(doc, docPermissionField, docPermissions);
@@ -313,7 +347,7 @@ export async function permit(modelName: string, doc: any, access: string, contex
   return doc;
 }
 
-export async function decorate(modelName: string, doc: any, access: string, context: MiddlewareContext = {}) {
+export async function decorate(modelName: string, doc: any, access: DecorateAccess, context: MiddlewareContext = {}) {
   const decorate = getModelOption(modelName, `decorate.${access}`, null);
 
   const permissions = this[PERMISSIONS];
@@ -322,7 +356,7 @@ export async function decorate(modelName: string, doc: any, access: string, cont
   return callMiddleware(this, decorate, doc, permissions, context);
 }
 
-export async function decorateAll(modelName: string, docs: any[], access: string) {
+export async function decorateAll(modelName: string, docs: any[], access: DecorateAllAccess) {
   const decorateAll = getModelOption(modelName, `decorateAll.${access}`, null);
   const permissions = this[PERMISSIONS];
 
@@ -384,7 +418,7 @@ export async function canActivate(routeGuard: Validation) {
   return allowed;
 }
 
-export async function isAllowed(modelName, access) {
+export async function isAllowed(modelName: string, access: RouteGuardAccess) {
   const routeGuard = getModelOption(modelName, `routeGuard.${access}`);
   return this[CORE]._canActivate(routeGuard);
 }

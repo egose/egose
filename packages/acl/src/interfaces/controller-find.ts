@@ -1,4 +1,4 @@
-import { Projection, Populate } from './base';
+import { Projection, Populate, PopulateAccess, FindAccess } from './base';
 
 export interface FindArgs {
   filter?: any;
@@ -19,7 +19,7 @@ export interface FindArgs {
 export interface FindOptions {
   includePermissions?: boolean;
   includeCount?: boolean;
-  populateAccess?: string;
+  populateAccess?: PopulateAccess;
   lean?: boolean;
 }
 
@@ -34,8 +34,8 @@ export interface FindOneArgs {
 }
 
 export interface FindOneOptions {
-  access?: string;
-  populateAccess?: string;
+  access?: FindAccess;
+  populateAccess?: PopulateAccess;
   lean?: boolean;
   includePermissions?: boolean;
 }
