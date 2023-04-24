@@ -47,8 +47,9 @@ glob(`${packageRoot}/*/package.json`, null, (err, files) => {
       }
     });
 
+    if (!packageData.name) return;
+
     packageData = _.pick(packageData, [
-      'name',
       'version',
       'description',
       'keywords',
@@ -73,20 +74,29 @@ glob(`${packageRoot}/*/package.json`, null, (err, files) => {
       execSync(`cp ${dir}/${file} ${publishDir}/${file}`);
     });
 
-    writeJson(targetPackageJSON, {
-      ...packageData,
-      main: './index.js',
-      module: './index.mjs',
-      types: './index.d.ts',
-      exports: {
-        '.': {
-          require: './index.js',
-          import: './index.mjs',
-          types: './index.d.ts',
-        },
-      },
-    });
+    const names = [packageData.name];
+    if (_.isArray(packageData.additionalNames)) names.push(...packageData.additionalNames);
 
-    execSync(`cd ${publishDir} && npm publish --access public`);
+    _.forEach(names, (name) => {
+      const packageJSON = {
+        ...packageData,
+        name,
+        main: './index.js',
+        module: './index.mjs',
+        types: './index.d.ts',
+        exports: {
+          '.': {
+            require: './index.js',
+            import: './index.mjs',
+            types: './index.d.ts',
+          },
+        },
+      };
+
+      console.log(packageJSON);
+
+      writeJson(targetPackageJSON, packageJSON);
+      execSync(`cd ${publishDir} && npm publish --access public`);
+    });
   });
 });
