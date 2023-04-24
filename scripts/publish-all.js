@@ -2,7 +2,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const _ = require('lodash');
 const fse = require('fs-extra');
-const glob = require('glob');
+const { globSync } = require('glob');
 const { argv } = require('yargs');
 
 let { tag } = argv;
@@ -25,78 +25,76 @@ const writeJson = (dir, object) => {
 
 const packageRoot = path.join(__dirname, '../packages');
 
-glob(`${packageRoot}/*/package.json`, null, (err, files) => {
-  files.forEach((file) => {
-    const dir = file.substring(0, file.lastIndexOf('/'));
-    execSync(`cd ${dir} && yarn bundle`);
+const files = globSync(`${packageRoot}/*/package.json`, { ignore: 'node_modules/**' });
+_.forEach(files, (file) => {
+  const dir = file.substring(0, file.lastIndexOf('/'));
+  execSync(`cd ${dir} && yarn bundle`);
 
-    const publishDir = `${dir}/${PUBLISH_DIR}`;
-    const originalPackageJSON = `${dir}/package.json`;
-    const targetPackageJSON = `${publishDir}/package.json`;
-    let packageData = parseJson(originalPackageJSON);
+  const publishDir = `${dir}/${PUBLISH_DIR}`;
+  const originalPackageJSON = `${dir}/package.json`;
+  const targetPackageJSON = `${publishDir}/package.json`;
+  let packageData = parseJson(originalPackageJSON);
 
-    ['version', 'dependencies', 'peerDependencies'].forEach((type) => {
-      if (!packageData[type]) return;
+  ['version', 'dependencies', 'peerDependencies'].forEach((type) => {
+    if (!packageData[type]) return;
 
-      if (_.isString(packageData[type])) {
-        if (packageData[type] === VER_PLACEHOLDER) packageData[type] = tag;
-      } else if (_.isPlainObject(packageData[type])) {
-        _.each(packageData[type], (val, key) => {
-          if (val === VER_PLACEHOLDER) packageData[type][key] = tag;
-        });
-      }
-    });
+    if (_.isString(packageData[type])) {
+      if (packageData[type] === VER_PLACEHOLDER) packageData[type] = tag;
+    } else if (_.isPlainObject(packageData[type])) {
+      _.each(packageData[type], (val, key) => {
+        if (val === VER_PLACEHOLDER) packageData[type][key] = tag;
+      });
+    }
+  });
 
-    if (!packageData.name) return;
+  if (!packageData.name) return;
+  const names = [packageData.name];
+  if (_.isArray(packageData.additionalNames)) names.push(...packageData.additionalNames);
 
-    packageData = _.pick(packageData, [
-      'version',
-      'description',
-      'keywords',
-      'homepage',
-      'bugs',
-      'license',
-      'author',
-      'sideEffects',
-      'repository',
-      'dependencies',
-      'peerDependencies',
-      'publishConfig',
-      'release',
-      'engines',
-      'main',
-      'module',
-      'types',
-      'exports',
-    ]);
+  packageData = _.pick(packageData, [
+    'version',
+    'description',
+    'keywords',
+    'homepage',
+    'bugs',
+    'license',
+    'author',
+    'sideEffects',
+    'repository',
+    'dependencies',
+    'peerDependencies',
+    'publishConfig',
+    'release',
+    'engines',
+    'main',
+    'module',
+    'types',
+    'exports',
+  ]);
 
-    ['LICENSE', 'README.md'].forEach((file) => {
-      execSync(`cp ${dir}/${file} ${publishDir}/${file}`);
-    });
+  ['LICENSE', 'README.md'].forEach((file) => {
+    execSync(`cp ${dir}/${file} ${publishDir}/${file}`);
+  });
 
-    const names = [packageData.name];
-    if (_.isArray(packageData.additionalNames)) names.push(...packageData.additionalNames);
-
-    _.forEach(names, (name) => {
-      const packageJSON = {
-        ...packageData,
-        name,
-        main: './index.js',
-        module: './index.mjs',
-        types: './index.d.ts',
-        exports: {
-          '.': {
-            require: './index.js',
-            import: './index.mjs',
-            types: './index.d.ts',
-          },
+  _.forEach(names, (name) => {
+    const packageJSON = {
+      ...packageData,
+      name,
+      main: './index.js',
+      module: './index.mjs',
+      types: './index.d.ts',
+      exports: {
+        '.': {
+          require: './index.js',
+          import: './index.mjs',
+          types: './index.d.ts',
         },
-      };
+      },
+    };
 
-      console.log(packageJSON);
+    console.log(packageJSON);
 
-      writeJson(targetPackageJSON, packageJSON);
-      execSync(`cd ${publishDir} && npm publish --access public`);
-    });
+    writeJson(targetPackageJSON, packageJSON);
+    execSync(`cd ${publishDir} && npm publish --access public`);
   });
 });
