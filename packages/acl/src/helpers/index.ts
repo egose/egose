@@ -1,20 +1,16 @@
 // @ts-nocheck
-import castArray from 'lodash/castArray';
-import cloneDeep from 'lodash/cloneDeep';
-import flattenDeep from 'lodash/flattenDeep';
+export * from './document';
+export * from './errors';
+export * from './query';
+
 import forEach from 'lodash/forEach';
-import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isEmpty from 'lodash/isEmpty';
 import isObject from 'lodash/isObject';
 import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
-import map from 'lodash/map';
 import noop from 'lodash/noop';
-import reduce from 'lodash/reduce';
-import set from 'lodash/set';
-import { isSchema, isReference } from './lib';
-import { Projection } from './interfaces';
+import { isSchema, isReference, mapValuesAsync } from '../lib';
 
 function recurseObject(obj: any) {
   if (isSchema(obj)) {
@@ -77,12 +73,6 @@ export function buildSubPaths(schema: any) {
   return subPaths;
 }
 
-async function mapValuesAsync(object, asyncFn) {
-  return Object.fromEntries(
-    await Promise.all(Object.entries(object).map(async ([key, value]) => [key, await asyncFn(value, key, object)])),
-  );
-}
-
 export async function iterateQuery(query: any, handler: Function) {
   if (!isPlainObject(query)) return query;
   if (!handler) return noop;
@@ -104,31 +94,6 @@ export async function iterateQuery(query: any, handler: Function) {
   });
 }
 
-export const normalizeSelect = (select: Projection | null): string[] => {
-  if (Array.isArray(select)) return flattenDeep(select.map(normalizeSelect));
-  if (isPlainObject(select)) {
-    return reduce(
-      select,
-      (ret, val, key) => {
-        if (val === 1) ret.push(key);
-        else if (val === -1) ret.push(`-${key}`);
-        return ret;
-      },
-      [],
-    );
-  }
-  if (isString(select)) return select.split(' ').map((v) => v.trim());
-  return [];
-};
-
-export const arrToObj = (arr: string[]): any => {
-  const obj = {};
-  for (let x = 0; x < arr.length; x++) {
-    obj[arr[x]] = true;
-  }
-  return obj;
-};
-
 export const createValidator = (fn: (key) => boolean) => {
   const stringHandler = (key) =>
     key
@@ -145,18 +110,3 @@ export const createValidator = (fn: (key) => boolean) => {
 
   return [stringHandler, arrayHandler];
 };
-
-export class CustomError extends Error {
-  constructor({ statusCode = 422, message = 'Unprocessable Content', errors = [] } = {}) {
-    super(message);
-
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, CustomError);
-    }
-
-    this.statusCode = statusCode;
-    this.message = message;
-    this.errors = errors;
-    this.date = new Date();
-  }
-}

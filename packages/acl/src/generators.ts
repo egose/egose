@@ -35,9 +35,16 @@ import {
 } from './interfaces';
 import Permission, { Permissions } from './permission';
 import { Controller, PublicController } from './controllers';
-import { normalizeSelect, arrToObj, createValidator } from './helpers';
+import {
+  normalizeSelect,
+  createValidator,
+  getDocPermissions,
+  setDocPermissions,
+  toObject,
+  genPagination,
+} from './helpers';
 import { copyAndDepopulate } from './processors';
-import { isDocument } from './lib';
+import { arrToObj } from './lib';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
 const callMiddleware = async (
@@ -83,62 +90,6 @@ export async function genFilter(modelName: string, access: BaseFilterAccess = 'r
   if (!_filter) return baseFilter;
 
   return { $and: [baseFilter, _filter] };
-}
-
-export function genPagination(
-  {
-    skip,
-    limit,
-    page,
-    pageSize,
-  }: {
-    skip?: number | string;
-    limit?: number | string;
-    page?: number | string;
-    pageSize?: number | string;
-  },
-  hardLimit,
-) {
-  let _skip = 0;
-  let _limit = Number(limit ?? pageSize);
-  if (isNaN(_limit) || _limit > hardLimit) _limit = hardLimit;
-
-  if (!isNil(skip)) {
-    _skip = Number(skip);
-  } else if (!isNil(page)) {
-    const npage = Number(page);
-    if (npage > 1) _skip = (npage - 1) * _limit;
-  }
-
-  return { skip: _skip, limit: _limit };
-}
-
-function getDocPermissions(modelName, doc) {
-  const docPermissionField = getModelOption(modelName, 'permissionField');
-  let docPermissions = {};
-  if (isDocument(doc)) {
-    docPermissions = (doc._doc && doc._doc[docPermissionField]) || {};
-  } else if (isPlainObject(doc)) {
-    docPermissions = doc[docPermissionField] || {};
-  }
-
-  return docPermissions;
-}
-
-function setDocPermissions(doc, path, value) {
-  if (isDocument(doc)) {
-    set(doc._doc, path, value);
-  } else if (isPlainObject(doc)) {
-    set(doc, path, value);
-  }
-}
-
-function getModelKeys(doc) {
-  return Object.keys(isDocument(doc) ? doc._doc : doc);
-}
-
-function toObject(doc) {
-  return isDocument(doc) ? doc.toObject() : doc;
 }
 
 export async function genAllowedFields(modelName: string, doc: any, access: SelectAccess, baseFields = []) {

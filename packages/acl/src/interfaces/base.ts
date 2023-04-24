@@ -4,7 +4,7 @@ import { MaclCore, ControllerFactory } from '../generators';
 
 export type Validation = boolean | string | string[] | Function;
 
-interface KeyValueProjection {
+export interface KeyValueProjection {
   [key: string]: 1 | -1;
 }
 

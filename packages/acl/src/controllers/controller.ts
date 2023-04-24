@@ -11,7 +11,7 @@ import isString from 'lodash/isString';
 import pick from 'lodash/pick';
 import Model from '../model';
 import { getModelOptions } from '../options';
-import { iterateQuery, CustomError } from '../helpers';
+import { iterateQuery, CustomError, getDocPermissions } from '../helpers';
 import {
   ModelRouterOptions,
   MiddlewareContext,
@@ -375,7 +375,7 @@ export class Controller {
     return { success: true, data: await this.model.countDocuments(filter), query };
   }
 
-  protected handleErrorResult({ code, errors = [] }: { code?: string; errors?: string[] } = {}) {
+  public handleErrorResult({ code, errors = [] }: { code?: string; errors?: string[] } = {}) {
     switch (code) {
       case Codes.BadRequest:
         throw new CustomError({ statusCode: StatusCodes.BadRequest, message: 'Bad Request', errors });
@@ -386,6 +386,10 @@ export class Controller {
       default:
         throw new CustomError();
     }
+  }
+
+  public getDocPermissions(doc) {
+    return getDocPermissions(this.modelName, doc);
   }
 
   private async operateQuery(filter) {
