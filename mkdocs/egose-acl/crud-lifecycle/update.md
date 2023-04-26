@@ -28,7 +28,7 @@
       <ol>
         <li>allowed data object</li>
         <li>global permissions</li>
-        <li>context object:<ul><li>originalDoc</li><li>originalData</li><li>currentDoc</li></ul></li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li></ul></li>
       </ol>
     </td>
     <td>
@@ -41,7 +41,7 @@
       <ol>
         <li>allowed data object</li>
         <li>global permissions</li>
-        <li>context object:<ul><li>originalDoc</li><li>originalData</li><li>currentDoc</li></ul></li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li></ul></li>
       </ol>
     </td>
     <td>
@@ -54,7 +54,7 @@
       <ol>
         <li>allowed data object</li>
         <li>global permissions</li>
-        <li>context object:<ul><li>originalDoc</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
       </ol>
     </td>
     <td>
@@ -67,7 +67,7 @@
       <ol>
         <li>Mongoose document</li>
         <li>global permissions</li>
-        <li>context object:<ul><li>originalDoc</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
       </ol>
     </td>
     <td>
@@ -82,7 +82,7 @@
       <ol>
         <li>plain document object</li>
         <li>global permissions</li>
-        <li>context object:<ul><li>originalDoc</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
       </ol>
     </td>
     <td>

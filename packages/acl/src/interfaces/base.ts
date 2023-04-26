@@ -30,7 +30,8 @@ interface keyValue {
 }
 
 export interface MiddlewareContext {
-  originalDoc?: keyValue;
+  originalDocObject?: keyValue;
+  finalDocObject?: keyValue;
   currentDoc?: keyValue;
   originalData?: keyValue;
   preparedData?: keyValue;

@@ -277,10 +277,11 @@ export class Controller {
 
     const context: MiddlewareContext = {};
 
-    context.originalDoc = doc.toObject();
+    context.originalDocObject = doc.toObject();
     context.originalData = data;
 
     doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
+    context.docPermissions = this.getDocPermissions(doc);
 
     context.currentDoc = doc;
     const allowedFields = await this.req[CORE]._genAllowedFields(this.modelName, doc, 'update');
@@ -302,8 +303,11 @@ export class Controller {
     doc = await this.req[CORE]._transform(this.modelName, doc, 'update', context);
     context.modifiedPaths = doc.modifiedPaths();
     doc = await doc.save();
+    context.finalDocObject = doc.toObject();
+
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
     if (_populate) await doc.populate(_populate);
+
     if (isFunction(decorate)) doc = await decorate(doc, context);
     return { success: true, data: doc, input: prepared };
   }
@@ -349,6 +353,7 @@ export class Controller {
     let doc = await this.model.findOneAndRemove(filter);
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
+    // see https://mongoosejs.com/docs/api/model.html#Model.prototype.deleteOne()
     await doc.deleteOne();
     return { success: true, data: doc._id, query };
   }
