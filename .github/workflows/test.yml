@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        express: [3.0.6, 3.21.2, 4.0.0, latest]
+        express: [4.0.0, latest]
         mongoose: [5.0.18, 5.13.17, 6.0.15, 6.10.5, latest]
     steps:
     - uses: hmarr/debug-action@v2
@@ -18,7 +18,7 @@ jobs:
     - name: Setup NPM Packages
       uses: ./.github/actions/setup-yarn
 
-    - name: Run unit tests
+    - name: Install target package versions
       run: |
         yarn upgrade express@${{ matrix.express }} --dev
         yarn upgrade mongoose@${{ matrix.mongoose }} --dev
