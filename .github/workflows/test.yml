@@ -41,6 +41,9 @@ jobs:
     - name: Setup Tools
       uses: ./.github/actions/setup-tools
 
+    - name: Setup NPM Packages
+      uses: ./.github/actions/setup-yarn
+
     - uses: actions/setup-python@v4
       with:
         python-version: 3.x
