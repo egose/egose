@@ -1,5 +1,7 @@
 export const ROOT_ROUTER_WATERMARK = '__root_router__';
 export const ROUTER_WATERMARK = '__router__';
+export const DEFAULT_MODEL_ROUTER_OPTIONS_WATERMARK = '__default_model_router_options__';
+export const MODEL_ROUTER_OPTIONS_WATERMARK = '__model_router_options__';
 export const ROUTER_MODEL = '__router_model__';
 export const ROUTER_OPTIONS = '__router_options__';
 export const ARGS_METADATA = '__args_metadata__';
@@ -14,6 +16,7 @@ export const PREPARE_WATERMARK = '__prepare__';
 export const TRANSFORM_WATERMARK = '__transform__';
 export const DECORATE_WATERMARK = '__decorate__';
 export const DECORATE_ALL_WATERMARK = '__decorate_all__';
+export const IDENTIFIER_WATERMARK = '__identifier__';
 
 export enum HookParamtypes {
   REQUEST,

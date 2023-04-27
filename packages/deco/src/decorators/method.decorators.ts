@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import compact from 'lodash/compact';
+import join from 'lodash/join';
 import {
   GLOBAL_PERMISSIONS_WATERMARK,
   DOC_PERMISSIONS_WATERMARK,
@@ -9,18 +11,19 @@ import {
   TRANSFORM_WATERMARK,
   DECORATE_WATERMARK,
   DECORATE_ALL_WATERMARK,
+  IDENTIFIER_WATERMARK,
 } from '../constants';
 
-const setMethodMetadata = (watermark: string, parentOptionKey: string, optionKey: string) => {
+const setMethodMetadata = (watermark: string, parentOptionKey: string, optionKey?: string) => {
   return (target: object, key: string | symbol, descriptor: TypedPropertyDescriptor<any>) => {
     Reflect.defineMetadata(watermark, true, descriptor.value);
-    Reflect.defineMetadata(`${parentOptionKey}.${optionKey}`, true, descriptor.value);
+    Reflect.defineMetadata(join(compact([parentOptionKey, optionKey]), '.'), true, descriptor.value);
     return descriptor;
   };
 };
 
 export function GlobalPermissions(): MethodDecorator {
-  return setMethodMetadata(GLOBAL_PERMISSIONS_WATERMARK, 'globalPermissions', '');
+  return setMethodMetadata(GLOBAL_PERMISSIONS_WATERMARK, 'globalPermissions');
 }
 
 export function DocPermissions(optionKey: 'default' | 'create' | 'update' | 'list' | 'read'): MethodDecorator {
@@ -53,4 +56,8 @@ export function DecorateAll(optionKey: 'default' | 'list'): MethodDecorator {
 
 export function RouteGuard(optionKey: 'default' | 'create' | 'update' | 'list' | 'read' | 'delete'): MethodDecorator {
   return setMethodMetadata(ROUTE_GUARD_WATERMARK, 'routeGuard', optionKey);
+}
+
+export function Identifier(): MethodDecorator {
+  return setMethodMetadata(IDENTIFIER_WATERMARK, 'identifier');
 }

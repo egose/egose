@@ -1,6 +1,14 @@
 import express, { Express, Router } from 'express';
 import { get, isArray, castArray, compact, isFunction, orderBy } from 'lodash';
-import egose, { RootRouter, ModelRouter, GlobalOptions, ExtendedModelRouterOptions } from '@egose/acl';
+import egose, {
+  RootRouter,
+  ModelRouter,
+  GlobalOptions,
+  DefaultModelRouterOptions,
+  ExtendedDefaultModelRouterOptions,
+  ExtendedModelRouterOptions,
+  ModelRouterOptions,
+} from '@egose/acl';
 import {
   ROOT_ROUTER_WATERMARK,
   ROUTER_WATERMARK,
@@ -19,6 +27,8 @@ import {
   getMethodMetadataKeysStartWith,
   isRootRouter,
   isModelRouter,
+  isDefaultModelRouterOptions,
+  isModelRouterOptions,
   isGlobalPermissionsMethod,
   isDocPermissionsMethod,
   isBaseFilterMethod,
@@ -28,6 +38,7 @@ import {
   isDecorateMethod,
   isDecorateAllMethod,
   isRouteGuardMethod,
+  isIdentifierMethod,
 } from './helpers/metadata';
 import { Type } from './interfaces';
 
@@ -36,26 +47,29 @@ import { Type } from './interfaces';
  */
 export class EgoseFactoryStatic {
   private _expressApp!: Express;
-  private _rrouter!: RootRouter;
-  private _router!: ModelRouter;
-  private _moduleInstance!: any;
-  private _routerInstance!: any;
 
   public bootstrap(module: Type<any>, expressApp: Express) {
     this._expressApp = expressApp;
     const routers = getMetadata(module, 'routers') || [];
+    const routerOptions = getMetadata(module, 'routerOptions') || [];
     const globalOptions = getMetadata(module, 'options') || {};
 
     egose.set(globalOptions);
-    this.bootstrapGlobalScope(module);
+    this.bootstrapEgose(module);
 
     const expressRouter = express.Router();
     const basePath = globalOptions.basePath || '/';
 
     for (let x = 0; x < routers.length; x++) {
       const router = routers[x];
-      if (isRootRouter(router)) this.bootstrapRootRouterScope(router, expressRouter);
-      else if (isModelRouter(router)) this.bootstrapRouterScope(router, expressRouter);
+      if (isRootRouter(router)) this.bootstrapRootRouter(router, expressRouter);
+      else if (isModelRouter(router)) this.bootstrapModelRouter(router, expressRouter);
+    }
+
+    for (let x = 0; x < routerOptions.length; x++) {
+      const routerOption = routerOptions[x];
+      if (isDefaultModelRouterOptions(routerOption)) this.setDefaultModelRouterOptions(routerOption);
+      else if (isModelRouterOptions(routerOption)) this.setModelRouterOptions(routerOption);
     }
 
     this._expressApp.use(basePath, expressRouter);
@@ -78,57 +92,182 @@ export class EgoseFactoryStatic {
     }
   }
 
-  private bootstrapGlobalScope(module: Type<any>) {
-    this._moduleInstance = new module();
-    this.setGlobalPropertyOptions();
+  private bootstrapEgose(module: Type<any>) {
+    const moduleInstance = new module();
+    this.setGlobalPropertyOptions(moduleInstance);
     const methodNames = new Set(getAllMethodNames(module.prototype));
 
     for (const methodName of methodNames) {
-      const globalPermissions = isGlobalPermissionsMethod(this._moduleInstance, methodName);
+      const globalPermissions = isGlobalPermissionsMethod(moduleInstance, methodName);
 
-      if (globalPermissions) this.setGlobalMethodOptions(methodName, 'globalPermissions', false);
+      if (globalPermissions) this.setGlobalMethodOption(moduleInstance, methodName, 'globalPermissions', false);
     }
 
     this._expressApp.use(egose());
   }
 
-  private bootstrapRootRouterScope(router: Type<any>, expressRouter: Router) {
+  private bootstrapRootRouter(router, expressRouter: Router) {
     const options = getMetadata(router, ROUTER_OPTIONS);
 
-    this._rrouter = egose.createRouter(options);
-    expressRouter.use(this._rrouter.routes);
+    const rootRouter = egose.createRouter(options);
+    expressRouter.use(rootRouter.routes);
   }
 
-  private bootstrapRouterScope(router: Type<any>, expressRouter: Router) {
-    const modelName = getMetadata(router, ROUTER_MODEL);
-    const options = getMetadata(router, ROUTER_OPTIONS);
+  private bootstrapModelRouter(DecoRouter, expressRouter: Router) {
+    const modelName = getMetadata(DecoRouter, ROUTER_MODEL) as string;
+    const options = getMetadata(DecoRouter, ROUTER_OPTIONS) as ModelRouterOptions;
 
-    this._router = egose.createRouter(modelName, options);
-    this._routerInstance = new router();
-    this.setRouterPropertyOptions();
+    const modelRouter = egose.createRouter(modelName, options);
+    this.setModelRouterPropertyOptions(modelName, DecoRouter);
+    this.setModelRouterMethodOptions(modelName, DecoRouter);
 
-    const methodNames = new Set(getAllMethodNames(router.prototype));
-    for (const methodName of methodNames) {
-      const docPermissions = isDocPermissionsMethod(this._routerInstance, methodName);
-      const baseFilter = isBaseFilterMethod(this._routerInstance, methodName);
-      const validate = isValidateMethod(this._routerInstance, methodName);
-      const prepare = isPrepareMethod(this._routerInstance, methodName);
-      const transform = isTransformMethod(this._routerInstance, methodName);
-      const decorate = isDecorateMethod(this._routerInstance, methodName);
-      const decorateAll = isDecorateAllMethod(this._routerInstance, methodName);
-      const routeGuard = isRouteGuardMethod(this._routerInstance, methodName);
+    expressRouter.use(modelRouter.routes);
+  }
 
-      if (docPermissions) this.setRouterMethodOptions(methodName, 'docPermissions', false);
-      if (baseFilter) this.setRouterMethodOptions(methodName, 'baseFilter', false);
-      if (validate) this.setRouterMethodOptions(methodName, 'validate', true);
-      if (prepare) this.setRouterMethodOptions(methodName, 'prepare', true);
-      if (transform) this.setRouterMethodOptions(methodName, 'transform', true);
-      if (decorate) this.setRouterMethodOptions(methodName, 'decorate', true);
-      if (decorateAll) this.setRouterMethodOptions(methodName, 'decorateAll', true);
-      if (routeGuard) this.setRouterMethodOptions(methodName, 'routeGuard', false);
+  private setDefaultModelRouterOptions(DecoRouterOptions) {
+    const options = getMetadata(DecoRouterOptions, ROUTER_OPTIONS) as DefaultModelRouterOptions;
+
+    egose.setDefaultModelOptions(options);
+
+    this.setDefaultModelRouterPropertyOptions(DecoRouterOptions);
+    this.setDefaultModelRouterMethodOptions(DecoRouterOptions);
+  }
+
+  private setModelRouterOptions(DecoRouterOptions) {
+    const modelName = getMetadata(DecoRouterOptions, ROUTER_MODEL) as string;
+    const options = getMetadata(DecoRouterOptions, ROUTER_OPTIONS) as ModelRouterOptions;
+
+    egose.setModelOptions(modelName, options);
+
+    this.setModelRouterPropertyOptions(modelName, DecoRouterOptions);
+    this.setModelRouterMethodOptions(modelName, DecoRouterOptions);
+  }
+
+  private setModelRouterPropertyOptions(modelName: string, DecoRouterOrOptions) {
+    const instance = new DecoRouterOrOptions();
+    const optionProps: { optionKey: keyof ExtendedModelRouterOptions; propertyKey: string }[] =
+      getMetadata(instance, OPTIONS_METADATA) || [];
+
+    for (let x = 0; x < optionProps.length; x++) {
+      const optionProp = optionProps[x];
+      const value = instance[optionProp.propertyKey];
+      egose.setModelOption(modelName, optionProp.optionKey, value);
     }
+  }
 
-    expressRouter.use(this._router.routes);
+  private setModelRouterMethodOptions(modelName: string, DecoRouterOrOptions) {
+    const instance = new DecoRouterOrOptions();
+    const methodNames = new Set(getAllMethodNames(DecoRouterOrOptions.prototype));
+
+    for (const methodName of methodNames) {
+      if (isDocPermissionsMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'docPermissions', false);
+      else if (isBaseFilterMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'baseFilter', false);
+      else if (isValidateMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'validate', true);
+      else if (isPrepareMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'prepare', true);
+      else if (isTransformMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'transform', true);
+      else if (isDecorateMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'decorate', true);
+      else if (isDecorateAllMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'decorateAll', true);
+      else if (isRouteGuardMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'routeGuard', false);
+      else if (isIdentifierMethod(instance, methodName))
+        this.setModelRouterMethodOption(instance, methodName, modelName, 'identifier', false);
+    }
+  }
+
+  private setDefaultModelRouterPropertyOptions(DecoRouterOptions) {
+    const instance = new DecoRouterOptions();
+    const optionProps: { optionKey: keyof ExtendedDefaultModelRouterOptions; propertyKey: string }[] =
+      getMetadata(instance, OPTIONS_METADATA) || [];
+
+    for (let x = 0; x < optionProps.length; x++) {
+      const optionProp = optionProps[x];
+      const value = instance[optionProp.propertyKey];
+      egose.setDefaultModelOption(optionProp.optionKey, value);
+    }
+  }
+
+  private setDefaultModelRouterMethodOptions(DecoRouterOptions) {
+    const instance = new DecoRouterOptions();
+    const methodNames = new Set(getAllMethodNames(DecoRouterOptions.prototype));
+
+    for (const methodName of methodNames) {
+      if (isRouteGuardMethod(instance, methodName))
+        this.setDefaultModelRouterMethodOption(instance, methodName, 'routeGuard', false);
+    }
+  }
+
+  private setGlobalPropertyOptions(moduleInstance) {
+    const optionProps: { optionKey: keyof GlobalOptions; propertyKey: string }[] =
+      getMetadata(moduleInstance, OPTIONS_METADATA) || [];
+
+    for (let x = 0; x < optionProps.length; x++) {
+      const optionProp = optionProps[x];
+      const value = moduleInstance[optionProp.propertyKey];
+      egose.setGlobalOption(optionProp.optionKey, value);
+    }
+  }
+
+  private setGlobalMethodOption(moduleInstance, methodName: string, optionKey: keyof GlobalOptions, arrayType = false) {
+    const fn = this.wrapMethod(moduleInstance, methodName, optionKey);
+    if (!fn) return;
+
+    if (arrayType) {
+      const curr = castArray(compact(egose.getGlobalOption(optionKey)));
+      egose.setGlobalOption(optionKey, [...curr, fn] as any);
+    } else {
+      egose.setGlobalOption(optionKey, fn);
+    }
+  }
+
+  private setModelRouterMethodOption(
+    routerOrOptions,
+    methodName: string,
+    modelName: string,
+    optionKey: string,
+    arrayType = false,
+  ) {
+    const keys = getMethodMetadataKeysStartWith(routerOrOptions, methodName, optionKey);
+    for (let x = 0; x < keys.length; x++) {
+      const key = keys[x];
+      const val = getMethodMetadata(routerOrOptions, methodName, key);
+      if (val !== true) continue;
+
+      const fn = this.wrapMethod(routerOrOptions, methodName, optionKey);
+      if (!fn) continue;
+
+      if (arrayType) {
+        const curr = castArray(compact(egose.getModelOption(modelName, key)));
+        egose.setModelOption(modelName, key, [...curr, fn]);
+      } else {
+        egose.setModelOption(modelName, key, fn);
+      }
+    }
+  }
+
+  private setDefaultModelRouterMethodOption(routerOption, methodName: string, optionKey: string, arrayType = false) {
+    const keys = getMethodMetadataKeysStartWith(routerOption, methodName, optionKey);
+    for (let x = 0; x < keys.length; x++) {
+      const key = keys[x];
+      const val = getMethodMetadata(routerOption, methodName, key);
+      if (val !== true) continue;
+
+      const fn = this.wrapMethod(routerOption, methodName, optionKey);
+      if (!fn) continue;
+
+      if (arrayType) {
+        const curr = castArray(compact(egose.getDefaultModelOption(key)));
+        egose.setDefaultModelOption(key, [...curr, fn]);
+      } else {
+        egose.setDefaultModelOption(key, fn);
+      }
+    }
   }
 
   private wrapMethod(target: object, methodName: string, optionKey: string) {
@@ -148,59 +287,6 @@ export class EgoseFactoryStatic {
 
       return dtor.value.call(target, ...ordered);
     };
-  }
-
-  private setGlobalMethodOptions(methodName: string, optionKey: keyof GlobalOptions, arrayType = false) {
-    const fn = this.wrapMethod(this._moduleInstance, methodName, optionKey);
-    if (!fn) return;
-
-    if (arrayType) {
-      const curr = castArray(compact(egose.getGlobalOption(optionKey)));
-      egose.setGlobalOption(optionKey, [...curr, fn] as any);
-    } else {
-      egose.setGlobalOption(optionKey, fn);
-    }
-  }
-
-  private setGlobalPropertyOptions() {
-    const optionProps: { optionKey: keyof GlobalOptions; propertyKey: string }[] =
-      getMetadata(this._moduleInstance, OPTIONS_METADATA) || [];
-
-    for (let x = 0; x < optionProps.length; x++) {
-      const optionProp = optionProps[x];
-      const value = this._moduleInstance[optionProp.propertyKey];
-      egose.setGlobalOption(optionProp.optionKey, value);
-    }
-  }
-
-  private setRouterMethodOptions(methodName: string, optionKey: string, arrayType = false) {
-    const keys = getMethodMetadataKeysStartWith(this._routerInstance, methodName, optionKey);
-    for (let x = 0; x < keys.length; x++) {
-      const key = keys[x];
-      const val = getMethodMetadata(this._routerInstance, methodName, key);
-      if (val !== true) continue;
-
-      const fn = this.wrapMethod(this._routerInstance, methodName, optionKey);
-      if (!fn) continue;
-
-      if (arrayType) {
-        const curr = castArray(compact(get(this._router.options, key)));
-        this._router.setOption(key, [...curr, fn]);
-      } else {
-        this._router.setOption(key, fn);
-      }
-    }
-  }
-
-  private setRouterPropertyOptions() {
-    const optionProps: { optionKey: keyof ExtendedModelRouterOptions; propertyKey: string }[] =
-      getMetadata(this._routerInstance, OPTIONS_METADATA) || [];
-
-    for (let x = 0; x < optionProps.length; x++) {
-      const optionProp = optionProps[x];
-      const value = this._routerInstance[optionProp.propertyKey];
-      this._router.setOption(optionProp.optionKey, value);
-    }
   }
 }
 

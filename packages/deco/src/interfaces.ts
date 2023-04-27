@@ -10,9 +10,7 @@ export interface Type<T = any> extends Function {
  * @publicApi
  */
 export interface ModuleMetadata {
-  /**
-   * list of routes.
-   */
   routers: Type<any>[];
+  routerOptions?: Type<any>[];
   options?: GlobalOptions & { basePath?: string; handleErrors?: boolean };
 }

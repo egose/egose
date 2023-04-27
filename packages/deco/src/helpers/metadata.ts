@@ -3,6 +3,8 @@ import { isConstructor, isFunction } from './variable';
 import {
   ROOT_ROUTER_WATERMARK,
   ROUTER_WATERMARK,
+  DEFAULT_MODEL_ROUTER_OPTIONS_WATERMARK,
+  MODEL_ROUTER_OPTIONS_WATERMARK,
   ROUTER_MODEL,
   ROUTER_OPTIONS,
   GLOBAL_PERMISSIONS_WATERMARK,
@@ -14,6 +16,7 @@ import {
   TRANSFORM_WATERMARK,
   DECORATE_WATERMARK,
   DECORATE_ALL_WATERMARK,
+  IDENTIFIER_WATERMARK,
 } from '../constants';
 
 export const getMetadata = (obj: object, key: string) => {
@@ -76,6 +79,14 @@ export const isModelRouter = (obj: object) => {
   return !!getMetadata(obj, ROUTER_WATERMARK);
 };
 
+export const isDefaultModelRouterOptions = (obj: object) => {
+  return !!getMetadata(obj, DEFAULT_MODEL_ROUTER_OPTIONS_WATERMARK);
+};
+
+export const isModelRouterOptions = (obj: object) => {
+  return !!getMetadata(obj, MODEL_ROUTER_OPTIONS_WATERMARK);
+};
+
 export const isGlobalPermissionsMethod = (obj: object, method: string) => {
   return !!getMethodMetadata(obj, method, GLOBAL_PERMISSIONS_WATERMARK);
 };
@@ -110,4 +121,8 @@ export const isDecorateAllMethod = (obj: object, method: string) => {
 
 export const isRouteGuardMethod = (obj: object, method: string) => {
   return !!getMethodMetadata(obj, method, ROUTE_GUARD_WATERMARK);
+};
+
+export const isIdentifierMethod = (obj: object, method: string) => {
+  return !!getMethodMetadata(obj, method, IDENTIFIER_WATERMARK);
 };
