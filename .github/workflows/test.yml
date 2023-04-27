@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        express: [4.0.0, latest]
+        express: [latest]
         mongoose: [5.0.18, 5.13.17, 6.0.15, 6.10.5, latest]
     steps:
     - uses: hmarr/debug-action@v2
