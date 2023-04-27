@@ -2,8 +2,12 @@ name: Tests
 on: push
 
 jobs:
-  tests-pre-commit:
+  test:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        express: [3.0.6, 3.21.2, 4.0.0, latest]
+        mongoose: [5.0.18, 5.13.17, 6.0.15, 6.10.5, latest]
     steps:
     - uses: hmarr/debug-action@v2
     - uses: actions/checkout@v3
@@ -14,6 +18,11 @@ jobs:
     - name: Setup NPM Packages
       uses: ./.github/actions/setup-yarn
 
+    - name: Run unit tests
+      run: |
+        yarn upgrade express@${{ matrix.express }} --dev
+        yarn upgrade mongoose@${{ mongoose }} --dev
+
     - name: Start mongod as a Daemon
       run: |
         mkdir -p ~/mongo/data/db
@@ -21,6 +30,15 @@ jobs:
 
     - name: Run unit tests
       run: yarn test
+
+  pre-commit:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: hmarr/debug-action@v2
+    - uses: actions/checkout@v3
+
+    - name: Setup Tools
+      uses: ./.github/actions/setup-tools
 
     - uses: actions/setup-python@v4
       with:
