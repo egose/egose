@@ -1,6 +1,7 @@
+import { Document } from 'mongoose';
 import isPlainObject from 'lodash/isPlainObject';
 import set from 'lodash/set';
-import { isDocument } from '../lib';
+import { isDocument, isPromise } from '../lib';
 import { getModelOption } from '../options';
 
 export function getDocPermissions(modelName, doc) {
@@ -29,4 +30,12 @@ export function getModelKeys(doc) {
 
 export function toObject(doc) {
   return isDocument(doc) ? doc.toObject() : doc;
+}
+
+export async function populateDoc(doc: Document, target) {
+  let p = doc.populate(target);
+  if (isPromise(p)) return p;
+
+  // for backward compatibility, utilize the 'execPopulate' method to populate the target fields.
+  return 'execPopulate' in p && (p as any).execPopulate();
 }

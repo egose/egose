@@ -11,7 +11,7 @@ import isString from 'lodash/isString';
 import pick from 'lodash/pick';
 import Model from '../model';
 import { getModelOptions } from '../options';
-import { iterateQuery, CustomError, getDocPermissions } from '../helpers';
+import { iterateQuery, CustomError, getDocPermissions, populateDoc } from '../helpers';
 import {
   ModelRouterOptions,
   MiddlewareContext,
@@ -232,7 +232,9 @@ export class Controller {
     docs = await Promise.all(
       docs.map(async (doc, index) => {
         if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'create', contexts[index]);
-        if (populate) await doc.populate(await this.req[CORE]._genPopulate(this.modelName, populateAccess, populate));
+        if (populate)
+          await populateDoc(doc, await this.req[CORE]._genPopulate(this.modelName, populateAccess, populate));
+
         if (isFunction(decorate)) doc = await decorate(doc, contexts[index]);
         return doc;
       }),
@@ -306,7 +308,7 @@ export class Controller {
     context.finalDocObject = doc.toObject();
 
     if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
-    if (_populate) await doc.populate(_populate);
+    if (_populate) await populateDoc(doc, _populate);
 
     if (isFunction(decorate)) doc = await decorate(doc, context);
     return { success: true, data: doc, input: prepared };
@@ -349,12 +351,9 @@ export class Controller {
     const query = { filter };
 
     if (filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
-
-    let doc = await this.model.findOneAndRemove(filter);
+    let doc = await this.model.findOneAndDelete(filter);
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
-    // see https://mongoosejs.com/docs/api/model.html#Model.prototype.deleteOne()
-    await doc.deleteOne();
     return { success: true, data: doc._id, query };
   }
 

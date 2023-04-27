@@ -7,7 +7,7 @@ import { app } from './00.setup.spec';
 
 describe('Create Users', async () => {
   it('should create an user `nick` with populated orgs by admin', async () => {
-    const orgs = await mongoose.model('Org').find().lean();
+    const orgs: { _id: string }[] = await mongoose.model('Org').find().lean();
 
     const response = await request(app)
       .post('/api/users/__mutation')

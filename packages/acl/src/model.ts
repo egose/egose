@@ -93,8 +93,8 @@ class Model {
     return builder;
   }
 
-  findOneAndRemove(query) {
-    return this.model.findOneAndRemove(query);
+  findOneAndDelete(filter) {
+    return this.model.findOneAndDelete(filter);
   }
 
   // see https://mongoosejs.com/docs/api.html#query_Query-countDocuments
