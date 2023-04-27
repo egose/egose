@@ -351,9 +351,13 @@ export class Controller {
     const query = { filter };
 
     if (filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
-    let doc = await this.model.findOneAndDelete(filter);
+    let doc = await this.model.findOne({ filter });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
+    // this function utilizes the 'deleteOne' method to delete the document,
+    // triggering 'deleteOne' hooks, as opposed to using 'findOneAndDelete'.
+    // see https://mongoosejs.com/docs/api/model.html#Model.prototype.deleteOne()
+    await doc.deleteOne();
     return { success: true, data: doc._id, query };
   }
 
