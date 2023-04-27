@@ -21,7 +21,7 @@ jobs:
     - name: Run unit tests
       run: |
         yarn upgrade express@${{ matrix.express }} --dev
-        yarn upgrade mongoose@${{ mongoose }} --dev
+        yarn upgrade mongoose@${{ matrix.mongoose }} --dev
 
     - name: Start mongod as a Daemon
       run: |
