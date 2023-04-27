@@ -357,7 +357,7 @@ export class Controller {
     // this function utilizes the 'deleteOne' method to delete the document,
     // triggering 'deleteOne' hooks, as opposed to using 'findOneAndDelete'.
     // see https://mongoosejs.com/docs/api/model.html#Model.prototype.deleteOne()
-    await doc.deleteOne();
+    await ('deleteOne' in doc ? doc.deleteOne() : doc.remove());
     return { success: true, data: doc._id, query };
   }
 
