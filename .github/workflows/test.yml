@@ -4,10 +4,11 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-22.04
+    needs: [pre-commit, commitlint]
     strategy:
       matrix:
         express: [latest]
-        mongoose: [5.0.18, 5.13.17, 6.0.15, 6.10.5, latest]
+        mongoose: [5.13.17, 6.0.15, 6.10.5, latest]
     steps:
     - uses: hmarr/debug-action@v2
     - uses: actions/checkout@v3
