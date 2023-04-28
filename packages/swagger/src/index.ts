@@ -1,8 +1,7 @@
 import swaggerUi from 'swagger-ui-express';
-import m2s from 'mongoose-to-swagger';
-import forEach from 'lodash/forEach';
+import jsonSchema2openapiSchema from '@openapi-contrib/json-schema-to-openapi-schema';
 import set from 'lodash/set';
-import { ModelRouter, StatusCodes } from '@egose/acl';
+import { ModelRouter, StatusCodes, getModelNames, getModelJsonSchema } from '@egose/acl';
 import template from './template.json';
 
 export enum ContentTypes {
@@ -129,11 +128,16 @@ interface Options {
 export class Factory {
   private readonly _routers: ModelRouter[];
   private _document;
+  private _options: Options;
 
   constructor(routers: ModelRouter[], options?: Options) {
     this._routers = routers;
     this._document = { ...template };
-    this.buildDocument(options ?? {});
+    this._options = options;
+  }
+
+  public build() {
+    return this.buildDocument(this._options);
   }
 
   public get setup() {
@@ -144,13 +148,20 @@ export class Factory {
     return swaggerUi.serve;
   }
 
-  private buildDocument(options?: Options) {
+  private async buildDocument(options?: Options) {
     this._document.servers[0].url = options.baseUrl ?? 'http://localhost:3000';
 
-    forEach(this._routers, (router) => {
-      this._document.components.schemas[router.modelName] = m2s(router.model.model);
+    const registeredModelNames = getModelNames();
+
+    for (let x = 0; x < registeredModelNames.length; x++) {
+      const key = registeredModelNames[x];
+      set(this._document.components.schemas, key, await jsonSchema2openapiSchema(getModelJsonSchema(key)));
+    }
+
+    for (let x = 0; x < this._routers.length; x++) {
+      const router = this._routers[x];
       this.buildPaths(router);
-    });
+    }
   }
 
   private buildPaths(router: ModelRouter) {

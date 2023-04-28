@@ -31,6 +31,7 @@
   "dependencies": {
     "express-json-router": "0.6.1",
     "lodash": "^4.17.21",
+    "mongoose-schema-jsonschema": "^2.0.2",
     "winston": "^3.8.2"
   },
   "peerDependencies": {

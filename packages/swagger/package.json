@@ -27,8 +27,8 @@
     "node": ">=14"
   },
   "dependencies": {
+    "@openapi-contrib/json-schema-to-openapi-schema": "^2.2.5",
     "lodash": "^4.17.21",
-    "mongoose-to-swagger": "^1.4.0",
     "swagger-ui-express": "^4.6.2"
   },
   "peerDependencies": {

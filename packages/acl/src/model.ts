@@ -32,6 +32,7 @@ const reducer2 = (baseObj, key) => ({ ...baseObj, [key]: true });
 class Model {
   modelName: string;
   model: mongoose.Model<any>;
+  jsonSchema: Record<string, any>;
   indexKeys: string[];
   indexMap: any;
 

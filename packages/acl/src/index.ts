@@ -13,6 +13,8 @@ import {
   setModelOption,
   getModelOptions,
   getModelOption,
+  getModelNames,
+  getModelJsonSchema,
   setDefaultModelOptions,
   setDefaultModelOption,
   getDefaultModelOptions,
@@ -31,6 +33,8 @@ export {
   setModelOption,
   getModelOptions,
   getModelOption,
+  getModelNames,
+  getModelJsonSchema,
   setDefaultModelOptions,
   setDefaultModelOption,
   getDefaultModelOptions,
@@ -63,6 +67,8 @@ interface Egose {
   setModelOption: typeof setModelOption;
   getModelOptions: typeof getModelOptions;
   getModelOption: typeof getModelOption;
+  getModelNames: typeof getModelNames;
+  getModelJsonSchema: typeof getModelJsonSchema;
   setDefaultModelOptions: typeof setDefaultModelOptions;
   setDefaultModelOption: typeof setDefaultModelOption;
   getDefaultModelOptions: typeof getDefaultModelOptions;

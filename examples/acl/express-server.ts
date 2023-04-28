@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 import _ from 'lodash';
 import db from '../shared/db';
 import loadModels from '../shared/models';
-import routes from './routes';
+import setRoutes from './routes';
 import { DATABASE_URI, COOKIE_SESSION_NAME, COOKIE_SESSION_SECRET } from './config';
 import egose from '@egose/acl';
 
@@ -76,7 +76,7 @@ const initExpresss = async (options?: Props) => {
 
   expressServer.use(egose());
 
-  expressServer.use('/api', routes);
+  expressServer.use('/api', await setRoutes());
 
   return expressServer;
 };

@@ -39,4 +39,6 @@ orgRouter
     create: 'isAdmin',
   });
 
+egose.setModelOption('Location', 'permissionSchema', { name: { list: true, read: true, create: true } });
+
 export default orgRouter;

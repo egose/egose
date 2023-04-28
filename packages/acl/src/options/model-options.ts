@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import mschema2Jsonschema from 'mongoose-schema-jsonschema';
 import isNil from 'lodash/isNil';
 import isString from 'lodash/isString';
 import { addLeadingSlash } from '../lib';
@@ -6,7 +7,10 @@ import { OptionsManager } from './manager';
 import { ModelRouterOptions, DefaultModelRouterOptions, ExtendedModelRouterOptions } from '../interfaces';
 import { getDefaultModelOption, getDefaultModelOptions } from './default-model-options';
 
+mschema2Jsonschema(mongoose);
 const pluralize = mongoose.pluralize();
+
+type ExtendedModel = mongoose.Model<any> & { jsonSchema: Function };
 
 const defaultModelOptions: ModelRouterOptions = {
   basePath: null,
@@ -15,7 +19,14 @@ const defaultModelOptions: ModelRouterOptions = {
 
 const modelOptions: Record<string, OptionsManager<ModelRouterOptions, ExtendedModelRouterOptions>> = {};
 
+const modelJsonSchemas: Record<string, any> = {};
+
 const createModelOptions = (modelName: string) => {
+  const model = mongoose.model(modelName) as ExtendedModel;
+
+  // TODO: display warning that the model does not exist
+  if (!model) return null;
+
   const manager = new OptionsManager<ModelRouterOptions, ExtendedModelRouterOptions>({
     ...defaultModelOptions,
     modelName,
@@ -37,6 +48,7 @@ const createModelOptions = (modelName: string) => {
     })
     .build();
 
+  modelJsonSchemas[modelName] = model.jsonSchema();
   return manager;
 };
 
@@ -92,4 +104,12 @@ export const getModelOption = <K extends keyof ExtendedModelRouterOptions>(
 
   if (option === undefined) option = manager.get(parentKey, defaultModelValue);
   return option;
+};
+
+export const getModelNames = () => {
+  return Object.keys(modelOptions);
+};
+
+export const getModelJsonSchema = (modelName: string) => {
+  return modelJsonSchemas[modelName];
 };
