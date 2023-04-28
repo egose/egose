@@ -3,7 +3,7 @@ import 'mocha';
 import { down, dropDatabase } from '@examples/shared/db';
 import { seed } from '@examples/shared/seed';
 
-const DATABASE_URL = 'mongodb://localhost:27017/acl-test';
+const DATABASE_URL = 'mongodb://127.0.0.1:27017/acl-test';
 
 export let app = null;
 export async function initApp(initFn) {
