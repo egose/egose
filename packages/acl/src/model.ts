@@ -44,7 +44,8 @@ class Model {
     // updating the document using find(), findOne(), and save().
     this.model.schema.set('optimisticConcurrency', true);
     // In order to use optimistic concurrency, a version key must be set on the schema.
-    this.model.schema.set('versionKey', '__v');
+    const currVersionKey = this.model.schema.get('versionKey');
+    if (!currVersionKey) this.model.schema.set('versionKey', '__v');
 
     // this.model.collection.indexes({}, (err, result = []) => {
     //   this.indexKeys = result.reduce(reducer1, []);
