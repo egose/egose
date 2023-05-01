@@ -272,7 +272,8 @@ export class Controller extends Base {
 
     const context: MiddlewareContext = {};
 
-    context.originalDocObject = doc.toObject();
+    // see https://mongoosejs.com/docs/api/document.html#Document.prototype.toObject()
+    context.originalDocObject = doc.toObject({ virtuals: false });
     context.originalData = data;
 
     doc = await this.permit(doc, 'update', context);
@@ -298,7 +299,7 @@ export class Controller extends Base {
     doc = await this.transform(doc, 'update', context);
     context.modifiedPaths = doc.modifiedPaths();
     doc = await doc.save();
-    context.finalDocObject = doc.toObject();
+    context.finalDocObject = doc.toObject({ virtuals: false });
 
     if (includePermissions) doc = await this.permit(doc, 'update', context);
     if (_populate) await populateDoc(doc, _populate);

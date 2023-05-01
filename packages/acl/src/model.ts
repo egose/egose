@@ -39,6 +39,13 @@ class Model {
   constructor(modelName: string) {
     this.modelName = modelName;
     this.model = mongoose.model(modelName);
+
+    // Enable optimistic concurrency to ensure atomicity when
+    // updating the document using find(), findOne(), and save().
+    this.model.schema.set('optimisticConcurrency', true);
+    // In order to use optimistic concurrency, a version key must be set on the schema.
+    this.model.schema.set('versionKey', '__v');
+
     // this.model.collection.indexes({}, (err, result = []) => {
     //   this.indexKeys = result.reduce(reducer1, []);
     //   this.indexMap = this.indexKeys.reduce(reducer2, {});
