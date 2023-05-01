@@ -27,7 +27,6 @@ import {
   Request,
   BaseFilterAccess,
 } from '../interfaces';
-import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 
 const filterChildren = (children, obj) => {
   if (isPlainObject(obj))
@@ -86,11 +85,8 @@ export class PublicController extends Controller {
       { select, populate, sort, skip, limit, page, pageSize },
       { includePermissions, includeCount, populateAccess, lean },
       async (doc) => {
-        doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'list', [
-          '_id',
-          this.options.permissionField,
-        ]);
-        return this.req[CORE]._decorate(this.modelName, doc, 'list');
+        doc = await this.pickAllowedFields(doc, 'list', ['_id', this.options.permissionField]);
+        return this.decorate(doc, 'list');
       },
     );
 
@@ -99,8 +95,8 @@ export class PublicController extends Controller {
     }
 
     let docs = result.data;
-    docs = await this.req[CORE]._decorateAll(this.modelName, docs, 'list');
-    docs = docs.map((row) => this.req[CORE]._process(this.modelName, row, process));
+    docs = await this.decorateAll(docs, 'list');
+    docs = docs.map((row) => this.process(row, process));
 
     if (includeCount) {
       return {
@@ -129,9 +125,9 @@ export class PublicController extends Controller {
       { populate },
       { includePermissions, populateAccess },
       async (doc, context: MiddlewareContext) => {
-        doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', this.baseFields);
-        doc = await this.req[CORE]._decorate(this.modelName, doc, 'create', context);
-        doc = this.req[CORE]._process(this.modelName, doc, process);
+        doc = await this.pickAllowedFields(doc, 'read', this.baseFields);
+        doc = await this.decorate(doc, 'create', context);
+        doc = this.process(doc, process);
 
         if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFields]);
         return doc;
@@ -164,7 +160,7 @@ export class PublicController extends Controller {
     }: PublicReadOptions = {},
   ) {
     let access: FindAccess = 'read';
-    const idFilter = await this.req[CORE]._genIDFilter(this.modelName, id);
+    const idFilter = await this.genIDFilter(id);
 
     let result = await this.findById(
       id,
@@ -195,9 +191,9 @@ export class PublicController extends Controller {
       this.handleErrorResult(result);
     }
 
-    let doc = await this.req[CORE]._pickAllowedFields(this.modelName, result.data, access, this.baseFields);
-    doc = await this.req[CORE]._decorate(this.modelName, doc, access);
-    doc = this.req[CORE]._process(this.modelName, doc, process);
+    let doc = await this.pickAllowedFields(result.data, access, this.baseFields);
+    doc = await this.decorate(doc, access);
+    doc = this.process(doc, process);
 
     return doc;
   }
@@ -222,9 +218,9 @@ export class PublicController extends Controller {
       { populate },
       { includePermissions, populateAccess },
       async (doc, context: MiddlewareContext) => {
-        doc = await this.req[CORE]._pickAllowedFields(this.modelName, doc, 'read', this.baseFields);
-        doc = await this.req[CORE]._decorate(this.modelName, doc, 'update', context);
-        doc = this.req[CORE]._process(this.modelName, doc, process);
+        doc = await this.pickAllowedFields(doc, 'read', this.baseFields);
+        doc = await this.decorate(doc, 'update', context);
+        doc = this.process(doc, process);
 
         if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFields]);
         else if (!returningAll) doc = pick(doc, Object.keys(data));
@@ -271,11 +267,7 @@ export class PublicController extends Controller {
   }
 
   private async getParentDoc(id, sub, access, populate = []) {
-    const parentFilter = await this.req[CORE]._genFilter(
-      this.modelName,
-      access,
-      await this.req[CORE]._genIDFilter(this.modelName, id),
-    );
+    const parentFilter = await this.genFilter(access, await this.genIDFilter(id));
 
     if (parentFilter === false) return null;
     return this.model.findOne({ filter: parentFilter, select: sub, populate });
@@ -289,8 +281,8 @@ export class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subFilter, subSelect] = await Promise.all([
-      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.list` as any, ft),
-      this.req[CORE]._genSelect(this.modelName, 'list', fields, false, [sub, 'sub']),
+      this.genFilter(`subs.${sub}.list` as any, ft),
+      this.genSelect('list', fields, false, [sub, 'sub']),
     ]);
 
     result = filterChildren(result, subFilter);
@@ -306,8 +298,8 @@ export class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subFilter, subSelect] = await Promise.all([
-      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.read` as any),
-      this.req[CORE]._genSelect(this.modelName, 'read', fields, false, [sub, 'sub']),
+      this.genFilter(`subs.${sub}.read` as any),
+      this.genSelect('read', fields, false, [sub, 'sub']),
     ]);
 
     result = filterChildren(result, subFilter);
@@ -324,9 +316,9 @@ export class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subFilter, subReadSelect, subUpdateSelect] = await Promise.all([
-      this.req[CORE]._genFilter(this.modelName, `subs.${sub}.update` as any),
-      this.req[CORE]._genSelect(this.modelName, 'read', null, false, [sub, 'sub']),
-      this.req[CORE]._genSelect(this.modelName, 'update', null, false, [sub, 'sub']),
+      this.genFilter(`subs.${sub}.update` as any),
+      this.genSelect('read', null, false, [sub, 'sub']),
+      this.genSelect('update', null, false, [sub, 'sub']),
     ]);
 
     result = filterChildren(result, subFilter);
@@ -349,8 +341,8 @@ export class PublicController extends Controller {
     let result = get(parentDoc, sub);
 
     const [subCreateSelect, subReadSelect] = await Promise.all([
-      this.req[CORE]._genSelect(this.modelName, 'create', null, false, [sub, 'sub']),
-      this.req[CORE]._genSelect(this.modelName, 'read', null, false, [sub, 'sub']),
+      this.genSelect('create', null, false, [sub, 'sub']),
+      this.genSelect('read', null, false, [sub, 'sub']),
     ]);
 
     const allowedData = pick(data, subCreateSelect);
@@ -366,7 +358,7 @@ export class PublicController extends Controller {
     if (!parentDoc) return null;
     let result = get(parentDoc, sub);
 
-    const subFilter = await this.req[CORE]._genFilter(this.modelName, `subs.${sub}.delete` as any);
+    const subFilter = await this.genFilter(`subs.${sub}.delete` as any);
 
     result = filterChildren(result, subFilter);
     result = result.find((v) => String(v._id) === subId);

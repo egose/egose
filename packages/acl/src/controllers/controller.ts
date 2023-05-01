@@ -4,14 +4,11 @@ import get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
-import isMatch from 'lodash/isMatch';
 import isNil from 'lodash/isNil';
-import isPlainObject from 'lodash/isPlainObject';
-import isString from 'lodash/isString';
 import pick from 'lodash/pick';
 import Model from '../model';
 import { getModelOptions } from '../options';
-import { iterateQuery, CustomError, getDocPermissions, populateDoc } from '../helpers';
+import { iterateQuery, CustomError, getDocPermissions, genPagination, populateDoc } from '../helpers';
 import {
   ModelRouterOptions,
   MiddlewareContext,
@@ -35,24 +32,21 @@ import {
   BaseFilterAccess,
 } from '../interfaces';
 import { Codes, StatusCodes } from '../enums';
-import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
+import { Base } from './base';
 
-export class Controller {
-  req: Request;
-  modelName: string;
+export class Controller extends Base {
   model: Model;
   options: ModelRouterOptions;
   defaults: Defaults;
 
   constructor(req: Request, modelName: string) {
-    this.req = req;
-    this.modelName = modelName;
+    super(req, modelName);
     this.model = new Model(modelName);
     this.options = getModelOptions(modelName);
     this.defaults = this.options.defaults || {};
   }
 
-  protected async findOne(
+  public async findOne(
     filter: any,
     {
       select = this.defaults.findOneArgs?.select,
@@ -69,9 +63,9 @@ export class Controller {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     let [_filter, _select, _populate] = await Promise.all([
-      overrideFilter || this.req[CORE]._genFilter(this.modelName, access, filter),
-      overrideSelect || this.req[CORE]._genSelect(this.modelName, access, select),
-      overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess || access, populate),
+      overrideFilter || this.genFilter(access, filter),
+      overrideSelect || this.genSelect(access, select),
+      overridePopulate || this.genPopulate(populateAccess || access, populate),
     ]);
 
     const query = {
@@ -85,11 +79,11 @@ export class Controller {
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
-    if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, access);
+    if (includePermissions) doc = await this.permit(doc, access);
     return { success: true, data: doc, query };
   }
 
-  protected async findById(
+  public async findById(
     id,
     {
       select = this.defaults.findByIdArgs?.select,
@@ -104,7 +98,7 @@ export class Controller {
     }: FindByIdOptions = {},
   ) {
     const { select: overrideSelect, populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
-    const filter = overrideIdFilter || (await this.req[CORE]._genIDFilter(this.modelName, id));
+    const filter = overrideIdFilter || (await this.genIDFilter(id));
 
     return this.findOne(
       filter,
@@ -120,7 +114,7 @@ export class Controller {
     );
   }
 
-  protected async find(
+  public async find(
     filter: any,
     {
       select = this.defaults.findArgs?.select,
@@ -143,10 +137,10 @@ export class Controller {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     const [_filter, _select, _populate, pagination] = await Promise.all([
-      overrideFilter || this.req[CORE]._genFilter(this.modelName, 'list', await this.operateQuery(filter)),
-      overrideSelect || this.req[CORE]._genSelect(this.modelName, 'list', select),
-      overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
-      this.req[CORE]._genPagination({ skip, limit, page, pageSize }, this.options.listHardLimit),
+      overrideFilter || this.genFilter('list', await this.operateQuery(filter)),
+      overrideSelect || this.genSelect('list', select),
+      overridePopulate || this.genPopulate(populateAccess, populate),
+      genPagination({ skip, limit, page, pageSize }, this.options.listHardLimit),
     ]);
 
     // filter populated fields based on select fields
@@ -168,7 +162,7 @@ export class Controller {
 
     docs = await Promise.all(
       docs.map(async (doc) => {
-        if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'list');
+        if (includePermissions) doc = await this.permit(doc, 'list');
         doc = await _decorate(doc);
         return doc;
       }),
@@ -183,7 +177,7 @@ export class Controller {
     };
   }
 
-  protected async create(
+  public async create(
     data,
     { populate = this.defaults.createArgs?.populate }: CreateArgs = {},
     {
@@ -202,10 +196,10 @@ export class Controller {
       arr.map(async (item, index) => {
         const context: MiddlewareContext = { originalData: item };
 
-        const allowedFields = await this.req[CORE]._genAllowedFields(this.modelName, item, 'create');
+        const allowedFields = await this.genAllowedFields(item, 'create');
         const allowedData = pick(item, allowedFields);
 
-        const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'create', context);
+        const validated = await this.validate(allowedData, 'create', context);
         if (isBoolean(validated)) {
           if (!validated) {
             validationError = { success: false, code: Codes.BadRequest, data: null };
@@ -218,7 +212,7 @@ export class Controller {
           }
         }
 
-        const preparedData = await this.req[CORE]._prepare(this.modelName, allowedData, 'create', context);
+        const preparedData = await this.prepare(allowedData, 'create', context);
 
         context.preparedData = preparedData;
         contexts.push(context);
@@ -231,9 +225,8 @@ export class Controller {
     let docs = await this.model.create(items);
     docs = await Promise.all(
       docs.map(async (doc, index) => {
-        if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'create', contexts[index]);
-        if (populate)
-          await populateDoc(doc, await this.req[CORE]._genPopulate(this.modelName, populateAccess, populate));
+        if (includePermissions) doc = await this.permit(doc, 'create', contexts[index]);
+        if (populate) await populateDoc(doc, await this.genPopulate(populateAccess, populate));
 
         if (isFunction(decorate)) doc = await decorate(doc, contexts[index]);
         return doc;
@@ -249,11 +242,11 @@ export class Controller {
     };
   }
 
-  protected async empty() {
+  public async empty() {
     return this.model.new();
   }
 
-  protected async updateOne(
+  public async updateOne(
     filter: any,
     data,
     { populate = this.defaults.updateOneArgs?.populate, overrides = {} }: UpdateOneArgs = {},
@@ -266,8 +259,8 @@ export class Controller {
     const { filter: overrideFilter, populate: overridePopulate } = overrides;
 
     const [_filter, _populate] = await Promise.all([
-      overrideFilter || this.req[CORE]._genFilter(this.modelName, 'update', filter),
-      overridePopulate || this.req[CORE]._genPopulate(this.modelName, populateAccess, populate),
+      overrideFilter || this.genFilter('update', filter),
+      overridePopulate || this.genPopulate(populateAccess, populate),
     ]);
 
     const query = { filter: _filter, populate: _populate };
@@ -282,39 +275,39 @@ export class Controller {
     context.originalDocObject = doc.toObject();
     context.originalData = data;
 
-    doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
+    doc = await this.permit(doc, 'update', context);
     context.docPermissions = this.getDocPermissions(doc);
 
     context.currentDoc = doc;
-    const allowedFields = await this.req[CORE]._genAllowedFields(this.modelName, doc, 'update');
+    const allowedFields = await this.genAllowedFields(doc, 'update');
     const allowedData = pick(data, allowedFields);
 
-    const validated = await this.req[CORE]._validate(this.modelName, allowedData, 'update', context);
+    const validated = await this.validate(allowedData, 'update', context);
     if (isBoolean(validated)) {
       if (!validated) return { success: false, code: Codes.BadRequest, data: null };
     } else if (isArray(validated)) {
       if (validated.length > 0) return { success: false, code: Codes.BadRequest, data: null, errors: validated };
     }
 
-    const prepared = await this.req[CORE]._prepare(this.modelName, allowedData, 'update', context);
+    const prepared = await this.prepare(allowedData, 'update', context);
 
     context.preparedData = prepared;
     Object.assign(doc, prepared);
 
     context.modifiedPaths = doc.modifiedPaths();
-    doc = await this.req[CORE]._transform(this.modelName, doc, 'update', context);
+    doc = await this.transform(doc, 'update', context);
     context.modifiedPaths = doc.modifiedPaths();
     doc = await doc.save();
     context.finalDocObject = doc.toObject();
 
-    if (includePermissions) doc = await this.req[CORE]._permit(this.modelName, doc, 'update', context);
+    if (includePermissions) doc = await this.permit(doc, 'update', context);
     if (_populate) await populateDoc(doc, _populate);
 
     if (isFunction(decorate)) doc = await decorate(doc, context);
     return { success: true, data: doc, input: prepared };
   }
 
-  protected async updateById(
+  public async updateById(
     id: string,
     data,
     { populate = this.defaults.updateByIdArgs?.populate, overrides = {} }: UpdateByIdArgs = {},
@@ -325,7 +318,7 @@ export class Controller {
     decorate?: Function,
   ) {
     const { populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
-    const filter = overrideIdFilter || (await this.req[CORE]._genIDFilter(this.modelName, id));
+    const filter = overrideIdFilter || (await this.genIDFilter(id));
 
     return this.updateOne(
       filter,
@@ -341,12 +334,8 @@ export class Controller {
     );
   }
 
-  protected async delete(id: string) {
-    const filter = await this.req[CORE]._genFilter(
-      this.modelName,
-      'delete',
-      await this.req[CORE]._genIDFilter(this.modelName, id),
-    );
+  public async delete(id: string) {
+    const filter = await this.genFilter('delete', await this.genIDFilter(id));
 
     const query = { filter };
 
@@ -361,8 +350,8 @@ export class Controller {
     return { success: true, data: doc._id, query };
   }
 
-  protected async distinct(field: string, { filter }: DistinctArgs = {}) {
-    filter = await this.req[CORE]._genFilter(this.modelName, 'read', filter);
+  public async distinct(field: string, { filter }: DistinctArgs = {}) {
+    filter = await this.genFilter('read', filter);
 
     const query = { filter };
 
@@ -373,8 +362,8 @@ export class Controller {
     return { success: true, data: result, query };
   }
 
-  protected async count(filter, access: BaseFilterAccess = 'list') {
-    filter = await this.req[CORE]._genFilter(this.modelName, access, filter);
+  public async count(filter, access: BaseFilterAccess = 'list') {
+    filter = await this.genFilter(access, filter);
 
     const query = { filter };
 

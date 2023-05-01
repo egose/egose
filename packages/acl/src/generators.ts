@@ -34,7 +34,7 @@ import {
   TransformAccess,
 } from './interfaces';
 import Permission, { Permissions } from './permission';
-import { Controller, PublicController } from './controllers';
+import { Controller, PublicController, Base } from './controllers';
 import {
   normalizeSelect,
   createValidator,
