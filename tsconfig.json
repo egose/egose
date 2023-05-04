@@ -19,6 +19,8 @@
       "@egose/deco/*": ["./packages/deco/src/*"],
       "@egose/swagger": ["./packages/swagger/src/index"],
       "@egose/swagger/*": ["./packages/swagger/src/*"],
+      "@egose/adapter-js": ["./packages/adapter-js/src/index"],
+      "@egose/adapter-js/*": ["./packages/adapter-js/src/*"],
       "@egose/_common/*": ["./packages/_common/*"],
       "@examples/*": ["./examples/*"]
     }

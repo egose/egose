@@ -39,6 +39,7 @@ class Model {
   constructor(modelName: string) {
     this.modelName = modelName;
     this.model = mongoose.model(modelName);
+    if (!this.model) return;
 
     // Enable optimistic concurrency to ensure atomicity when
     // updating the document using find(), findOne(), and save().

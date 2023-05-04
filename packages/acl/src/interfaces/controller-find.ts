@@ -1,7 +1,6 @@
 import { Projection, Populate, PopulateAccess, FindAccess } from './base';
 
 export interface FindArgs {
-  filter?: any;
   select?: Projection;
   populate?: Populate[] | string;
   sort?: string[] | string;

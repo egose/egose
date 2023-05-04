@@ -13,13 +13,13 @@ please see [Egose documentation](https://egose.github.io/egose-swagger/philosoph
 ## Installation
 
 ```sh
-npm install express mongoose @egose/acl
+npm install express mongoose @egose/swagger
 npm install @types/express --save-dev
 
 ```
 
 ```sh
-yarn add express mongoose @egose/acl
+yarn add express mongoose @egose/swagger
 yarn add @types/express --dev
 ```
 

@@ -72,18 +72,34 @@ export class ModelRouter {
       const allowed = await req[CORE]._isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      const { skip, limit, page, page_size, include_permissions, include_count, lean } = req.query;
+      const { skip, limit, page, page_size, include_permissions, include_count, include_extra_headers, lean } =
+        req.query;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._list(
+
+      const includeCount = parseBooleanString(include_count);
+      const includeExtraHeaders = parseBooleanString(include_extra_headers);
+
+      const { count, rows } = await ctl._list(
         {},
         { skip, limit, page, pageSize: page_size },
         {
           includePermissions: parseBooleanString(include_permissions),
-          includeCount: parseBooleanString(include_count),
+          includeCount,
           lean: parseBooleanString(lean),
         },
       );
+
+      if (includeCount) {
+        if (includeExtraHeaders) {
+          req.res.setHeader('egose-total-count', count);
+          return rows;
+        }
+
+        return { count, rows };
+      }
+
+      return rows;
     });
 
     //////////////////
@@ -95,10 +111,11 @@ export class ModelRouter {
 
       // @Deprecated option 'query'
       let { query, filter, select, sort, populate, process, skip, limit, page, pageSize, options = {} } = req.body;
-      const { includePermissions, includeCount, populateAccess, lean } = options;
+      const { includePermissions, includeCount, includeExtraHeaders, populateAccess, lean } = options;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._list(
+
+      const { count, rows } = await ctl._list(
         filter ?? query,
         { select, sort, populate, process, skip, limit, page, pageSize },
         {
@@ -108,6 +125,17 @@ export class ModelRouter {
           lean,
         },
       );
+
+      if (includeCount) {
+        if (includeExtraHeaders) {
+          req.res.setHeader('egose-total-count', count);
+          return rows;
+        }
+
+        return { count, rows };
+      }
+
+      return rows;
     });
 
     ////////////

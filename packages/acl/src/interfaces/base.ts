@@ -55,6 +55,7 @@ export interface Request extends express.Request {
     | 'try_list'
     | 'include_permissions'
     | 'include_count'
+    | 'include_extra_headers'
     | 'returning_all',
     string
   >;

@@ -1,0 +1,57 @@
+{
+  "name": "@egose/adapter-js",
+  "version": "0.0.0-PLACEHOLDER",
+  "description": "Client adapter connecting to and interacting with @egose/acl API endpoints in javascript",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/egose/egose"
+  },
+  "homepage": "https://egose.github.io/egose-adapter-js/philosophy/",
+  "keywords": [
+    "express",
+    "mongoose",
+    "access control list",
+    "api endpoints",
+    "adapter"
+  ],
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc -d",
+    "bundle": "tsup",
+    "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint",
+    "test": "mocha --exit"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {},
+  "tsup": {
+    "target": "node14",
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "dts": true,
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "minify": false
+  },
+  "mocha": {
+    "require": [
+      "ts-node/register",
+      "tsconfig-paths/register"
+    ],
+    "spec": [
+      "test/**/*.spec.ts"
+    ]
+  }
+}

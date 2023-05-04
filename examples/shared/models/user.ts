@@ -14,8 +14,8 @@ const Status = new mongoose.Schema({
 });
 
 const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'user'] },
+  name: { type: String, required: true, default: '' },
+  role: { type: String, enum: ['admin', 'user'], default: 'user' },
   statusHistory: { type: [Status], default: [] },
   orgs: [{ type: 'ObjectId', ref: 'Org' }],
   public: { type: Boolean, default: false },

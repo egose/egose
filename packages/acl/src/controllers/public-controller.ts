@@ -98,14 +98,10 @@ export class PublicController extends Controller {
     docs = await this.decorateAll(docs, 'list');
     docs = docs.map((row) => this.process(row, process));
 
-    if (includeCount) {
-      return {
-        count: result.totalCount,
-        rows: docs,
-      };
-    } else {
-      return docs;
-    }
+    return {
+      count: result.totalCount,
+      rows: docs,
+    };
   }
 
   async _create(
@@ -223,7 +219,7 @@ export class PublicController extends Controller {
         doc = this.process(doc, process);
 
         if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFields]);
-        else if (!returningAll) doc = pick(doc, Object.keys(data));
+        else if (!returningAll) doc = pick(doc, [...Object.keys(data), '_id']);
 
         return doc;
       },
