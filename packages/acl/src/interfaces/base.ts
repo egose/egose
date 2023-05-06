@@ -40,9 +40,14 @@ export interface MiddlewareContext {
 }
 
 export interface RootQueryEntry {
-  modelName: string;
-  operation: string;
-  arguments: any[];
+  model: string;
+  op: string;
+  id?: string;
+  field?: string;
+  filter?: any;
+  data?: any;
+  args?: any;
+  options?: any;
 }
 
 export interface Request extends express.Request {
@@ -61,4 +66,15 @@ export interface Request extends express.Request {
   >;
   [CORE]: MaclCore;
   macl: ControllerFactory;
+}
+
+export interface ControllerResult {
+  success: boolean;
+  code: string;
+  data: any;
+  count?: number;
+  totalCount?: number;
+  input?: any;
+  query?: any;
+  errors?: any[];
 }

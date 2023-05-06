@@ -5,10 +5,12 @@ export enum StatusCodes {
   Unauthorized = 401,
   Forbidden = 403,
   NotFound = 404,
+  UnprocessableContent = 422,
 }
 
 export enum Codes {
   Success = 'success',
+  Created = 'created',
   BadRequest = 'bad_request',
   Forbidden = 'forbidden',
   NotFound = 'not_found',

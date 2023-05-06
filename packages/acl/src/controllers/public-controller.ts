@@ -26,6 +26,7 @@ import {
   DistinctArgs,
   Request,
   BaseFilterAccess,
+  ControllerResult,
 } from '../interfaces';
 
 const filterChildren = (children, obj) => {
@@ -79,7 +80,7 @@ export class PublicController extends Controller {
       populateAccess = this.defaults.publicListOptions?.populateAccess ?? 'read',
       lean = this.defaults.publicListOptions?.lean ?? false,
     }: PublicListOptions = {},
-  ) {
+  ): Promise<ControllerResult> {
     const result = await this.find(
       filter,
       { select, populate, sort, skip, limit, page, pageSize },
@@ -91,17 +92,15 @@ export class PublicController extends Controller {
     );
 
     if (!result.success) {
-      this.handleErrorResult(result);
+      return result;
     }
 
     let docs = result.data;
     docs = await this.decorateAll(docs, 'list');
     docs = docs.map((row) => this.process(row, process));
 
-    return {
-      count: result.totalCount,
-      rows: docs,
-    };
+    result.data = docs;
+    return result;
   }
 
   async _create(
@@ -115,7 +114,7 @@ export class PublicController extends Controller {
       includePermissions = this.defaults.publicCreateOptions?.includePermissions ?? true,
       populateAccess = this.defaults.publicCreateOptions?.populateAccess ?? 'read',
     }: PublicCreateOptions = {},
-  ) {
+  ): Promise<ControllerResult> {
     const result = await this.create(
       data,
       { populate },
@@ -130,19 +129,15 @@ export class PublicController extends Controller {
       },
     );
 
-    if (!result.success) {
-      this.handleErrorResult(result);
-    }
-
-    return result.count === 1 ? result.data[0] : result.data;
+    return result;
   }
 
-  async _empty() {
+  async _empty(): Promise<ControllerResult> {
     return this.empty();
   }
 
   async _read(
-    id,
+    id: string,
     {
       select = this.defaults.publicReadArgs?.select,
       populate = this.defaults.publicReadArgs?.populate,
@@ -154,7 +149,7 @@ export class PublicController extends Controller {
       populateAccess = this.defaults.publicReadOptions?.populateAccess,
       lean = this.defaults.publicReadOptions?.lean ?? false,
     }: PublicReadOptions = {},
-  ) {
+  ): Promise<ControllerResult> {
     let access: FindAccess = 'read';
     const idFilter = await this.genIDFilter(id);
 
@@ -184,14 +179,15 @@ export class PublicController extends Controller {
     }
 
     if (!result.success) {
-      this.handleErrorResult(result);
+      return result;
     }
 
     let doc = await this.pickAllowedFields(result.data, access, this.baseFields);
     doc = await this.decorate(doc, access);
     doc = this.process(doc, process);
 
-    return doc;
+    result.data = doc;
+    return result;
   }
 
   async _update(
@@ -207,7 +203,7 @@ export class PublicController extends Controller {
       includePermissions = this.defaults.publicUpdateOptions?.includePermissions ?? true,
       populateAccess = this.defaults.publicUpdateOptions?.populateAccess ?? 'read',
     }: PublicUpdateOptions = {},
-  ) {
+  ): Promise<ControllerResult> {
     const result = await this.updateById(
       id,
       data,
@@ -225,41 +221,22 @@ export class PublicController extends Controller {
       },
     );
 
-    if (!result.success) {
-      this.handleErrorResult(result);
-    }
-
-    return result.data;
+    return result;
   }
 
-  async _delete(id: string) {
+  async _delete(id: string): Promise<ControllerResult> {
     const result = await this.delete(id);
-
-    if (!result.success) {
-      this.handleErrorResult(result);
-    }
-
-    return result.data;
+    return result;
   }
 
-  async _distinct(field: string, options: DistinctArgs = {}) {
+  async _distinct(field: string, options: DistinctArgs = {}): Promise<ControllerResult> {
     const result = await this.distinct(field, options);
-
-    if (!result.success) {
-      this.handleErrorResult(result);
-    }
-
-    return result.data;
+    return result;
   }
 
-  async _count(filter, access: BaseFilterAccess = 'list') {
+  async _count(filter, access: BaseFilterAccess = 'list'): Promise<ControllerResult> {
     const result = await this.count(filter, access);
-
-    if (!result.success) {
-      this.handleErrorResult(result);
-    }
-
-    return result.data;
+    return result;
   }
 
   private async getParentDoc(id, sub, access, populate = []) {

@@ -30,6 +30,7 @@ import {
   UpdateByIdArgs,
   UpdateByIdOptions,
   BaseFilterAccess,
+  ControllerResult,
 } from '../interfaces';
 import { Codes, StatusCodes } from '../enums';
 import { Base } from './base';
@@ -59,7 +60,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.findOneOptions?.populateAccess,
       lean = this.defaults.findOneOptions?.lean ?? false,
     }: FindOneOptions = {},
-  ) {
+  ): Promise<ControllerResult> {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     let [_filter, _select, _populate] = await Promise.all([
@@ -80,11 +81,11 @@ export class Controller extends Base {
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
     if (includePermissions) doc = await this.permit(doc, access);
-    return { success: true, data: doc, query };
+    return { success: true, code: Codes.Success, data: doc, query };
   }
 
   public async findById(
-    id,
+    id: string,
     {
       select = this.defaults.findByIdArgs?.select,
       populate = this.defaults.findByIdArgs?.populate,
@@ -96,7 +97,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.findOneOptions?.populateAccess,
       lean = this.defaults.findOneOptions?.lean ?? false,
     }: FindByIdOptions = {},
-  ) {
+  ): Promise<ControllerResult> {
     const { select: overrideSelect, populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
     const filter = overrideIdFilter || (await this.genIDFilter(id));
 
@@ -133,7 +134,7 @@ export class Controller extends Base {
       lean = this.defaults.findOptions?.lean ?? false,
     }: FindOptions = {},
     decorate?: Function,
-  ) {
+  ): Promise<ControllerResult> {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     const [_filter, _select, _populate, pagination] = await Promise.all([
@@ -170,6 +171,7 @@ export class Controller extends Base {
 
     return {
       success: true,
+      code: Codes.Success,
       data: docs,
       count: docs.length,
       totalCount: includeCount ? await this.model.countDocuments(_filter) : null,
@@ -185,7 +187,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.createOptions?.populateAccess ?? 'read',
     }: CreateOptions = {},
     decorate?: Function,
-  ) {
+  ): Promise<ControllerResult> {
     const isArr = Array.isArray(data);
     let arr = isArr ? data : [data];
 
@@ -235,15 +237,20 @@ export class Controller extends Base {
 
     return {
       success: true,
-      code: Codes.Success,
+      code: Codes.Created,
       data: docs,
       input: items,
       count: docs.length,
     };
   }
 
-  public async empty() {
-    return this.model.new();
+  public async empty(): Promise<ControllerResult> {
+    const data = await this.model.new();
+    return {
+      success: true,
+      code: Codes.Success,
+      data,
+    };
   }
 
   public async updateOne(
@@ -255,7 +262,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.updateOneOptions?.populateAccess ?? 'read',
     }: UpdateOneOptions = {},
     decorate?: Function,
-  ) {
+  ): Promise<ControllerResult> {
     const { filter: overrideFilter, populate: overridePopulate } = overrides;
 
     const [_filter, _populate] = await Promise.all([
@@ -305,7 +312,7 @@ export class Controller extends Base {
     if (_populate) await populateDoc(doc, _populate);
 
     if (isFunction(decorate)) doc = await decorate(doc, context);
-    return { success: true, data: doc, input: prepared };
+    return { success: true, code: Codes.Success, data: doc, input: prepared };
   }
 
   public async updateById(
@@ -317,7 +324,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.updateByIdOptions?.populateAccess ?? 'read',
     }: UpdateByIdOptions = {},
     decorate?: Function,
-  ) {
+  ): Promise<ControllerResult> {
     const { populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
     const filter = overrideIdFilter || (await this.genIDFilter(id));
 
@@ -335,7 +342,7 @@ export class Controller extends Base {
     );
   }
 
-  public async delete(id: string) {
+  public async delete(id: string): Promise<ControllerResult> {
     const filter = await this.genFilter('delete', await this.genIDFilter(id));
 
     const query = { filter };
@@ -348,10 +355,10 @@ export class Controller extends Base {
     // triggering 'deleteOne' hooks, as opposed to using 'findOneAndDelete'.
     // see https://mongoosejs.com/docs/api/model.html#Model.prototype.deleteOne()
     await ('deleteOne' in doc ? doc.deleteOne() : doc.remove());
-    return { success: true, data: doc._id, query };
+    return { success: true, code: Codes.Success, data: doc._id, query };
   }
 
-  public async distinct(field: string, { filter }: DistinctArgs = {}) {
+  public async distinct(field: string, { filter }: DistinctArgs = {}): Promise<ControllerResult> {
     filter = await this.genFilter('read', filter);
 
     const query = { filter };
@@ -360,30 +367,17 @@ export class Controller extends Base {
 
     const result = await this.model.distinct(field, filter);
 
-    return { success: true, data: result, query };
+    return { success: true, code: Codes.Success, data: result, query };
   }
 
-  public async count(filter, access: BaseFilterAccess = 'list') {
+  public async count(filter, access: BaseFilterAccess = 'list'): Promise<ControllerResult> {
     filter = await this.genFilter(access, filter);
 
     const query = { filter };
 
     if (filter === false) return { success: false, code: Codes.Forbidden, data: 0, query };
 
-    return { success: true, data: await this.model.countDocuments(filter), query };
-  }
-
-  public handleErrorResult({ code, errors = [] }: { code?: string; errors?: string[] } = {}) {
-    switch (code) {
-      case Codes.BadRequest:
-        throw new CustomError({ statusCode: StatusCodes.BadRequest, message: 'Bad Request', errors });
-      case Codes.Forbidden:
-        throw new CustomError({ statusCode: StatusCodes.Forbidden, message: 'Forbidden', errors });
-      case Codes.NotFound:
-        throw new CustomError({ statusCode: StatusCodes.NotFound, message: 'Not Found', errors });
-      default:
-        throw new CustomError();
-    }
+    return { success: true, code: Codes.Success, data: await this.model.countDocuments(filter), query };
   }
 
   public getDocPermissions(doc) {

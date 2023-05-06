@@ -1,8 +1,17 @@
 import JsonRouter from 'express-json-router';
-import isArray from 'lodash/isArray';
+import castArray from 'lodash/castArray';
 import { setGenerators, MaclCore } from '../generators';
-import { RootRouterOptions, ModelRouterOptions, Validation, RootQueryEntry, Request } from '../interfaces';
+import { mapCodeToMessage, mapCodeToStatusCode } from '../helpers';
+import {
+  RootRouterOptions,
+  ModelRouterOptions,
+  Validation,
+  RootQueryEntry,
+  Request,
+  ControllerResult,
+} from '../interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
+import { Codes, StatusCodes } from '../enums';
 
 const clientErrors = JsonRouter.clientErrors;
 
@@ -21,6 +30,12 @@ export class RootRouter {
     this.setRoutes();
   }
 
+  private processResult(op: string, { success, code, data, count, totalCount, errors }: ControllerResult) {
+    const message = mapCodeToMessage(code);
+    const statusCode = mapCodeToStatusCode(code);
+    return { success, code, data, count, totalCount, errors, message, statusCode, op };
+  }
+
   private setRoutes() {
     this.router.post(`${this.basename}`, setGenerators, async (req: Request) => {
       const allowed = await req[CORE]._canActivate(this.routeGuard);
@@ -28,13 +43,30 @@ export class RootRouter {
 
       const items = req.body || [];
       return Promise.all(
-        items.map((item: RootQueryEntry) => {
-          if (!['list', 'create', 'empty', 'read', 'update', 'delete', 'distinct', 'count'].includes(item.operation))
-            return null;
+        items.map(async (item: RootQueryEntry) => {
+          const ctl = req[CORE]._public(item.model);
+          if (!ctl)
+            return { success: false, code: Codes.BadRequest, data: null, message: `model ${item.model} not found` };
 
-          const ctl = req[CORE]._public(item.modelName);
-          const op = ctl[`_${item.operation}`].bind(ctl);
-          return isArray(item.arguments) ? op(...item.arguments) : op(item.arguments);
+          if (item.op === 'list') {
+            return this.processResult(item.op, await ctl._list(item.filter, item.args, item.options));
+          } else if (item.op === 'create') {
+            return this.processResult(item.op, await ctl._create(item.data, item.args));
+          } else if (item.op === 'empty') {
+            return this.processResult(item.op, await ctl._empty());
+          } else if (item.op === 'read') {
+            return this.processResult(item.op, await ctl._read(item.id, item.args, item.options));
+          } else if (item.op === 'update') {
+            return this.processResult(item.op, await ctl._read(item.id, item.args, item.options));
+          } else if (item.op === 'delete') {
+            return this.processResult(item.op, await ctl._delete(item.id));
+          } else if (item.op === 'distinct') {
+            return this.processResult(item.op, await ctl._distinct(item.field, { filter: item.filter }));
+          } else if (item.op === 'count') {
+            return this.processResult(item.op, await ctl._count(item.filter));
+          } else {
+            return { success: false, code: Codes.BadRequest, data: null, message: `operation ${item.op} not found` };
+          }
         }),
       );
     });

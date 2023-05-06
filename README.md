@@ -32,6 +32,16 @@ The `@egose/swagger` package provides support for the OpenAPI Specification (for
 
 - see more details on [Egose Swagger](https://egose.github.io/egose-swagger/philosophy/).
 
+## Egose Adapter in Javascript
+
+The `@egose/adapter-js` package provides a Typescript/Javascript client adapter that facilitates communication with the Egose backend API endpoints. For a better understanding of these endpoints, you can check out [Egose ACL](https://egose.github.io/egose-acl/philosophy/).
+
+<a href="https://www.npmjs.com/package/@egose/adapter-js" target="_blank"><img src="https://img.shields.io/npm/v/@egose/adapter-js.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/package/@egose/adapter-js" target="_blank"><img src="https://img.shields.io/npm/l/@egose/adapter-js.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/package/@egose/adapter-js" target="_blank"><img src="https://img.shields.io/npm/dm/@egose/adapter-js.svg" alt="NPM Downloads" /></a>
+
+- see more details on [Egose Swagger](https://egose.github.io/egose-adapter-js/philosophy/).
+
 ## References
 
 - [HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110.html)

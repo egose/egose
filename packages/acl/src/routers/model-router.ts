@@ -9,6 +9,7 @@ import { checkIfReady, listen, getModelSub } from '../meta';
 import { setGenerators } from '../generators';
 import { setModelOptions, setModelOption, getModelOptions } from '../options';
 import { processUrl } from '../lib';
+import { handleResultError } from '../helpers';
 import { ModelRouterOptions, ExtendedModelRouterOptions, Request } from '../interfaces';
 import { CORE } from '../symbols';
 import { logger } from '../logger';
@@ -80,7 +81,7 @@ export class ModelRouter {
       const includeCount = parseBooleanString(include_count);
       const includeExtraHeaders = parseBooleanString(include_extra_headers);
 
-      const { count, rows } = await ctl._list(
+      const result = await ctl._list(
         {},
         { skip, limit, page, pageSize: page_size },
         {
@@ -90,21 +91,25 @@ export class ModelRouter {
         },
       );
 
+      handleResultError(result);
+
+      const { data, totalCount } = result;
+
       if (includeCount) {
         if (includeExtraHeaders) {
-          req.res.setHeader('egose-total-count', count);
-          return rows;
+          req.res.setHeader('egose-total-count', totalCount);
+          return data;
         }
 
-        return { count, rows };
+        return { count: totalCount, rows: data };
       }
 
-      return rows;
+      return data;
     });
 
-    //////////////////
-    // LIST - QUERY //
-    //////////////////
+    /////////////////////
+    // LIST - Advanced //
+    /////////////////////
     this.router.post(`${this.options.basePath}/${this.options.queryPath}`, setGenerators, async (req: Request) => {
       const allowed = await req[CORE]._isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
@@ -115,7 +120,7 @@ export class ModelRouter {
 
       const ctl = req[CORE]._public(this.modelName);
 
-      const { count, rows } = await ctl._list(
+      const result = await ctl._list(
         filter ?? query,
         { select, sort, populate, process, skip, limit, page, pageSize },
         {
@@ -126,16 +131,20 @@ export class ModelRouter {
         },
       );
 
+      handleResultError(result);
+
+      const { data, totalCount } = result;
+
       if (includeCount) {
         if (includeExtraHeaders) {
-          req.res.setHeader('egose-total-count', count);
-          return rows;
+          req.res.setHeader('egose-total-count', totalCount);
+          return data;
         }
 
-        return { count, rows };
+        return { count: totalCount, rows: data };
       }
 
-      return rows;
+      return data;
     });
 
     ////////////
@@ -148,13 +157,15 @@ export class ModelRouter {
       const { include_permissions } = req.query;
 
       const ctl = req[CORE]._public(this.modelName);
-      const doc = await ctl._create(req.body, {}, { includePermissions: parseBooleanString(include_permissions) });
+      const result = await ctl._create(req.body, {}, { includePermissions: parseBooleanString(include_permissions) });
 
-      return new success.Created(doc);
+      handleResultError(result);
+
+      return new success.Created(result.count === 1 ? result.data[0] : result.data);
     });
 
     ///////////////////////
-    // CREATE - MUTATION //
+    // CREATE - Advanced //
     ///////////////////////
     this.router.post(
       `${this.options.basePath}/${this.options.mutationPath}`,
@@ -168,13 +179,15 @@ export class ModelRouter {
         const { includePermissions, populateAccess } = options;
 
         const ctl = req[CORE]._public(this.modelName);
-        const doc = await ctl._create(
+        const result = await ctl._create(
           data,
           { select, populate, process },
           { includePermissions: includePermissions ?? parseBooleanString(include_permissions), populateAccess },
         );
 
-        return new success.Created(doc);
+        handleResultError(result);
+
+        return new success.Created(result.count === 1 ? result.data[0] : result.data);
       },
     );
 
@@ -183,7 +196,11 @@ export class ModelRouter {
     /////////////////
     this.router.get(`${this.options.basePath}/new`, setGenerators, async (req: Request) => {
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._empty();
+      const result = await ctl._empty();
+
+      handleResultError(result);
+
+      return result.data;
     });
   }
 
@@ -201,7 +218,7 @@ export class ModelRouter {
       const id = req.params[this.options.idParam];
       const { include_permissions, try_list, lean } = req.query;
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._read(
+      const result = await ctl._read(
         id,
         {},
         {
@@ -210,11 +227,15 @@ export class ModelRouter {
           lean: parseBooleanString(lean),
         },
       );
+
+      handleResultError(result);
+
+      return result.data;
     });
 
-    //////////////////
-    // READ - QUERY //
-    //////////////////
+    /////////////////////
+    // READ - Advanced //
+    /////////////////////
     this.router.post(
       `${this.options.basePath}/${this.options.queryPath}/:${this.options.idParam}`,
       setGenerators,
@@ -227,7 +248,7 @@ export class ModelRouter {
         const { includePermissions, tryList, populateAccess, lean } = options;
 
         const ctl = req[CORE]._public(this.modelName);
-        return ctl._read(
+        const result = await ctl._read(
           id,
           {
             select,
@@ -236,6 +257,10 @@ export class ModelRouter {
           },
           { includePermissions, tryList, populateAccess, lean },
         );
+
+        handleResultError(result);
+
+        return result.data;
       },
     );
 
@@ -250,11 +275,15 @@ export class ModelRouter {
       const { returning_all } = req.query;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._update(id, req.body, {}, { returningAll: parseBooleanString(returning_all) });
+      const result = await ctl._update(id, req.body, {}, { returningAll: parseBooleanString(returning_all) });
+
+      handleResultError(result);
+
+      return result.data;
     });
 
     ///////////////////////
-    // UPDATE - MUTATION //
+    // UPDATE - Advanced //
     ///////////////////////
     this.router.patch(
       `${this.options.basePath}/${this.options.mutationPath}/:${this.options.idParam}`,
@@ -269,12 +298,16 @@ export class ModelRouter {
         const { returningAll, includePermissions, populateAccess } = options;
 
         const ctl = req[CORE]._public(this.modelName);
-        return ctl._update(
+        const result = await ctl._update(
           id,
           data,
           { select, populate, process },
           { returningAll: returningAll ?? parseBooleanString(returning_all), includePermissions, populateAccess },
         );
+
+        handleResultError(result);
+
+        return result.data;
       },
     );
 
@@ -287,7 +320,11 @@ export class ModelRouter {
 
       const id = req.params[this.options.idParam];
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._delete(id);
+      const result = await ctl._delete(id);
+
+      handleResultError(result);
+
+      return result.data;
     });
 
     //////////////
@@ -299,7 +336,11 @@ export class ModelRouter {
 
       const { field } = req.params;
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._distinct(field);
+      const result = await ctl._distinct(field);
+
+      handleResultError(result);
+
+      return result.data;
     });
 
     this.router.post(`${this.options.basePath}/distinct/:field`, setGenerators, async (req: Request) => {
@@ -311,7 +352,11 @@ export class ModelRouter {
       const { query, filter } = req.body;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._distinct(field, { filter: filter ?? query });
+      const result = await ctl._distinct(field, { filter: filter ?? query });
+
+      handleResultError(result);
+
+      return result.data;
     });
 
     ///////////
@@ -322,7 +367,11 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._count({});
+      const result = await ctl._count({});
+
+      handleResultError(result);
+
+      return result.data;
     });
 
     this.router.post(`${this.options.basePath}/count`, setGenerators, async (req: Request) => {
@@ -333,7 +382,11 @@ export class ModelRouter {
       const { query, filter, access } = req.body;
 
       const ctl = req[CORE]._public(this.modelName);
-      return ctl._count(filter ?? query, access);
+      const result = await ctl._count(filter ?? query, access);
+
+      handleResultError(result);
+
+      return result.data;
     });
   }
 
@@ -362,9 +415,9 @@ export class ModelRouter {
         },
       );
 
-      //////////////////
-      // LIST - QUERY //
-      //////////////////
+      /////////////////////
+      // LIST - Advanced //
+      /////////////////////
       this.router.post(
         `${this.options.basePath}/:${this.options.idParam}/${sub}/${this.options.queryPath}`,
         setGenerators,
@@ -395,9 +448,9 @@ export class ModelRouter {
         },
       );
 
-      //////////////////
-      // READ - QUERY //
-      //////////////////
+      /////////////////////
+      // READ - Advanced //
+      /////////////////////
       this.router.post(
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId/${this.options.queryPath}`,
         setGenerators,

@@ -1,7 +1,7 @@
 import 'mocha';
 
 import { expect } from 'chai';
-import { services } from './00.setup.spec';
+import { adapter, services } from './00.setup.spec';
 
 describe('Create Users', () => {
   it('should create an user `john` by admin', async () => {

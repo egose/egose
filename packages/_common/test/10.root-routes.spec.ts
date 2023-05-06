@@ -11,17 +11,21 @@ describe('Root Routes - Create User', () => {
       .set('user', 'admin')
       .send([
         {
-          modelName: 'User',
-          operation: 'create',
-          arguments: { name: 'user-root1', role: 'user', public: false },
+          model: 'User',
+          op: 'create',
+          data: { name: 'user-root1', role: 'user', public: false },
         },
       ])
       .expect('Content-Type', /json/)
       .expect(200);
 
     expect(response.body.length).to.equal(1);
-    expect(response.body[0].name).to.equal('user-root1');
-    expect(response.body[0].role).to.equal('user');
-    expect(response.body[0].public).to.equal(false);
+    expect(response.body[0].success).to.equal(true);
+    expect(response.body[0].code).to.equal('created');
+    expect(response.body[0].data.length).to.equal(1);
+    expect(response.body[0].count).to.equal(1);
+    expect(response.body[0].data[0].name).to.equal('user-root1');
+    expect(response.body[0].data[0].role).to.equal('user');
+    expect(response.body[0].data[0].public).to.equal(false);
   });
 });

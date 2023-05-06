@@ -18,6 +18,10 @@ export class Model<T extends Document> {
     this.modifiedPaths = new Set();
   }
 
+  static create<T>(data: T, adapter: ModelService<T>) {
+    return new Model(data, adapter) as Model<T> & T;
+  }
+
   async save(reqConfig?: AxiosRequestConfig) {
     let result;
     if (this._data._id) {

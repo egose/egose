@@ -1,3 +1,7 @@
+import { AxiosRequestConfig } from 'axios';
+import { Model } from './model';
+import { ModelService } from './service';
+
 export interface KeyValueProjection {
   [key: string]: 1 | -1;
 }
@@ -15,4 +19,33 @@ export interface Populate {
 
 export interface Document {
   _id?: string;
+}
+
+export interface Response<T1, T2 = T1> {
+  success: boolean;
+  raw?: T1;
+  data?: T2;
+  message?: string;
+  status?: number;
+  headers?: Record<string, string>;
+}
+
+export type ModelResponse<T> = Response<T, Model<T> & T>;
+export type ArrayModelResponse<T> = Response<T[], (Model<T> & T)[]>;
+export type ListModelResponse<T> = ArrayModelResponse<T> & { totalCount?: number };
+
+export class ModelPromise<T> extends Promise<T> {
+  __op!: string;
+  __query: {
+    model: string;
+    op: string;
+    id?: string;
+    field?: string;
+    filter?: any;
+    data?: any;
+    args?: any;
+    options?: any;
+  };
+  __requestConfig?: AxiosRequestConfig;
+  __service?: ModelService<any>;
 }
