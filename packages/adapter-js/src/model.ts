@@ -35,10 +35,11 @@ export class Model<T extends Document> {
     }
 
     this.modifiedPaths.clear();
+
     return {
       success: result.success,
       message: result.message,
-      data: this,
+      data: Model.create<T>(this._data, this._service),
     };
   }
 
