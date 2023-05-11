@@ -93,6 +93,9 @@ nav:
 - Egose Swagger:
   - Philosophy: egose-swagger/philosophy.md
   - Quick Start: egose-swagger/quick-start.md
+- Egose JS Adapter:
+  - Philosophy: egose-adapter-js/philosophy.md
+  - Quick Start: egose-adapter-js/quick-start.md
 
 # Extensions
 markdown_extensions:

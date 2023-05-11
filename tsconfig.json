@@ -21,6 +21,8 @@
       "@egose/swagger/*": ["./packages/swagger/src/*"],
       "@egose/adapter-js": ["./packages/adapter-js/src/index"],
       "@egose/adapter-js/*": ["./packages/adapter-js/src/*"],
+      "@egose/react-pagination-hook": ["./packages/react-pagination-hook/src/index"],
+      "@egose/react-pagination-hook/*": ["./packages/react-pagination-hook/src/*"],
       "@egose/_common/*": ["./packages/_common/*"],
       "@examples/*": ["./examples/*"]
     }

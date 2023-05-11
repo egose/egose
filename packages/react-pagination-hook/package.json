@@ -1,0 +1,46 @@
+{
+  "name": "@egose/react-pagination-hook",
+  "version": "0.0.0-PLACEHOLDER",
+  "description": "React pagination hook that interacts with Egose API list endpoint",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/egose/egose"
+  },
+  "homepage": "https://egose.github.io/egose-react-pagination-hook/philosophy/",
+  "keywords": [
+    "mongoose",
+    "access control list",
+    "api endpoints",
+    "pagination"
+  ],
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc -d",
+    "bundle": "tsup",
+    "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@egose/adapter-js": "0.0.0-PLACEHOLDER"
+  },
+  "tsup": {
+    "target": "node14",
+    "entry": [
+      "src/index.tsx"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "dts": true,
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "minify": false
+  }
+}
