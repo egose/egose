@@ -34,8 +34,8 @@ export type ModelResponse<T> = Response<T, Model<T> & T>;
 export type ArrayModelResponse<T> = Response<T[], (Model<T> & T)[]>;
 export type ListModelResponse<T> = ArrayModelResponse<T> & { totalCount?: number };
 
-export class ModelPromise<T> extends Promise<T> {
-  __op!: string;
+export interface ModelPromiseMeta {
+  __op: string;
   __query: {
     model: string;
     op: string;
@@ -49,3 +49,35 @@ export class ModelPromise<T> extends Promise<T> {
   __requestConfig?: AxiosRequestConfig;
   __service?: ModelService<any>;
 }
+
+export const wrapLazyPromise = <T, M = undefined>(promiseFn: () => Promise<T>, meta?: M): M & Promise<T> => {
+  let isThenCalled = false;
+
+  const prom = {
+    then(onFulfilled: any, onRejected?: any) {
+      isThenCalled = true;
+      return promiseFn().then(onFulfilled, onRejected);
+    },
+    finally(onFinally: any) {
+      if (isThenCalled) {
+        return Promise.resolve().then(onFinally);
+      }
+      return Promise.resolve();
+    },
+    [Symbol.for('nodejs.util.inspect.custom')]() {
+      // This method can be added for better console output in Node.js
+      return 'LazyPromise';
+    },
+  };
+
+  Object.defineProperty(prom, Symbol.toStringTag, {
+    value: 'Promise',
+    writable: false,
+    enumerable: false,
+    configurable: true,
+  });
+
+  Object.assign(prom, meta);
+
+  return prom as M & Promise<T>;
+};

@@ -1,7 +1,8 @@
 import axios, { CreateAxiosDefaults, mergeConfig } from 'axios';
+import isEmpty from 'lodash/isEmpty';
 import { ModelService } from './service';
 import { Model } from './model';
-import { ModelPromise } from './types';
+import { ModelPromiseMeta } from './types';
 import castArray from 'lodash/castArray';
 
 const defaultAxiosConfig = Object.freeze({
@@ -35,12 +36,12 @@ export function createAdapter(axiosConfig?: CreateAxiosDefaults, egoseOptions?: 
     }) => {
       return new ModelService<T>({ axios: instance, modelName, basePath, queryPath, mutationPath });
     },
-    group: async <T extends ModelPromise<unknown>[]>(
+    group: async <T extends (ModelPromiseMeta & Promise<unknown>)[]>(
       ...proms: T
-    ): Promise<{ [K in keyof T]: T[K] extends ModelPromise<infer U> ? U : never }> => {
+    ): Promise<{ [K in keyof T]: T[K] extends Promise<infer U> ? U : never }> => {
       let lastConfig;
       const defs = proms.map((prom) => {
-        if (prom.__requestConfig) lastConfig = prom.__requestConfig;
+        if (!isEmpty(prom.__requestConfig)) lastConfig = prom.__requestConfig;
         return prom.__query;
       });
 
@@ -64,7 +65,7 @@ export function createAdapter(axiosConfig?: CreateAxiosDefaults, egoseOptions?: 
               _raw = null;
               _data = null;
             }
-          } else if (['empty', 'read', 'update'].includes(op)) {
+          } else if (['new', 'read', 'update'].includes(op)) {
             _data = success ? Model.create(data, service) : null;
           }
 
@@ -78,7 +79,7 @@ export function createAdapter(axiosConfig?: CreateAxiosDefaults, egoseOptions?: 
             headers: {},
           };
         }) as {
-          [K in keyof T]: T[K] extends ModelPromise<infer U> ? U : never;
+          [K in keyof T]: T[K] extends Promise<infer U> ? U : never;
         };
       });
 
@@ -86,3 +87,33 @@ export function createAdapter(axiosConfig?: CreateAxiosDefaults, egoseOptions?: 
     },
   });
 }
+
+// TYPE TESTS
+
+// const __adapter = createAdapter({ baseURL: 'http://127.0.0.1:3000/api' });
+
+// interface User {
+//   name?: string;
+//   role?: string;
+//   statusHistory?: any[];
+//   public?: boolean;
+//   [key: string]: any;
+// }
+
+// interface Org {
+//   name?: string;
+//   locations?: any[];
+//   [key: string]: any;
+// }
+
+// const __userService = __adapter.createModelService<User>({ modelName: 'User', basePath: 'users' });
+// const __orgService = __adapter.createModelService<Org>({ modelName: 'Org', basePath: 'orgs' });
+
+// __userService.update('123456789', {}).then((data) => {
+//   data.data.role;
+// });
+
+// __adapter.group(__userService.update('123456789', {}), __orgService.updateAdvanced('123456789', {})).then((data) => {
+//   data[0].data.role;
+//   data[1].data.locations;
+// });

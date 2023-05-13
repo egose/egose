@@ -196,7 +196,7 @@ export class ModelRouter {
     /////////////////
     this.router.get(`${this.options.basePath}/new`, setGenerators, async (req: Request) => {
       const ctl = req[CORE]._public(this.modelName);
-      const result = await ctl._empty();
+      const result = await ctl._new();
 
       handleResultError(result);
 
@@ -208,6 +208,35 @@ export class ModelRouter {
   // Document Routes //
   /////////////////////
   private setDocumentRoutes() {
+    ///////////
+    // COUNT //
+    ///////////
+    this.router.get(`${this.options.basePath}/count`, setGenerators, async (req: Request) => {
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'count');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
+
+      const ctl = req[CORE]._public(this.modelName);
+      const result = await ctl._count({});
+
+      handleResultError(result);
+
+      return result.data;
+    });
+
+    this.router.post(`${this.options.basePath}/count`, setGenerators, async (req: Request) => {
+      const allowed = await req[CORE]._isAllowed(this.modelName, 'count');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
+
+      // @Deprecated option 'query'
+      const { query, filter, access } = req.body;
+      const ctl = req[CORE]._public(this.modelName);
+      const result = await ctl._count(filter ?? query, access);
+
+      handleResultError(result);
+
+      return result.data;
+    });
+
     //////////
     // READ //
     //////////
@@ -353,36 +382,6 @@ export class ModelRouter {
 
       const ctl = req[CORE]._public(this.modelName);
       const result = await ctl._distinct(field, { filter: filter ?? query });
-
-      handleResultError(result);
-
-      return result.data;
-    });
-
-    ///////////
-    // COUNT //
-    ///////////
-    this.router.get(`${this.options.basePath}/count`, setGenerators, async (req: Request) => {
-      const allowed = await req[CORE]._isAllowed(this.modelName, 'count');
-      if (!allowed) throw new clientErrors.UnauthorizedError();
-
-      const ctl = req[CORE]._public(this.modelName);
-      const result = await ctl._count({});
-
-      handleResultError(result);
-
-      return result.data;
-    });
-
-    this.router.post(`${this.options.basePath}/count`, setGenerators, async (req: Request) => {
-      const allowed = await req[CORE]._isAllowed(this.modelName, 'count');
-      if (!allowed) throw new clientErrors.UnauthorizedError();
-
-      // @Deprecated option 'query'
-      const { query, filter, access } = req.body;
-
-      const ctl = req[CORE]._public(this.modelName);
-      const result = await ctl._count(filter ?? query, access);
 
       handleResultError(result);
 

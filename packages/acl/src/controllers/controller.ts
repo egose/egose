@@ -244,7 +244,7 @@ export class Controller extends Base {
     };
   }
 
-  public async empty(): Promise<ControllerResult> {
+  public async new(): Promise<ControllerResult> {
     const data = await this.model.new();
     return {
       success: true,

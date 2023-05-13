@@ -12,6 +12,7 @@ export enum Codes {
   Success = 'success',
   Created = 'created',
   BadRequest = 'bad_request',
+  Unauthorized = 'unauthorized',
   Forbidden = 'forbidden',
   NotFound = 'not_found',
 }

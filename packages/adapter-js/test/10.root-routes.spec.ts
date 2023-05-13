@@ -7,7 +7,10 @@ import { Model } from '../src/model';
 
 describe('Root Routes - Create User & Count Org', () => {
   it('should create an user `user-root1` and count all orgs by admin', async () => {
-    const result = await adapter.group(services.userService.create({ name: 'testuser' }), services.orgService.count());
+    const result = await adapter.group(
+      services.userService.create({ name: 'testuser' }, {}, { headers: { user: 'admin' } }),
+      services.orgService.count(),
+    );
 
     expect(result.length).to.equal(2);
 

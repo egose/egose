@@ -19,14 +19,17 @@ orgRouter
       return true;
     },
     read: function (permissions: Permissions) {
+      if (!this._user) return false;
       if (permissions.isAdmin) return {};
       else return { _id: this._user.orgs };
     },
     update: function (permissions: Permissions) {
+      if (!this._user) return false;
       if (permissions.isAdmin) return {};
       else return { _id: this._user.orgs };
     },
     delete: function (permissions: Permissions) {
+      if (!this._user) return false;
       if (permissions.isAdmin) return {};
       else return { _id: this._user.orgs };
     },
@@ -37,6 +40,7 @@ orgRouter
     update: true,
     delete: false,
     create: 'isAdmin',
+    count: true,
   });
 
 egose.setModelOption('Location', 'permissionSchema', { name: { list: true, read: true, create: true } });

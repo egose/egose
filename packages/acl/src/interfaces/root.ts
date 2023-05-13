@@ -86,6 +86,7 @@ export interface DefaultModelRouterOptions {
 
 export interface ExtendedDefaultModelRouterOptions extends DefaultModelRouterOptions {
   'routeGuard.default'?: Validation;
+  'routeGuard.new'?: Validation;
   'routeGuard.list'?: Validation;
   'routeGuard.read'?: Validation;
   'routeGuard.update'?: Validation;
@@ -161,7 +162,7 @@ export interface ExtendedModelRouterOptions extends ModelRouterOptions, Extended
 }
 
 export type SelectAccess = 'list' | 'create' | 'read' | 'update';
-export type RouteGuardAccess = 'list' | 'read' | 'update' | 'delete' | 'create' | 'distinct' | 'count' | 'subs';
+export type RouteGuardAccess = 'new' | 'list' | 'read' | 'update' | 'delete' | 'create' | 'distinct' | 'count' | 'subs';
 export type DocPermissionsAccess = 'list' | 'create' | 'read' | 'update';
 export type BaseFilterAccess = 'list' | 'read' | 'update' | 'delete';
 export type DecorateAccess = 'list' | 'create' | 'read' | 'update';

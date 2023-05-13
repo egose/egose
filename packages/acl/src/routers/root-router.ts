@@ -2,6 +2,7 @@ import JsonRouter from 'express-json-router';
 import castArray from 'lodash/castArray';
 import { setGenerators, MaclCore } from '../generators';
 import { mapCodeToMessage, mapCodeToStatusCode } from '../helpers';
+import { getGlobalOption, getModelOption } from '../options';
 import {
   RootRouterOptions,
   ModelRouterOptions,
@@ -9,11 +10,14 @@ import {
   RootQueryEntry,
   Request,
   ControllerResult,
+  RouteGuardAccess,
 } from '../interfaces';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 import { Codes, StatusCodes } from '../enums';
 
 const clientErrors = JsonRouter.clientErrors;
+
+const ALL_ROUTES = ['new', 'list', 'read', 'update', 'delete', 'create', 'distinct', 'count'];
 
 export class RootRouter {
   router: JsonRouter;
@@ -46,14 +50,21 @@ export class RootRouter {
         items.map(async (item: RootQueryEntry) => {
           const ctl = req[CORE]._public(item.model);
           if (!ctl)
-            return { success: false, code: Codes.BadRequest, data: null, message: `model ${item.model} not found` };
+            return { success: false, code: Codes.BadRequest, data: null, message: `Model ${item.model} not found` };
+
+          if (!ALL_ROUTES.includes(item.op))
+            return { success: false, code: Codes.BadRequest, data: null, message: `Operation ${item.op} not found` };
+
+          const routeGuard = getModelOption(item.model, `routeGuard.${item.op as RouteGuardAccess}`);
+          const allowed = await req[CORE]._canActivate(routeGuard);
+          if (!allowed) return { success: false, code: Codes.Unauthorized, data: null, message: 'Unauthorized' };
 
           if (item.op === 'list') {
             return this.processResult(item.op, await ctl._list(item.filter, item.args, item.options));
           } else if (item.op === 'create') {
             return this.processResult(item.op, await ctl._create(item.data, item.args));
-          } else if (item.op === 'empty') {
-            return this.processResult(item.op, await ctl._empty());
+          } else if (item.op === 'new') {
+            return this.processResult(item.op, await ctl._new());
           } else if (item.op === 'read') {
             return this.processResult(item.op, await ctl._read(item.id, item.args, item.options));
           } else if (item.op === 'update') {

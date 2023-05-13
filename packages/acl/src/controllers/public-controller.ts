@@ -132,8 +132,8 @@ export class PublicController extends Controller {
     return result;
   }
 
-  async _empty(): Promise<ControllerResult> {
-    return this.empty();
+  async _new(): Promise<ControllerResult> {
+    return this.new();
   }
 
   async _read(
