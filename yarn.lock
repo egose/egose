@@ -2413,9 +2413,9 @@
   integrity sha512-/fvYntiO1GeICvqbQ3doGDIP97vWmvFt83GKguJ6prmQM2iXZfFcq6YE8KteFyRtX2/h5Hf91BYvPodJKFYv5Q==
 
 "@types/node@*":
-  version "20.2.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.2.5.tgz#26d295f3570323b2837d322180dfbf1ba156fefb"
-  integrity sha512-JJulVEQXmiY9Px5axXHeYGLSjhkZEnD+MDPDGbCbIAbMslkKwmygtZFy1X6s/075Yo94sf8GuSlFfPzysQrWZQ==
+  version "20.3.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.3.0.tgz#719498898d5defab83c3560f45d8498f58d11938"
+  integrity sha512-cumHmIAf6On83X7yP+LrsEyUOf/YlociZelmpRYaGFydoaPdxdt80MAbu6vWerQT2COCp2nPvHdsbD7tHn/YlQ==
 
 "@types/node@^18.16.0":
   version "18.16.17"
@@ -7190,9 +7190,9 @@ mongoose-schema-jsonschema@^2.0.2:
     pluralize "^8.0.0"
 
 mongoose@^7.1.0:
-  version "7.2.3"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-7.2.3.tgz#d20fa2a8beda9aae54b293d584ddda80d36febdf"
-  integrity sha512-ClHD73HiqMk4hcOhdlZxluldokZfXvkrxjdKuqI7UQWLM71OIoy+n+OS+OHz4qJhS+/UaPzemQDKYtVrl4l0Ig==
+  version "7.2.4"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-7.2.4.tgz#0cbccd23746c5bd82a4330e83ea2b2c52e03c044"
+  integrity sha512-BWcgShV2WH1rspICiJKLPi7QssTebpGJ23Nyk7qG0TMEE/OEAlsQKEhI7VlrXg4ZnoOcHgG+N+upW9tj17TTQg==
   dependencies:
     bson "^5.3.0"
     kareem "2.5.1"
