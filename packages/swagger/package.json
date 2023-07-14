@@ -29,7 +29,7 @@
   "dependencies": {
     "@openapi-contrib/json-schema-to-openapi-schema": "^2.2.5",
     "lodash": "^4.17.21",
-    "swagger-ui-express": "^4.6.2"
+    "swagger-ui-express": "^5.0.0"
   },
   "peerDependencies": {
     "@egose/acl": "0.0.0-PLACEHOLDER",
