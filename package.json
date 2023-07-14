@@ -59,7 +59,7 @@
     "morgan": "^1.10.0",
     "nodemon": "^2.0.22",
     "path": "^0.12.7",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reflect-metadata": "^0.1.13",
