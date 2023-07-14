@@ -75,5 +75,8 @@
     "webpack-cli": "^5.1.0",
     "webpack-dev-server": "^4.15.0",
     "yargs": "^17.7.1"
+  },
+  "resolutions": {
+    "string-width": "^4.2.3"
   }
 }
