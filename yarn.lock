@@ -2817,10 +2817,10 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-api-request-handler@0.8.2:
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/api-request-handler/-/api-request-handler-0.8.2.tgz#cbf129770852cfc33de4499e973d80f9e6899b76"
-  integrity sha512-sSsQDdTQBWRquHI5tdAD5N/3U2sTnfOHI5CPdXdNfNj2NnjBGy5ABCwD3M1ZQQV73Xpn3t2p/GcWlGIvvj0vtQ==
+api-request-handler@0.8.3:
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/api-request-handler/-/api-request-handler-0.8.3.tgz#2bb5a8c277e9417e05b273c8da083ac2e5a41bd7"
+  integrity sha512-V8WhTuZO1Zp4Ggdogl19QKZNQAvXJQRz5B4idbYGZHY1tZUFnbqZTn16zCxpSzWwJYbojY6M7FqNBEUfaAKapA==
 
 "aproba@^1.0.3 || ^2.0.0":
   version "2.0.0"
@@ -4447,12 +4447,12 @@ exponential-backoff@^3.1.1:
   resolved "https://registry.yarnpkg.com/exponential-backoff/-/exponential-backoff-3.1.1.tgz#64ac7526fe341ab18a39016cd22c787d01e00bf6"
   integrity sha512-dX7e/LHVJ6W3DE1MHWi9S1EYzDESENfLrYohG2G++ovZrYOkm4Knwa0mc1cn84xJOR4KEU0WSchhLbd0UklbHw==
 
-express-json-router@0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/express-json-router/-/express-json-router-0.6.1.tgz#a20d73e8ef616c63a0b0674a9f409ff2938edd9d"
-  integrity sha512-nFtLkrup+iFSfzhZ9gKkqRZvBXqn97T/EMwveDJhyyTgGULLMagRg8HAQeFnmku3PE6R08VbalTj2IWugyxFxA==
+express-json-router@0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/express-json-router/-/express-json-router-0.6.2.tgz#3786534f68d916ff3bd1a26f86db2f8789fdd9dd"
+  integrity sha512-11Wo9ZihnaTuywGuBf71w7OP9xATIr9HrHltpSefsJSF5egADjUq8BLQe6/Rbp35xxNYvXBBpA+attBSzrI1LA==
   dependencies:
-    api-request-handler "0.8.2"
+    api-request-handler "0.8.3"
     client-errors "0.9.2"
 
 express-session@^1.17.3:
