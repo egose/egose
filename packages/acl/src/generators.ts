@@ -16,6 +16,7 @@ import isNil from 'lodash/isNil';
 import noop from 'lodash/noop';
 import pick from 'lodash/pick';
 import set from 'lodash/set';
+import reduce from 'lodash/reduce';
 import { getGlobalOption, getModelOption } from './options';
 import { getModelRef } from './meta';
 import {
@@ -286,14 +287,34 @@ export async function permit(
   const docPermissions = await this[CORE]._genDocPermissions(modelName, doc, access, context);
   setDocPermissions(doc, docPermissionField, docPermissions);
 
-  const allowedFields = await this[CORE]._genAllowedFields(modelName, doc, 'update');
   // TODO: do we need falsy fields as well?
   // const permissionSchemaKeys = getModelOption(modelName, 'permissionSchemaKeys');
 
-  // TODO: make it flexible structure
-  forEach(allowedFields, (field) => {
-    setDocPermissions(doc, `${docPermissionField}.edit.${field}`, true);
-  });
+  const [views, edits] = await Promise.all([
+    this[CORE]._genAllowedFields(modelName, doc, 'read'),
+    this[CORE]._genAllowedFields(modelName, doc, 'update'),
+  ]);
+
+  const viewObj = reduce(
+    views,
+    (ret, view) => {
+      ret[view] = true;
+      return ret;
+    },
+    {},
+  );
+
+  const editObj = reduce(
+    edits,
+    (ret, view) => {
+      ret[view] = true;
+      return ret;
+    },
+    {},
+  );
+
+  setDocPermissions(doc, `${docPermissionField}._view`, viewObj);
+  setDocPermissions(doc, `${docPermissionField}._edit`, editObj);
 
   return doc;
 }

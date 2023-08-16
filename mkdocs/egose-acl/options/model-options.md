@@ -367,8 +367,7 @@ const publicListArgs = {
 const publicListOptions = {
   includePermissions: true,
   includeCount: false,
-  populateAccess: 'read',
-  lean: false,
+  populateAccess: 'read'
 };
 
 const publicCreateArgs = {
@@ -390,7 +389,6 @@ const publicReadArgs = {
 
 const publicReadOptions = {
   populateAccess: 'read',
-  lean: false,
   includePermissions: true,
   tryList: true,
 };

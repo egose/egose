@@ -6,13 +6,12 @@ This entrypoint returns a set of resources.
 
 ### Parameters
 
-| Name                  | Type    | In    | Description                                                          | Default    |
-| --------------------- | ------- | ----- | -------------------------------------------------------------------- | ---------- |
-| `limit`               | number  | query | The maximum number of documents                                      | 1000 (max) |
-| `page`                | number  | query | The page number of documents; starts from 1                          | 1          |
-| `include_permissions` | boolean | query | Whether to include document permissions                              | true       |
-| `include_count`       | boolean | query | Whether to include total results count                               | false      |
-| `lean`                | boolean | query | Whether to pass plain objects, not Mongoose Documents, in middleware | false      |
+| Name                  | Type    | In    | Description                                 | Default    |
+| --------------------- | ------- | ----- | ------------------------------------------- | ---------- |
+| `limit`               | number  | query | The maximum number of documents             | 1000 (max) |
+| `page`                | number  | query | The page number of documents; starts from 1 | 1          |
+| `include_permissions` | boolean | query | Whether to include document permissions     | true       |
+| `include_count`       | boolean | query | Whether to include total results count      | false      |
 
 ### Example
 
@@ -23,7 +22,7 @@ This entrypoint returns a set of resources.
     ```bash
     curl \
       -H "Accept: application/json" \
-      https://example.com/users?limit=100&page=5&include_permissions=false&include_count=false&lean=true
+      https://example.com/users?limit=100&page=5&include_permissions=false&include_count=false
     ```
 
 === "Javascript"
@@ -33,8 +32,7 @@ This entrypoint returns a set of resources.
       limit: 100,
       page: 5,
       include_permissions: false,
-      include_count: false,
-      lean: true
+      include_count: false
     };
 
     const url = 'https://example.com/users' + new URLSearchParams(params);
@@ -77,20 +75,19 @@ This entrypoint returns a set of filtered resources that includes selective data
 
 ### Parameters
 
-| Name                         | Type                             | In   | Description                                                          | Default    |
-| ---------------------------- | -------------------------------- | ---- | -------------------------------------------------------------------- | ---------- |
-| `filter`                     | object                           | body | Mongoose `Filter` object                                             |            |
-| `select`                     | object \| array<string\>         | body | Document fields to include or exclude                                |            |
-| `populate`                   | array<string\> \| array<object\> | body | Document fields to populate                                          |            |
-| `sort`                       | string \| object                 | body | Document sort order                                                  |            |
-| `skip`                       | number                           | body | The number of documents to skip; used over `page` if specified       |            |
-| `limit`                      | number                           | body | The maximum number of documents; used over `pageSize` if specified   | 1000 (max) |
-| `page`                       | number                           | body | The page number of documents; starts from 1                          | 1          |
-| `pageSize`                   | number                           | body | The maximum number of documents                                      | 1          |
-| `options.includePermissions` | boolean                          | body | Whether to include document permissions                              | true       |
-| `options.includeCount`       | boolean                          | body | Whether to include total results count                               | false      |
-| `options.populateAccess`     | 'list' \| 'read'                 | body | The access level to use in `populate` method                         | read       |
-| `options.lean`               | boolean                          | body | Whether to pass plain objects, not Mongoose Documents, in middleware | false      |
+| Name                         | Type                             | In   | Description                                                        | Default    |
+| ---------------------------- | -------------------------------- | ---- | ------------------------------------------------------------------ | ---------- |
+| `filter`                     | object                           | body | Mongoose `Filter` object                                           |            |
+| `select`                     | object \| array<string\>         | body | Document fields to include or exclude                              |            |
+| `populate`                   | array<string\> \| array<object\> | body | Document fields to populate                                        |            |
+| `sort`                       | string \| object                 | body | Document sort order                                                |            |
+| `skip`                       | number                           | body | The number of documents to skip; used over `page` if specified     |            |
+| `limit`                      | number                           | body | The maximum number of documents; used over `pageSize` if specified | 1000 (max) |
+| `page`                       | number                           | body | The page number of documents; starts from 1                        | 1          |
+| `pageSize`                   | number                           | body | The maximum number of documents                                    | 1          |
+| `options.includePermissions` | boolean                          | body | Whether to include document permissions                            | true       |
+| `options.includeCount`       | boolean                          | body | Whether to include total results count                             | false      |
+| `options.populateAccess`     | 'list' \| 'read'                 | body | The access level to use in `populate` method                       | read       |
 
 ### Example
 
@@ -113,8 +110,7 @@ This entrypoint returns a set of filtered resources that includes selective data
         "options": {
           "includePermissions": true,
           "includeCount": true,
-          "populateAccess": "list",
-          "lean": true
+          "populateAccess": "list"
         }
       }'
     ```
@@ -132,8 +128,7 @@ This entrypoint returns a set of filtered resources that includes selective data
       options: {
         includePermissions: true,
         includeCount: true,
-        populateAccess: 'list',
-        lean: true,
+        populateAccess: 'list'
       },
     };
 

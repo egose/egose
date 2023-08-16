@@ -73,8 +73,7 @@ export class ModelRouter {
       const allowed = await req[CORE]._isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      const { skip, limit, page, page_size, include_permissions, include_count, include_extra_headers, lean } =
-        req.query;
+      const { skip, limit, page, page_size, include_permissions, include_count, include_extra_headers } = req.query;
 
       const ctl = req[CORE]._public(this.modelName);
 
@@ -87,7 +86,6 @@ export class ModelRouter {
         {
           includePermissions: parseBooleanString(include_permissions),
           includeCount,
-          lean: parseBooleanString(lean),
         },
       );
 
@@ -245,7 +243,7 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const id = req.params[this.options.idParam];
-      const { include_permissions, try_list, lean } = req.query;
+      const { include_permissions, try_list } = req.query;
       const ctl = req[CORE]._public(this.modelName);
       const result = await ctl._read(
         id,
@@ -253,7 +251,6 @@ export class ModelRouter {
         {
           includePermissions: parseBooleanString(include_permissions),
           tryList: parseBooleanString(try_list),
-          lean: parseBooleanString(lean),
         },
       );
 

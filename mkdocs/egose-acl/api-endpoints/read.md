@@ -6,12 +6,11 @@ This entrypoint returns a target resource.
 
 ### Parameters
 
-| Name                  | Type    | In    | Description                                                          | Default |
-| --------------------- | ------- | ----- | -------------------------------------------------------------------- | ------- |
-| `id`                  | string  | param | Resource identifier; `required`                                      |         |
-| `include_permissions` | boolean | query | Whether to include document permissions                              | true    |
-| `try_list`            | boolean | query | Whether to attempt to retrieve the resource if not allowed           | true    |
-| `lean`                | boolean | query | Whether to pass plain objects, not Mongoose Documents, in middleware | false   |
+| Name                  | Type    | In    | Description                                                | Default |
+| --------------------- | ------- | ----- | ---------------------------------------------------------- | ------- |
+| `id`                  | string  | param | Resource identifier; `required`                            |         |
+| `include_permissions` | boolean | query | Whether to include document permissions                    | true    |
+| `try_list`            | boolean | query | Whether to attempt to retrieve the resource if not allowed | true    |
 
 ### Example
 
@@ -22,7 +21,7 @@ This entrypoint returns a target resource.
     ```bash
     curl \
       -H "Accept: application/json" \
-      https://example.com/users/5d6ede6a0ba62570afcedd3b?try_list=true&include_permissions=false&lean=true
+      https://example.com/users/5d6ede6a0ba62570afcedd3b?try_list=true&include_permissions=false
     ```
 
 === "Javascript"
@@ -31,8 +30,7 @@ This entrypoint returns a target resource.
     const targetId = '5d6ede6a0ba62570afcedd3b';
     const params = {
       try_list: true,
-      include_permissions: false,
-      lean: true,
+      include_permissions: false
     };
 
     const url = 'https://example.com/users/' + targetId + new URLSearchParams(params);
@@ -74,15 +72,14 @@ This entrypoint returns a target resource that includes selective data fields.
 
 ### Parameters
 
-| Name                         | Type                             | In    | Description                                                          | Default |
-| ---------------------------- | -------------------------------- | ----- | -------------------------------------------------------------------- | ------- |
-| `id`                         | string                           | param | Resource identifier; `required`                                      |         |
-| `select`                     | object \| array<string\>         | body  | Document fields to include or exclude                                |         |
-| `populate`                   | array<string\> \| array<object\> | body  | Document fields to populate                                          |         |
-| `options.includePermissions` | boolean                          | body  | Whether to include document permissions                              | true    |
-| `options.tryList`            | boolean                          | body  | Whether to attempt to retrieve the resource if not allowed           | true    |
-| `options.populateAccess`     | 'list' \| 'read'                 | body  | The access level to use in `populate` method                         | read    |
-| `options.lean`               | boolean                          | body  | Whether to pass plain objects, not Mongoose Documents, in middleware | false   |
+| Name                         | Type                             | In    | Description                                                | Default |
+| ---------------------------- | -------------------------------- | ----- | ---------------------------------------------------------- | ------- |
+| `id`                         | string                           | param | Resource identifier; `required`                            |         |
+| `select`                     | object \| array<string\>         | body  | Document fields to include or exclude                      |         |
+| `populate`                   | array<string\> \| array<object\> | body  | Document fields to populate                                |         |
+| `options.includePermissions` | boolean                          | body  | Whether to include document permissions                    | true    |
+| `options.tryList`            | boolean                          | body  | Whether to attempt to retrieve the resource if not allowed | true    |
+| `options.populateAccess`     | 'list' \| 'read'                 | body  | The access level to use in `populate` method               | read    |
 
 ### Example
 
@@ -101,8 +98,7 @@ This entrypoint returns a target resource that includes selective data fields.
         "options": {
           "includePermissions": true,
           "tryList": true,
-          "populateAccess": "list",
-          "lean": true
+          "populateAccess": "list"
         }
       }'
     ```
@@ -117,8 +113,7 @@ This entrypoint returns a target resource that includes selective data fields.
       options: {
         includePermissions: true,
         tryList: true,
-        populateAccess: 'list',
-        lean: true,
+        populateAccess: 'list'
       },
     };
 

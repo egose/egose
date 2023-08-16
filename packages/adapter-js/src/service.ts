@@ -46,12 +46,11 @@ export class ModelService<T extends Document> {
     options?: {
       includePermissions?: boolean;
       includeCount?: boolean;
-      lean?: boolean;
     },
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
     const { skip, limit, page, pageSize } = args ?? {};
-    const { includePermissions, includeCount, lean } = options ?? {};
+    const { includePermissions, includeCount } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
@@ -71,7 +70,6 @@ export class ModelService<T extends Document> {
                 include_permissions: includePermissions,
                 include_count: includeCount,
                 include_extra_headers: 'true',
-                lean,
               },
             }),
           )
@@ -95,7 +93,6 @@ export class ModelService<T extends Document> {
             includePermissions,
             includeCount,
             includeExtraHeaders: false,
-            lean,
           },
         },
         __requestConfig: reqConfig,
@@ -121,12 +118,11 @@ export class ModelService<T extends Document> {
       includePermissions?: boolean;
       includeCount?: boolean;
       populateAccess?: PopulateAccess;
-      lean?: boolean;
     },
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
     const { select, populate, sort, skip, limit, page, pageSize } = args ?? {};
-    const { includePermissions, includeCount, populateAccess, lean } = options ?? {};
+    const { includePermissions, includeCount, populateAccess } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
@@ -151,7 +147,6 @@ export class ModelService<T extends Document> {
                 includeCount,
                 includeExtraHeaders: true,
                 populateAccess,
-                lean,
               },
             },
             reqConfig,
@@ -177,7 +172,6 @@ export class ModelService<T extends Document> {
             includeCount,
             includeExtraHeaders: false,
             populateAccess,
-            lean,
           },
         },
         __requestConfig: reqConfig,
@@ -193,11 +187,10 @@ export class ModelService<T extends Document> {
     options?: {
       includePermissions?: boolean;
       tryList?: boolean;
-      lean?: boolean;
     },
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
-    const { includePermissions, tryList, lean } = options ?? {};
+    const { includePermissions, tryList } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
@@ -209,7 +202,6 @@ export class ModelService<T extends Document> {
               params: {
                 include_permissions: includePermissions,
                 try_list: tryList,
-                lean,
               },
             }),
           )
@@ -229,7 +221,6 @@ export class ModelService<T extends Document> {
           options: {
             includePermissions,
             tryList,
-            lean,
           },
         },
         __requestConfig: reqConfig,
@@ -250,12 +241,11 @@ export class ModelService<T extends Document> {
       includePermissions?: boolean;
       tryList?: boolean;
       populateAccess?: PopulateAccess;
-      lean?: boolean;
     },
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
     const { select, populate } = args ?? {};
-    const { includePermissions, tryList, populateAccess, lean } = options ?? {};
+    const { includePermissions, tryList, populateAccess } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
@@ -270,7 +260,6 @@ export class ModelService<T extends Document> {
                 includePermissions,
                 tryList,
                 populateAccess,
-                lean,
               },
             },
             reqConfig,
@@ -292,7 +281,6 @@ export class ModelService<T extends Document> {
             includePermissions,
             tryList,
             populateAccess,
-            lean,
           },
         },
         __requestConfig: reqConfig,
