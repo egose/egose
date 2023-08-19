@@ -16,6 +16,7 @@ export interface FindArgs {
 }
 
 export interface FindOptions {
+  skim?: boolean;
   includePermissions?: boolean;
   includeCount?: boolean;
   populateAccess?: PopulateAccess;
@@ -35,6 +36,7 @@ export interface FindOneArgs {
 export interface FindOneOptions {
   access?: FindAccess;
   populateAccess?: PopulateAccess;
+  skim?: boolean;
   lean?: boolean;
   includePermissions?: boolean;
 }

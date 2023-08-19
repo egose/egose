@@ -9,6 +9,7 @@ export interface PublicCreateArgs {
 export interface CreateArgs extends Omit<PublicCreateArgs, 'select' | 'process'> {}
 
 export interface PublicCreateOptions {
+  skim?: boolean;
   includePermissions?: boolean;
   populateAccess?: PopulateAccess;
 }

@@ -72,6 +72,7 @@ export class PublicController extends Controller {
       process = this.defaults.publicListArgs?.process ?? [],
     }: PublicListArgs = {},
     {
+      skim = this.defaults.publicListOptions?.skim ?? false,
       includePermissions = this.defaults.publicListOptions?.includePermissions ?? true,
       includeCount = this.defaults.publicListOptions?.includeCount ?? false,
       populateAccess = this.defaults.publicListOptions?.populateAccess ?? 'read',
@@ -81,7 +82,7 @@ export class PublicController extends Controller {
     const result = await this.find(
       filter,
       { select, populate, sort, skip, limit, page, pageSize },
-      { includePermissions, includeCount, populateAccess, lean },
+      { skim, includePermissions, includeCount, populateAccess, lean },
       async (doc) => {
         doc = toObject(doc);
         return this.decorate(doc, 'list');
@@ -108,6 +109,7 @@ export class PublicController extends Controller {
       process = this.defaults.publicCreateArgs?.process ?? [],
     }: PublicCreateArgs = {},
     {
+      skim = this.defaults.publicCreateOptions?.skim ?? false,
       includePermissions = this.defaults.publicCreateOptions?.includePermissions ?? true,
       populateAccess = this.defaults.publicCreateOptions?.populateAccess ?? 'read',
     }: PublicCreateOptions = {},
@@ -115,13 +117,13 @@ export class PublicController extends Controller {
     const result = await this.create(
       data,
       { populate },
-      { includePermissions, populateAccess },
+      { skim, includePermissions, populateAccess },
       async (doc, context: MiddlewareContext) => {
         doc = toObject(doc);
         doc = await this.decorate(doc, 'create', context);
         doc = this.process(doc, process);
 
-        if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFields]);
+        if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFieldsExt]);
         return doc;
       },
     );
@@ -141,6 +143,7 @@ export class PublicController extends Controller {
       process = this.defaults.publicReadArgs?.process ?? [],
     }: PublicReadArgs = {},
     {
+      skim = this.defaults.publicReadOptions?.skim ?? false,
       includePermissions = this.defaults.publicReadOptions?.includePermissions ?? true,
       tryList = this.defaults.publicReadOptions?.tryList ?? true,
       populateAccess = this.defaults.publicReadOptions?.populateAccess,
@@ -157,7 +160,7 @@ export class PublicController extends Controller {
         populate,
         overrides: { idFilter },
       },
-      { includePermissions, access, populateAccess, lean },
+      { skim, includePermissions, access, populateAccess, lean },
     );
 
     // if not found, try to get the doc with 'list' access
@@ -196,6 +199,7 @@ export class PublicController extends Controller {
       process = this.defaults.publicUpdateArgs?.process ?? [],
     }: PublicUpdateArgs = {},
     {
+      skim = this.defaults.publicUpdateOptions?.skim ?? false,
       returningAll = this.defaults.publicUpdateOptions?.returningAll ?? true,
       includePermissions = this.defaults.publicUpdateOptions?.includePermissions ?? true,
       populateAccess = this.defaults.publicUpdateOptions?.populateAccess ?? 'read',
@@ -205,13 +209,13 @@ export class PublicController extends Controller {
       id,
       data,
       { populate },
-      { includePermissions, populateAccess },
+      { skim, includePermissions, populateAccess },
       async (doc, context: MiddlewareContext) => {
         doc = toObject(doc);
         doc = await this.decorate(doc, 'update', context);
         doc = this.process(doc, process);
 
-        if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFields]);
+        if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFieldsExt]);
         else if (!returningAll) doc = pick(doc, [...Object.keys(data), '_id']);
 
         return doc;

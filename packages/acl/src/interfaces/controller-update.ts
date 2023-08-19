@@ -21,6 +21,7 @@ export interface UpdateByIdArgs extends Omit<UpdateOneArgs, 'overrides'> {
 }
 
 export interface PublicUpdateOptions {
+  skim?: boolean;
   returningAll?: boolean;
   includePermissions?: boolean;
   populateAccess?: PopulateAccess;

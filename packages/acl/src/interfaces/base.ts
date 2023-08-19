@@ -57,6 +57,7 @@ export interface Request extends express.Request {
     | 'page'
     | 'page_size'
     | 'try_list'
+    | 'skim'
     | 'include_permissions'
     | 'include_count'
     | 'include_extra_headers'

@@ -267,12 +267,12 @@ export async function genDocPermissions(
   access: DocPermissionsAccess,
   context: MiddlewareContext = {},
 ) {
-  const permit = getModelOption(modelName, `docPermissions.${access}`, null);
+  const docPermissionsFn = getModelOption(modelName, `docPermissions.${access}`, null);
   let docPermissions = {};
 
-  if (isFunction(permit)) {
+  if (isFunction(docPermissionsFn)) {
     const permissions = this[PERMISSIONS];
-    docPermissions = await permit.call(this, doc, permissions, context);
+    docPermissions = await docPermissionsFn.call(this, doc, permissions, context);
   }
 
   return docPermissions;

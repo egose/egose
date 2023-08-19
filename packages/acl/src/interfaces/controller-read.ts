@@ -7,6 +7,7 @@ export interface PublicReadArgs {
 }
 
 export interface PublicReadOptions {
+  skim?: boolean;
   populateAccess?: PopulateAccess;
   lean?: boolean;
   includePermissions?: boolean;

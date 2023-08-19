@@ -73,7 +73,8 @@ export class ModelRouter {
       const allowed = await req[CORE]._isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      const { skip, limit, page, page_size, include_permissions, include_count, include_extra_headers } = req.query;
+      const { skip, limit, page, page_size, skim, include_permissions, include_count, include_extra_headers } =
+        req.query;
 
       const ctl = req[CORE]._public(this.modelName);
 
@@ -84,6 +85,7 @@ export class ModelRouter {
         {},
         { skip, limit, page, pageSize: page_size },
         {
+          skim: parseBooleanString(skim),
           includePermissions: parseBooleanString(include_permissions),
           includeCount,
         },

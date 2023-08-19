@@ -40,13 +40,15 @@ export class Controller extends Base {
   options: ModelRouterOptions;
   defaults: Defaults;
   baseFields: string[];
+  baseFieldsExt: string[];
 
   constructor(req: Request, modelName: string) {
     super(req, modelName);
     this.model = new Model(modelName);
     this.options = getModelOptions(modelName);
     this.defaults = this.options.defaults || {};
-    this.baseFields = ['_id', this.options.permissionField];
+    this.baseFields = ['_id'];
+    this.baseFieldsExt = this.baseFields.concat(this.options.permissionField);
   }
 
   public async findOne(
@@ -57,6 +59,7 @@ export class Controller extends Base {
       overrides = {},
     }: FindOneArgs = {},
     {
+      skim = this.defaults.findOneOptions?.skim ?? false,
       includePermissions = this.defaults.findOneOptions?.includePermissions ?? true,
       access = this.defaults.findOneOptions?.access ?? 'read',
       populateAccess = this.defaults.findOneOptions?.populateAccess,
@@ -82,8 +85,9 @@ export class Controller extends Base {
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
-    if (includePermissions) doc = await this.permit(doc, access);
-    doc = await this.pickAllowedFields(doc, access, this.baseFields);
+    if (includePermissions || !skim) doc = await this.permit(doc, access);
+    doc = await this.pickAllowedFields(doc, access, includePermissions ? this.baseFieldsExt : this.baseFields);
+
     return { success: true, code: Codes.Success, data: doc, query };
   }
 
@@ -131,6 +135,7 @@ export class Controller extends Base {
       overrides = {},
     }: FindArgs = {},
     {
+      skim = this.defaults.findOptions?.skim ?? false,
       includePermissions = this.defaults.findOptions?.includePermissions ?? true,
       includeCount = this.defaults.findOptions?.includeCount ?? false,
       populateAccess = this.defaults.findOptions?.populateAccess ?? 'read',
@@ -166,8 +171,8 @@ export class Controller extends Base {
 
     docs = await Promise.all(
       docs.map(async (doc) => {
-        if (includePermissions) doc = await this.permit(doc, 'list');
-        doc = await this.pickAllowedFields(doc, 'list', this.baseFields);
+        if (includePermissions || !skim) doc = await this.permit(doc, 'list');
+        doc = await this.pickAllowedFields(doc, 'list', includePermissions ? this.baseFieldsExt : this.baseFields);
         doc = await _decorate(doc);
         return doc;
       }),
@@ -187,6 +192,7 @@ export class Controller extends Base {
     data,
     { populate = this.defaults.createArgs?.populate }: CreateArgs = {},
     {
+      skim = this.defaults.createOptions?.skim ?? false,
       includePermissions = this.defaults.createOptions?.includePermissions ?? true,
       populateAccess = this.defaults.createOptions?.populateAccess ?? 'read',
     }: CreateOptions = {},
@@ -233,9 +239,9 @@ export class Controller extends Base {
     let docs = await this.model.create(items);
     docs = await Promise.all(
       docs.map(async (doc, index) => {
-        if (includePermissions) doc = await this.permit(doc, 'create', contexts[index]);
+        if (includePermissions || !skim) doc = await this.permit(doc, 'create', contexts[index]);
         if (populate) await populateDoc(doc, await this.genPopulate(populateAccess, populate));
-        doc = await this.pickAllowedFields(doc, 'read', this.baseFields);
+        doc = await this.pickAllowedFields(doc, 'read', includePermissions ? this.baseFieldsExt : this.baseFields);
         doc = await _decorate(doc, contexts[index]);
         return doc;
       }),
@@ -264,6 +270,7 @@ export class Controller extends Base {
     data,
     { populate = this.defaults.updateOneArgs?.populate, overrides = {} }: UpdateOneArgs = {},
     {
+      skim = this.defaults.updateOneOptions?.skim ?? false,
       includePermissions = this.defaults.updateOneOptions?.includePermissions ?? true,
       populateAccess = this.defaults.updateOneOptions?.populateAccess ?? 'read',
     }: UpdateOneOptions = {},
@@ -314,9 +321,9 @@ export class Controller extends Base {
     doc = await doc.save();
     context.finalDocObject = doc.toObject({ virtuals: false });
 
-    if (includePermissions) doc = await this.permit(doc, 'update', context);
+    if (includePermissions || !skim) doc = await this.permit(doc, 'update', context);
     if (_populate) await populateDoc(doc, _populate);
-    doc = await this.pickAllowedFields(doc, 'read', this.baseFields);
+    doc = await this.pickAllowedFields(doc, 'read', includePermissions ? this.baseFieldsExt : this.baseFields);
 
     if (isFunction(decorate)) doc = await decorate(doc, context);
     return { success: true, code: Codes.Success, data: doc, input: prepared };
@@ -327,6 +334,7 @@ export class Controller extends Base {
     data,
     { populate = this.defaults.updateByIdArgs?.populate, overrides = {} }: UpdateByIdArgs = {},
     {
+      skim = this.defaults.updateByIdOptions?.skim ?? false,
       includePermissions = this.defaults.updateByIdOptions?.includePermissions ?? true,
       populateAccess = this.defaults.updateByIdOptions?.populateAccess ?? 'read',
     }: UpdateByIdOptions = {},
@@ -344,7 +352,7 @@ export class Controller extends Base {
           populate: overridePopulate,
         },
       },
-      { includePermissions, populateAccess },
+      { skim, includePermissions, populateAccess },
       decorate,
     );
   }

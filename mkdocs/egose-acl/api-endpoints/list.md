@@ -6,12 +6,13 @@ This entrypoint returns a set of resources.
 
 ### Parameters
 
-| Name                  | Type    | In    | Description                                 | Default    |
-| --------------------- | ------- | ----- | ------------------------------------------- | ---------- |
-| `limit`               | number  | query | The maximum number of documents             | 1000 (max) |
-| `page`                | number  | query | The page number of documents; starts from 1 | 1          |
-| `include_permissions` | boolean | query | Whether to include document permissions     | true       |
-| `include_count`       | boolean | query | Whether to include total results count      | false      |
+| Name                  | Type    | In    | Description                                         | Default    |
+| --------------------- | ------- | ----- | --------------------------------------------------- | ---------- |
+| `limit`               | number  | query | The maximum number of documents                     | 1000 (max) |
+| `page`                | number  | query | The page number of documents; starts from 1         | 1          |
+| `include_permissions` | boolean | query | Whether to include document permissions             | true       |
+| `include_count`       | boolean | query | Whether to include total results count              | false      |
+| `skim`                | boolean | query | Whether to bypass Document-level permissions checks | false      |
 
 ### Example
 

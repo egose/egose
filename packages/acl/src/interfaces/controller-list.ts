@@ -12,6 +12,7 @@ export interface PublicListArgs {
 }
 
 export interface PublicListOptions {
+  skim?: boolean;
   includePermissions?: boolean;
   includeCount?: boolean;
   populateAccess?: PopulateAccess;

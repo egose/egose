@@ -80,6 +80,7 @@ This entrypoint returns a target resource that includes selective data fields.
 | `options.includePermissions` | boolean                          | body  | Whether to include document permissions                    | true    |
 | `options.tryList`            | boolean                          | body  | Whether to attempt to retrieve the resource if not allowed | true    |
 | `options.populateAccess`     | 'list' \| 'read'                 | body  | The access level to use in `populate` method               | read    |
+| `skim`                       | boolean                          | query | Whether to bypass Document-level permissions checks        | false   |
 
 ### Example
 
