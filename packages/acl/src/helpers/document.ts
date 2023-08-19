@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
 import isPlainObject from 'lodash/isPlainObject';
 import set from 'lodash/set';
+import pick from 'lodash/pick';
 import { isDocument, isPromise } from '../lib';
 import { getModelOption } from '../options';
 
@@ -30,6 +31,15 @@ export function getModelKeys(doc) {
 
 export function toObject(doc) {
   return isDocument(doc) ? doc.toObject() : doc;
+}
+
+export function pickDocFields(doc, fields = []) {
+  if (isDocument(doc)) {
+    doc._doc = pick(doc._doc, fields);
+    return doc;
+  } else {
+    return pick(doc, fields);
+  }
 }
 
 export async function populateDoc(doc: Document, target) {

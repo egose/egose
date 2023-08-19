@@ -9,7 +9,7 @@ import isNil from 'lodash/isNil';
 import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import pick from 'lodash/pick';
-import { normalizeSelect, iterateQuery, CustomError } from '../helpers';
+import { normalizeSelect, toObject } from '../helpers';
 import { Controller } from './controller';
 import {
   MiddlewareContext,
@@ -55,12 +55,9 @@ const genSubPopulate = (sub: string, popul: any) => {
 };
 
 export class PublicController extends Controller {
-  baseFields: string[];
-
-  constructor(req: Request, modelName: string) {
-    super(req, modelName);
-    this.baseFields = ['_id', this.options.permissionField];
-  }
+  // constructor(req: Request, modelName: string) {
+  //   super(req, modelName);
+  // }
 
   async _list(
     filter: any,
@@ -86,7 +83,7 @@ export class PublicController extends Controller {
       { select, populate, sort, skip, limit, page, pageSize },
       { includePermissions, includeCount, populateAccess, lean },
       async (doc) => {
-        doc = await this.pickAllowedFields(doc, 'list', ['_id', this.options.permissionField]);
+        doc = toObject(doc);
         return this.decorate(doc, 'list');
       },
     );
@@ -120,7 +117,7 @@ export class PublicController extends Controller {
       { populate },
       { includePermissions, populateAccess },
       async (doc, context: MiddlewareContext) => {
-        doc = await this.pickAllowedFields(doc, 'read', this.baseFields);
+        doc = toObject(doc);
         doc = await this.decorate(doc, 'create', context);
         doc = this.process(doc, process);
 
@@ -182,7 +179,7 @@ export class PublicController extends Controller {
       return result;
     }
 
-    let doc = await this.pickAllowedFields(result.data, access, this.baseFields);
+    let doc = toObject(result.data);
     doc = await this.decorate(doc, access);
     doc = this.process(doc, process);
 
@@ -210,7 +207,7 @@ export class PublicController extends Controller {
       { populate },
       { includePermissions, populateAccess },
       async (doc, context: MiddlewareContext) => {
-        doc = await this.pickAllowedFields(doc, 'read', this.baseFields);
+        doc = toObject(doc);
         doc = await this.decorate(doc, 'update', context);
         doc = this.process(doc, process);
 

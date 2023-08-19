@@ -114,6 +114,11 @@ export interface ModelRouterOptions extends DefaultModelRouterOptions {
 }
 
 export interface ExtendedModelRouterOptions extends ModelRouterOptions, ExtendedDefaultModelRouterOptions {
+  'mandatoryFields.default'?: string[];
+  'mandatoryFields.list'?: string[];
+  'mandatoryFields.create'?: string[];
+  'mandatoryFields.read'?: string[];
+  'mandatoryFields.update'?: string[];
   'docPermissions.default'?: Function;
   'docPermissions.list'?: Function;
   'docPermissions.create'?: Function;

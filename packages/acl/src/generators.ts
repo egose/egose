@@ -42,10 +42,11 @@ import {
   getDocPermissions,
   setDocPermissions,
   toObject,
+  pickDocFields,
   genPagination,
 } from './helpers';
 import { copyAndDepopulate } from './processors';
-import { arrToObj } from './lib';
+import { isDocument, arrToObj } from './lib';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
 const callMiddleware = async (
@@ -131,7 +132,7 @@ export async function genAllowedFields(modelName: string, doc: any, access: Sele
 
 export async function pickAllowedFields(modelName: string, doc: any, access: SelectAccess, baseFields = []) {
   const allowed = await this[CORE]._genAllowedFields(modelName, doc, access, baseFields);
-  return pick(toObject(doc), allowed);
+  return pickDocFields(doc, allowed);
 }
 
 export async function genSelect(
@@ -190,7 +191,7 @@ export async function genSelect(
     }
   }
 
-  const mandatoryFields = subPaths.length > 0 ? [] : getModelOption(modelName, 'mandatoryFields', []);
+  const mandatoryFields = subPaths.length > 0 ? [] : getModelOption(modelName, `mandatoryFields.${access}`, []);
   return fields.concat(mandatoryFields);
 }
 
