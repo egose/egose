@@ -120,6 +120,7 @@ markdown_extensions:
 - pymdownx.tilde
 - pymdownx.snippets:
     base_path:
+    - ./
     - mkdocs/.snippets
     - mkdocs/.samples
 - toc:
