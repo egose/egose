@@ -11,7 +11,7 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@egose/acl": ["./packages/acl/src/index"],
       "@egose/acl/*": ["./packages/acl/src/*"],

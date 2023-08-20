@@ -4,7 +4,7 @@ module.exports = {
   plugins: ['jest', 'import'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: 'tsconfig.json',
+    project: './tsconfig.json',
     createDefaultProgram: true,
   },
   root: true,
