@@ -1,5 +1,6 @@
 import egose from '@egose/acl';
-import { Permissions } from '@egose/acl';
+import { Permissions, guard } from '@egose/acl';
+import JsonRouter from 'express-json-router';
 
 export const userRouter = egose.createRouter('User', {
   basePath: null,
@@ -107,5 +108,21 @@ userRouter
   .identifier(function (id) {
     return { name: id };
   });
+
+userRouter.router.get(
+  '/users/custom/query',
+  guard({ modelName: 'User', id: { type: 'query', key: 'userid' }, condition: 'edit.role' }),
+  () => {
+    return true;
+  },
+);
+
+userRouter.router.get(
+  '/users/custom/:userid',
+  guard({ modelName: 'User', id: { type: 'param', key: 'userid' }, condition: 'edit.role' }),
+  () => {
+    return true;
+  },
+);
 
 export default userRouter;

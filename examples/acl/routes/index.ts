@@ -25,7 +25,7 @@ const setRoutes = async () => {
   router.use('/api-docs', swagger.serve);
   router.get('/api-docs', swagger.setup);
 
-  router.get('/user-custom', [
+  router.get('/guard1', [
     guard('isAdmin'),
     async (req, res, next) => {
       const model = req.macl('User');
@@ -34,15 +34,22 @@ const setRoutes = async () => {
     },
   ]);
 
-  router.get('/admin-route', [
+  router.get('/guard2', [
     guard('isAdmin'),
     (req, res, next) => {
       res.json(true);
     },
   ]);
 
-  router.get('/admin-route2', [
+  router.get('/guard3', [
     guard(['isAdmin']),
+    (req, res, next) => {
+      res.json(true);
+    },
+  ]);
+
+  router.get('/guard4', [
+    guard({ modelName: 'User', id: 'user1', condition: 'edit.role' }),
     (req, res, next) => {
       res.json(true);
     },

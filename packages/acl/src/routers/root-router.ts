@@ -68,7 +68,7 @@ export class RootRouter {
           } else if (item.op === 'read') {
             return this.processResult(item.op, await ctl._read(item.id, item.args, item.options));
           } else if (item.op === 'update') {
-            return this.processResult(item.op, await ctl._read(item.id, item.args, item.options));
+            return this.processResult(item.op, await ctl._update(item.id, item.args, item.options));
           } else if (item.op === 'delete') {
             return this.processResult(item.op, await ctl._delete(item.id));
           } else if (item.op === 'distinct') {

@@ -108,7 +108,7 @@ describe('Model Option - validate', () => {
 
   it('should pass the route validation', async () => {
     const response = await request(app)
-      .get('/api/admin-route')
+      .get('/api/guard2')
       .set('user', 'admin')
       .expect('Content-Type', /json/)
       .expect(200);
@@ -118,7 +118,7 @@ describe('Model Option - validate', () => {
 
   it('should pass the route validation2', async () => {
     const response = await request(app)
-      .get('/api/admin-route2')
+      .get('/api/guard3')
       .set('user', 'admin')
       .expect('Content-Type', /json/)
       .expect(200);
@@ -127,12 +127,12 @@ describe('Model Option - validate', () => {
   });
 
   it('should pass the route validation3', async () => {
-    const response = await request(app).get('/api/admin-route').set('user', 'nobody').expect(500);
+    const response = await request(app).get('/api/guard2').set('user', 'nobody').expect(500);
   });
 
   it('should return permissions for the user document', async () => {
     const response = await request(app)
-      .get('/api/user-custom')
+      .get('/api/guard1')
       .set('user', 'admin')
       .expect('Content-Type', /json/)
       .expect(200);
@@ -140,5 +140,55 @@ describe('Model Option - validate', () => {
     expect(response.body['edit.name']).to.equal(true);
     expect(response.body['edit.role']).to.equal(true);
     expect(response.body['edit.public']).to.equal(true);
+  });
+
+  it('should pass the route validation4', async () => {
+    const response = await request(app)
+      .get('/api/guard4')
+      .set('user', 'admin')
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body).to.equal(true);
+  });
+
+  it('should pass the route validation - model condition - param 1', async () => {
+    const response = await request(app)
+      .get('/api/users/custom/user1')
+      .set('user', 'admin')
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body).to.equal(true);
+  });
+
+  it('should pass the route validation - model condition - param 2', async () => {
+    const response = await request(app)
+      .get('/api/users/custom/user1000')
+      .set('user', 'admin')
+      .expect('Content-Type', /json/)
+      .expect(401);
+
+    expect(response.body.message).to.equal('The user is not authorized');
+  });
+
+  it('should pass the route validation - model condition - query 1', async () => {
+    const response = await request(app)
+      .get('/api/users/custom/query?userid=user1')
+      .set('user', 'admin')
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body).to.equal(true);
+  });
+
+  it('should pass the route validation - model condition - query 2', async () => {
+    const response = await request(app)
+      .get('/api/users/custom/query?userid=user1000')
+      .set('user', 'admin')
+      .expect('Content-Type', /json/)
+      .expect(401);
+
+    expect(response.body.message).to.equal('The user is not authorized');
   });
 });
