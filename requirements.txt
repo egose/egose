@@ -1,4 +1,4 @@
 pre-commit==3.3.3
-mkdocs-material==9.1.21
+mkdocs-material==9.2.1
 pymdown-extensions==10.1
 pygments==2.16.1
