@@ -72,11 +72,11 @@ export class PublicController extends Controller {
       process = this.defaults.publicListArgs?.process ?? [],
     }: PublicListArgs = {},
     {
-      skim = this.defaults.publicListOptions?.skim ?? false,
-      includePermissions = this.defaults.publicListOptions?.includePermissions ?? true,
+      skim = this.defaults.publicListOptions?.skim ?? true,
+      includePermissions = this.defaults.publicListOptions?.includePermissions ?? false,
       includeCount = this.defaults.publicListOptions?.includeCount ?? false,
       populateAccess = this.defaults.publicListOptions?.populateAccess ?? 'read',
-      lean = this.defaults.publicListOptions?.lean ?? false,
+      lean = this.defaults.publicListOptions?.lean ?? true,
     }: PublicListOptions = {},
   ): Promise<ControllerResult> {
     const result = await this.find(
@@ -174,7 +174,7 @@ export class PublicController extends Controller {
           populate,
           overrides: { idFilter },
         },
-        { includePermissions, access, populateAccess, lean },
+        { skim, includePermissions, access, populateAccess, lean },
       );
     }
 

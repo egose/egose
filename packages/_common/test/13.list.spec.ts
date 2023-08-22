@@ -18,7 +18,7 @@ describe('List Users', () => {
     expect(response.body.length).to.equal(userCount);
     expect(response.body[0].name).exist;
     expect(response.body[0].role).exist;
-    expect(response.body[0]._permissions).exist;
+    expect(response.body[0]._permissions).not.exist;
   });
 
   it('should list all public users and `john`', async () => {
@@ -33,7 +33,7 @@ describe('List Users', () => {
     expect(response.body.length).to.equal(userCount);
     expect(response.body[0].name).exist;
     expect(response.body[0].role).not.exist;
-    expect(response.body[0]._permissions).exist;
+    expect(response.body[0]._permissions).not.exist;
   });
 
   it('should list all public users and `lucy2`', async () => {
@@ -48,7 +48,7 @@ describe('List Users', () => {
     expect(response.body.length).to.equal(userCount);
     expect(response.body[0].name).exist;
     expect(response.body[0].role).not.exist;
-    expect(response.body[0]._permissions).exist;
+    expect(response.body[0]._permissions).not.exist;
   });
 
   it('should include document count with documents', async () => {
@@ -64,7 +64,7 @@ describe('List Users', () => {
     expect(response.body.rows.length).to.equal(userCount);
     expect(response.body.rows[0].name).exist;
     expect(response.body.rows[0].role).exist;
-    expect(response.body.rows[0]._permissions).exist;
+    expect(response.body.rows[0]._permissions).not.exist;
   });
 
   it('should not include permissions in documents', async () => {
