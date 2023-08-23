@@ -44,13 +44,14 @@ export class ModelService<T extends Document> {
       pageSize?: number;
     },
     options?: {
+      skim?: boolean;
       includePermissions?: boolean;
       includeCount?: boolean;
     },
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
     const { skip, limit, page, pageSize } = args ?? {};
-    const { includePermissions, includeCount } = options ?? {};
+    const { skim, includePermissions, includeCount } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
@@ -67,6 +68,7 @@ export class ModelService<T extends Document> {
                 limit,
                 page,
                 page_size: pageSize,
+                skim,
                 include_permissions: includePermissions,
                 include_count: includeCount,
                 include_extra_headers: 'true',
