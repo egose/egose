@@ -3,6 +3,7 @@ import isEmpty from 'lodash/isEmpty';
 import { ModelService } from './service';
 import { Model } from './model';
 import { ModelPromiseMeta } from './types';
+import { Defaults } from './interface';
 import castArray from 'lodash/castArray';
 
 const defaultAxiosConfig = Object.freeze({
@@ -23,18 +24,21 @@ export function createAdapter(axiosConfig?: CreateAxiosDefaults, egoseOptions?: 
 
   return Object.freeze({
     axios: instance,
-    createModelService: <T>({
-      modelName,
-      basePath,
-      queryPath = '__query',
-      mutationPath = '__mutation',
-    }: {
-      modelName: string;
-      basePath: string;
-      queryPath?: string;
-      mutationPath?: string;
-    }) => {
-      return new ModelService<T>({ axios: instance, modelName, basePath, queryPath, mutationPath });
+    createModelService: <T>(
+      {
+        modelName,
+        basePath,
+        queryPath = '__query',
+        mutationPath = '__mutation',
+      }: {
+        modelName: string;
+        basePath: string;
+        queryPath?: string;
+        mutationPath?: string;
+      },
+      defaults?: Defaults,
+    ) => {
+      return new ModelService<T>({ axios: instance, modelName, basePath, queryPath, mutationPath }, defaults);
     },
     group: async <T extends (ModelPromiseMeta & Promise<unknown>)[]>(
       ...proms: T

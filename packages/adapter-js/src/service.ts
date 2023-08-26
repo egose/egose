@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import set from 'lodash/set';
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
 import {
   Projection,
@@ -11,7 +12,29 @@ import {
   wrapLazyPromise,
   ModelPromiseMeta,
 } from './types';
+
+import {
+  ListArgs,
+  ListOptions,
+  ListAdvancedArgs,
+  ListAdvancedOptions,
+  ReadOptions,
+  ReadAdvancedArgs,
+  ReadAdvancedOptions,
+  CreateOptions,
+  CreateAdvancedArgs,
+  CreateAdvancedOptions,
+  UpdateOptions,
+  UpdateAdvancedArgs,
+  UpdateAdvancedOptions,
+  Defaults,
+} from './interface';
+
 import { Model } from './model';
+
+const setIfNotFound = (obj: object, key: string, value: any) => {
+  if (!get(obj, key)) set(obj, key, value);
+};
 
 interface Props {
   axios: AxiosInstance;
@@ -27,31 +50,47 @@ export class ModelService<T extends Document> {
   private _basePath!: string;
   private _queryPath!: string;
   private _mutationPath!: string;
+  private _defaults!: Defaults;
 
-  constructor({ axios, modelName, basePath, queryPath, mutationPath }: Props) {
+  constructor({ axios, modelName, basePath, queryPath, mutationPath }: Props, defaults?: Defaults) {
     this._axios = axios;
     this._modelName = modelName;
     this._basePath = basePath;
     this._queryPath = queryPath;
     this._mutationPath = mutationPath;
+    this._defaults = defaults ?? {};
+
+    [
+      'listArgs',
+      'listOptions',
+      'listAdvancedArgs',
+      'listAdvancedOptions',
+      'readOptions',
+      'readAdvancedArgs',
+      'readAdvancedOptions',
+      'createOptions',
+      'createAdvancedArgs',
+      'createAdvancedOptions',
+      'updateOptions',
+      'updateAdvancedArgs',
+      'updateAdvancedOptions',
+    ].forEach((key) => setIfNotFound(this._defaults, key, {}));
   }
 
-  list(
-    args?: {
-      skip?: number;
-      limit?: number;
-      page?: number;
-      pageSize?: number;
-    },
-    options?: {
-      skim?: boolean;
-      includePermissions?: boolean;
-      includeCount?: boolean;
-    },
-    axiosRequestConfig?: AxiosRequestConfig,
-  ) {
-    const { skip, limit, page, pageSize } = args ?? {};
-    const { skim, includePermissions, includeCount } = options ?? {};
+  list(args?: ListArgs, options?: ListOptions, axiosRequestConfig?: AxiosRequestConfig) {
+    const {
+      skip = this._defaults.listArgs.skip,
+      limit = this._defaults.listArgs.limit,
+      page = this._defaults.listArgs.page,
+      pageSize = this._defaults.listArgs.pageSize,
+    } = args ?? {};
+
+    const {
+      skim = this._defaults.listOptions.skim ?? true,
+      includePermissions = this._defaults.listOptions.includePermissions ?? false,
+      includeCount = this._defaults.listOptions.includeCount ?? false,
+    } = options ?? {};
+
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
@@ -92,6 +131,7 @@ export class ModelService<T extends Document> {
           filter: {},
           args: { skip, limit, page, pageSize },
           options: {
+            skim,
             includePermissions,
             includeCount,
             includeExtraHeaders: false,
@@ -107,24 +147,27 @@ export class ModelService<T extends Document> {
 
   listAdvanced(
     filter: any,
-    args?: {
-      select?: Projection;
-      populate?: Populate[] | Populate | string;
-      sort?: string[] | string;
-      skip?: string | number;
-      limit?: string | number;
-      page?: string | number;
-      pageSize?: string | number;
-    },
-    options?: {
-      includePermissions?: boolean;
-      includeCount?: boolean;
-      populateAccess?: PopulateAccess;
-    },
+    args?: ListAdvancedArgs,
+    options?: ListAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
-    const { select, populate, sort, skip, limit, page, pageSize } = args ?? {};
-    const { includePermissions, includeCount, populateAccess } = options ?? {};
+    const {
+      select = this._defaults.listAdvancedArgs.select,
+      populate = this._defaults.listAdvancedArgs.populate,
+      sort = this._defaults.listAdvancedArgs.sort,
+      skip = this._defaults.listAdvancedArgs.skip,
+      limit = this._defaults.listAdvancedArgs.limit,
+      page = this._defaults.listAdvancedArgs.page,
+      pageSize = this._defaults.listAdvancedArgs.pageSize,
+    } = args ?? {};
+
+    const {
+      skim = this._defaults.listAdvancedOptions.skim ?? true,
+      includePermissions = this._defaults.listAdvancedOptions.includePermissions ?? false,
+      includeCount = this._defaults.listAdvancedOptions.includeCount ?? false,
+      populateAccess = this._defaults.listAdvancedOptions.populateAccess,
+    } = options ?? {};
+
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
@@ -145,6 +188,7 @@ export class ModelService<T extends Document> {
               page,
               pageSize,
               options: {
+                skim,
                 includePermissions,
                 includeCount,
                 includeExtraHeaders: true,
@@ -170,6 +214,7 @@ export class ModelService<T extends Document> {
           filter: {},
           args: { select, sort, populate, skip, limit, page, pageSize },
           options: {
+            skim,
             includePermissions,
             includeCount,
             includeExtraHeaders: false,
@@ -184,15 +229,12 @@ export class ModelService<T extends Document> {
     return result;
   }
 
-  read(
-    identifier: string,
-    options?: {
-      includePermissions?: boolean;
-      tryList?: boolean;
-    },
-    axiosRequestConfig?: AxiosRequestConfig,
-  ) {
-    const { includePermissions, tryList } = options ?? {};
+  read(identifier: string, options?: ReadOptions, axiosRequestConfig?: AxiosRequestConfig) {
+    const {
+      includePermissions = this._defaults.readOptions.includePermissions ?? true,
+      tryList = this._defaults.readOptions.tryList ?? true,
+    } = options ?? {};
+
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
@@ -235,19 +277,19 @@ export class ModelService<T extends Document> {
 
   readAdvanced(
     identifier: string,
-    args?: {
-      select?: Projection;
-      populate?: Populate[] | Populate | string;
-    },
-    options?: {
-      includePermissions?: boolean;
-      tryList?: boolean;
-      populateAccess?: PopulateAccess;
-    },
+    args?: ReadAdvancedArgs,
+    options?: ReadAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
-    const { select, populate } = args ?? {};
-    const { includePermissions, tryList, populateAccess } = options ?? {};
+    const { select = this._defaults.readAdvancedArgs.select, populate = this._defaults.readAdvancedArgs.populate } =
+      args ?? {};
+
+    const {
+      includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
+      tryList = this._defaults.readAdvancedOptions.tryList ?? true,
+      populateAccess = this._defaults.readAdvancedOptions.populateAccess,
+    } = options ?? {};
+
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
@@ -322,14 +364,8 @@ export class ModelService<T extends Document> {
     return result;
   }
 
-  create(
-    data: object,
-    options?: {
-      includePermissions?: boolean;
-    },
-    axiosRequestConfig?: AxiosRequestConfig,
-  ) {
-    const { includePermissions } = options ?? {};
+  create(data: object, options?: CreateOptions, axiosRequestConfig?: AxiosRequestConfig) {
+    const { includePermissions = this._defaults.createOptions.includePermissions ?? true } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
@@ -362,18 +398,18 @@ export class ModelService<T extends Document> {
 
   createAdvanced(
     data: object,
-    args?: {
-      select?: Projection;
-      populate?: Populate[] | Populate | string;
-    },
-    options?: {
-      includePermissions?: boolean;
-      populateAccess?: PopulateAccess;
-    },
+    args?: CreateAdvancedArgs,
+    options?: CreateAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
-    const { select, populate } = args ?? {};
-    const { includePermissions, populateAccess } = options ?? {};
+    const { select = this._defaults.createAdvancedArgs.select, populate = this._defaults.createAdvancedArgs.populate } =
+      args ?? {};
+
+    const {
+      includePermissions = this._defaults.createAdvancedOptions.includePermissions ?? true,
+      populateAccess = this._defaults.createAdvancedOptions.populateAccess,
+    } = options ?? {};
+
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
@@ -410,13 +446,8 @@ export class ModelService<T extends Document> {
     return result;
   }
 
-  update(
-    identifier: string,
-    data: object,
-    options?: { returningAll?: boolean },
-    axiosRequestConfig?: AxiosRequestConfig,
-  ) {
-    const { returningAll } = options ?? {};
+  update(identifier: string, data: object, options?: UpdateOptions, axiosRequestConfig?: AxiosRequestConfig) {
+    const { returningAll = this._defaults.updateOptions.returningAll ?? true } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
@@ -455,19 +486,19 @@ export class ModelService<T extends Document> {
   updateAdvanced(
     identifier: string,
     data: object,
-    args?: {
-      select?: Projection;
-      populate?: Populate[] | Populate | string;
-    },
-    options?: {
-      returningAll?: boolean;
-      includePermissions?: boolean;
-      populateAccess?: PopulateAccess;
-    },
+    args?: UpdateAdvancedArgs,
+    options?: UpdateAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
-    const { select, populate } = args ?? {};
-    const { returningAll, includePermissions, populateAccess } = options ?? {};
+    const { select = this._defaults.updateAdvancedArgs.select, populate = this._defaults.updateAdvancedArgs.populate } =
+      args ?? {};
+
+    const {
+      returningAll = this._defaults.updateAdvancedOptions.returningAll ?? true,
+      includePermissions = this._defaults.updateAdvancedOptions.includePermissions ?? true,
+      populateAccess = this._defaults.updateAdvancedOptions.populateAccess,
+    } = options ?? {};
+
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
