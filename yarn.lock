@@ -5228,9 +5228,9 @@ glob@7.2.0:
     path-is-absolute "^1.0.0"
 
 glob@^10.2.2:
-  version "10.3.3"
-  resolved "https://registry.yarnpkg.com/glob/-/glob-10.3.3.tgz#8360a4ffdd6ed90df84aa8d52f21f452e86a123b"
-  integrity sha512-92vPiMb/iqpmEgsOoIDvTjc50wf9CCCvMzsi6W0JLPeUKE8TWP1a73PgqSrqy7iAZxaSD1YdzU7QZR5LF51MJw==
+  version "10.3.4"
+  resolved "https://registry.yarnpkg.com/glob/-/glob-10.3.4.tgz#c85c9c7ab98669102b6defda76d35c5b1ef9766f"
+  integrity sha512-6LFElP3A+i/Q8XQKEvZjkEWEOTgAIALR9AO2rwT8bgPhDd1anmqDJDZ6lLddI4ehxxxR1S5RIqKe1uapMQfYaQ==
   dependencies:
     foreground-child "^3.1.0"
     jackspeak "^2.0.3"
@@ -5962,9 +5962,9 @@ iterare@^1.2.1:
   integrity sha512-RKYVTCjAnRthyJes037NX/IiqeidgN1xc3j1RjFfECFp28A1GVwK9nA+i0rJPaHqSZwygLzRnFlzUuHFoWWy+Q==
 
 jackspeak@^2.0.3:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/jackspeak/-/jackspeak-2.2.1.tgz#655e8cf025d872c9c03d3eb63e8f0c024fef16a6"
-  integrity sha512-MXbxovZ/Pm42f6cDIDkl3xpwv1AGwObKwfmjs2nQePiy85tP3fatofl3FC1aBsOtP/6fq5SbtgHwWcMsLP+bDw==
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/jackspeak/-/jackspeak-2.3.1.tgz#ce2effa4c458e053640e61938865a5b5fae98456"
+  integrity sha512-4iSY3Bh1Htv+kLhiiZunUhQ+OYXIn0ze3ulq8JeWrFKmhPAJSySV2+kdtRh2pGcCeF0s6oR8Oc+pYZynJj4t8A==
   dependencies:
     "@isaacs/cliui" "^8.0.2"
   optionalDependencies:
