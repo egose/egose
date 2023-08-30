@@ -20,7 +20,8 @@ import {
   genIDFilter,
   genPopulate,
   genSelect,
-  permit,
+  addDocPermissions,
+  addFieldPermissions,
   pickAllowedFields,
   prepare,
   process,
@@ -74,8 +75,12 @@ export class Base {
     return genSelect.call(this.req, this.modelName, access, targetFields, skipChecks, subPaths);
   }
 
-  public permit(doc: any, access: DocPermissionsAccess, context?: MiddlewareContext): Promise<any> {
-    return permit.call(this.req, this.modelName, doc, access, context);
+  public addDocPermissions(doc: any, access: DocPermissionsAccess, context?: MiddlewareContext): Promise<any> {
+    return addDocPermissions.call(this.req, this.modelName, doc, access, context);
+  }
+
+  public addFieldPermissions(doc: any, access: DocPermissionsAccess, context?: MiddlewareContext): Promise<any> {
+    return addFieldPermissions.call(this.req, this.modelName, doc, access, context);
   }
 
   public pickAllowedFields(doc: any, access: SelectAccess, baseFields?: string[]): Promise<any> {

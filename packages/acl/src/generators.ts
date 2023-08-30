@@ -1,3 +1,5 @@
+import mongoose, { Model } from 'mongoose';
+import { Request } from 'express';
 import assign from 'lodash/assign';
 import castArray from 'lodash/castArray';
 import compact from 'lodash/compact';
@@ -278,7 +280,7 @@ export async function genDocPermissions(
   return docPermissions;
 }
 
-export async function permit(
+export async function addDocPermissions(
   modelName: string,
   doc: any,
   access: DocPermissionsAccess,
@@ -287,13 +289,44 @@ export async function permit(
   const docPermissionField = getModelOption(modelName, 'permissionField');
   const docPermissions = await this[CORE]._genDocPermissions(modelName, doc, access, context);
   setDocPermissions(doc, docPermissionField, docPermissions);
+  return doc;
+}
+
+const exists = async (req: Request, model: Model<any>, doc: any, access: DocPermissionsAccess) => {
+  const filter = await req[CORE]._genFilter(model.modelName, access, { _id: doc._id });
+  if (filter === false) return false;
+  const result = await model.exists(filter);
+  if (!result) return false;
+
+  return !!result._id;
+};
+
+export async function addFieldPermissions(
+  modelName: string,
+  doc: any,
+  access: DocPermissionsAccess,
+  context: MiddlewareContext = {},
+) {
+  const model = mongoose.model(modelName);
+  const docPermissionField = getModelOption(modelName, 'permissionField');
 
   // TODO: do we need falsy fields as well?
   // const permissionSchemaKeys = getModelOption(modelName, 'permissionSchemaKeys');
 
+  let readExists = true;
+  let updateExists = true;
+
+  if (access !== 'read') {
+    readExists = await exists(this, model, doc, 'read');
+  }
+
+  if (access !== 'update') {
+    updateExists = await exists(this, model, doc, 'update');
+  }
+
   const [views, edits] = await Promise.all([
-    this[CORE]._genAllowedFields(modelName, doc, 'read'),
-    this[CORE]._genAllowedFields(modelName, doc, 'update'),
+    readExists ? this[CORE]._genAllowedFields(modelName, doc, 'read') : [],
+    updateExists ? this[CORE]._genAllowedFields(modelName, doc, 'update') : [],
   ]);
 
   const viewObj = reduce(
@@ -416,7 +449,8 @@ export interface MaclCore {
   _validate: typeof validate;
   _prepare: typeof prepare;
   _transform: typeof transform;
-  _permit: typeof permit;
+  _addDocPermissions: typeof addDocPermissions;
+  _addFieldPermissions: typeof addFieldPermissions;
   _decorate: typeof decorate;
   _decorateAll: typeof decorateAll;
   _process: typeof process;
@@ -443,7 +477,8 @@ export async function setGenerators(req, res, next) {
     _validate: validate.bind(req),
     _prepare: prepare.bind(req),
     _transform: transform.bind(req),
-    _permit: permit.bind(req),
+    _addDocPermissions: addDocPermissions.bind(req),
+    _addFieldPermissions: addFieldPermissions.bind(req),
     _decorate: decorate.bind(req),
     _decorateAll: decorateAll.bind(req),
     _process: process.bind(req),

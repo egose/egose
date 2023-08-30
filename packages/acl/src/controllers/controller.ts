@@ -85,7 +85,8 @@ export class Controller extends Base {
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
-    if (includePermissions || !skim) doc = await this.permit(doc, access);
+    if (includePermissions || !skim) doc = await this.addDocPermissions(doc, access);
+    if (includePermissions) doc = await this.addFieldPermissions(doc, access);
     doc = await this.pickAllowedFields(doc, access, includePermissions ? this.baseFieldsExt : this.baseFields);
 
     return { success: true, code: Codes.Success, data: doc, query };
@@ -171,7 +172,8 @@ export class Controller extends Base {
 
     docs = await Promise.all(
       docs.map(async (doc) => {
-        if (includePermissions || !skim) doc = await this.permit(doc, 'list');
+        if (includePermissions || !skim) doc = await this.addDocPermissions(doc, 'list');
+        if (includePermissions) doc = await this.addFieldPermissions(doc, 'list');
         doc = await this.pickAllowedFields(doc, 'list', includePermissions ? this.baseFieldsExt : this.baseFields);
         doc = await _decorate(doc);
         return doc;
@@ -239,7 +241,8 @@ export class Controller extends Base {
     let docs = await this.model.create(items);
     docs = await Promise.all(
       docs.map(async (doc, index) => {
-        if (includePermissions || !skim) doc = await this.permit(doc, 'create', contexts[index]);
+        if (includePermissions || !skim) doc = await this.addDocPermissions(doc, 'create', contexts[index]);
+        if (includePermissions) doc = await this.addFieldPermissions(doc, 'read', contexts[index]);
         if (populate) await populateDoc(doc, await this.genPopulate(populateAccess, populate));
         doc = await this.pickAllowedFields(doc, 'read', includePermissions ? this.baseFieldsExt : this.baseFields);
         doc = await _decorate(doc, contexts[index]);
@@ -296,7 +299,7 @@ export class Controller extends Base {
     context.originalDocObject = doc.toObject({ virtuals: false });
     context.originalData = data;
 
-    doc = await this.permit(doc, 'update', context);
+    doc = await this.addDocPermissions(doc, 'update', context);
     context.docPermissions = this.getDocPermissions(doc);
 
     context.currentDoc = doc;
@@ -321,7 +324,8 @@ export class Controller extends Base {
     doc = await doc.save();
     context.finalDocObject = doc.toObject({ virtuals: false });
 
-    if (includePermissions || !skim) doc = await this.permit(doc, 'update', context);
+    if (includePermissions || !skim) doc = await this.addDocPermissions(doc, 'update', context);
+    if (includePermissions) doc = await this.addFieldPermissions(doc, 'update', context);
     if (_populate) await populateDoc(doc, _populate);
     doc = await this.pickAllowedFields(doc, 'read', includePermissions ? this.baseFieldsExt : this.baseFields);
 
