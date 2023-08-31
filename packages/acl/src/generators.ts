@@ -296,9 +296,9 @@ const exists = async (req: Request, model: Model<any>, doc: any, access: DocPerm
   const filter = await req[CORE]._genFilter(model.modelName, access, { _id: doc._id });
   if (filter === false) return false;
   const result = await model.exists(filter);
-  if (!result) return false;
-
-  return !!result._id;
+  if (isBoolean(result)) return result;
+  if (isNil(result)) return false;
+  return !!(result as { _id: any })._id;
 };
 
 export async function addFieldPermissions(
