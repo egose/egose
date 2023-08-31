@@ -46,10 +46,29 @@ import {
   toObject,
   pickDocFields,
   genPagination,
+  compareSemVers,
 } from './helpers';
 import { copyAndDepopulate } from './processors';
 import { isDocument, arrToObj } from './lib';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
+
+let _exists = async (model: Model<any>, filter) => {
+  const result = await model.exists(filter);
+  return !!result?._id;
+};
+
+if (compareSemVers(mongoose.version, '5.6.0') < 0) {
+  _exists = async (model: Model<any>, filter) => {
+    const result = await model.findOne(filter).select('_id').lean();
+    return !!result;
+  };
+}
+
+let exists = async (req: Request, model: Model<any>, doc: any, access: DocPermissionsAccess) => {
+  const filter = await req[CORE]._genFilter(model.modelName, access, { _id: doc._id });
+  if (filter === false) return false;
+  return _exists(model, filter);
+};
 
 const callMiddleware = async (
   req: any,
@@ -291,15 +310,6 @@ export async function addDocPermissions(
   setDocPermissions(doc, docPermissionField, docPermissions);
   return doc;
 }
-
-const exists = async (req: Request, model: Model<any>, doc: any, access: DocPermissionsAccess) => {
-  const filter = await req[CORE]._genFilter(model.modelName, access, { _id: doc._id });
-  if (filter === false) return false;
-  const result = await model.exists(filter);
-  if (isBoolean(result)) return result;
-  if (isNil(result)) return false;
-  return !!(result as { _id: any })._id;
-};
 
 export async function addFieldPermissions(
   modelName: string,

@@ -2,6 +2,7 @@
 export * from './document';
 export * from './errors';
 export * from './query';
+export * from './string';
 
 import forEach from 'lodash/forEach';
 import isArray from 'lodash/isArray';
