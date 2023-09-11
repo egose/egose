@@ -100,6 +100,7 @@ export class Controller extends Base {
       overrides = {},
     }: FindByIdArgs = {},
     {
+      skim = this.defaults.findOneOptions?.skim ?? false,
       includePermissions = this.defaults.findOneOptions?.includePermissions ?? true,
       access = this.defaults.findOneOptions?.access ?? 'read',
       populateAccess = this.defaults.findOneOptions?.populateAccess,
@@ -119,7 +120,7 @@ export class Controller extends Base {
           populate: overridePopulate,
         },
       },
-      { includePermissions, access, populateAccess, lean },
+      { skim, includePermissions, access, populateAccess, lean },
     );
   }
 

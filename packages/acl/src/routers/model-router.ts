@@ -116,7 +116,7 @@ export class ModelRouter {
 
       // @Deprecated option 'query'
       let { query, filter, select, sort, populate, process, skip, limit, page, pageSize, options = {} } = req.body;
-      const { includePermissions, includeCount, includeExtraHeaders, populateAccess, lean } = options;
+      const { skim, includePermissions, includeCount, includeExtraHeaders, populateAccess } = options;
 
       const ctl = req[CORE]._public(this.modelName);
 
@@ -124,10 +124,10 @@ export class ModelRouter {
         filter ?? query,
         { select, sort, populate, process, skip, limit, page, pageSize },
         {
+          skim,
           includePermissions,
           includeCount,
           populateAccess,
-          lean,
         },
       );
 
@@ -261,6 +261,36 @@ export class ModelRouter {
       return result.data;
     });
 
+    //////////////////////////////
+    // READ - Advanced - Filter //
+    //////////////////////////////
+    this.router.post(
+      `${this.options.basePath}/${this.options.queryPath}/__filter`,
+      setGenerators,
+      async (req: Request) => {
+        const allowed = await req[CORE]._isAllowed(this.modelName, 'read');
+        if (!allowed) throw new clientErrors.UnauthorizedError();
+
+        let { filter, select, populate, process, options = {} } = req.body;
+        const { includePermissions, tryList, populateAccess } = options;
+
+        const ctl = req[CORE]._public(this.modelName);
+        const result = await ctl._readFilter(
+          filter,
+          {
+            select,
+            populate,
+            process,
+          },
+          { includePermissions, tryList, populateAccess },
+        );
+
+        handleResultError(result);
+
+        return result.data;
+      },
+    );
+
     /////////////////////
     // READ - Advanced //
     /////////////////////
@@ -273,7 +303,7 @@ export class ModelRouter {
 
         const id = req.params[this.options.idParam];
         let { select, populate, process, options = {} } = req.body;
-        const { includePermissions, tryList, populateAccess, lean } = options;
+        const { includePermissions, tryList, populateAccess } = options;
 
         const ctl = req[CORE]._public(this.modelName);
         const result = await ctl._read(
@@ -283,7 +313,7 @@ export class ModelRouter {
             populate,
             process,
           },
-          { includePermissions, tryList, populateAccess, lean },
+          { includePermissions, tryList, populateAccess },
         );
 
         handleResultError(result);

@@ -190,6 +190,60 @@ export class PublicController extends Controller {
     return result;
   }
 
+  async _readFilter(
+    filter: any,
+    {
+      select = this.defaults.publicReadArgs?.select,
+      populate = this.defaults.publicReadArgs?.populate,
+      process = this.defaults.publicReadArgs?.process ?? [],
+    }: PublicReadArgs = {},
+    {
+      skim = this.defaults.publicReadOptions?.skim ?? false,
+      includePermissions = this.defaults.publicReadOptions?.includePermissions ?? true,
+      tryList = this.defaults.publicReadOptions?.tryList ?? true,
+      populateAccess = this.defaults.publicReadOptions?.populateAccess,
+      lean = this.defaults.publicReadOptions?.lean ?? false,
+    }: PublicReadOptions = {},
+  ): Promise<ControllerResult> {
+    let access: FindAccess = 'read';
+
+    let result = await this.findOne(
+      filter,
+      {
+        select,
+        populate,
+        overrides: {},
+      },
+      { skim, includePermissions, access, populateAccess, lean },
+    );
+
+    // if not found, try to get the doc with 'list' access
+    if (!result.data && tryList) {
+      access = 'list';
+
+      result = await this.findOne(
+        filter,
+        {
+          select,
+          populate,
+          overrides: {},
+        },
+        { skim, includePermissions, access, populateAccess, lean },
+      );
+    }
+
+    if (!result.success) {
+      return result;
+    }
+
+    let doc = toObject(result.data);
+    doc = await this.decorate(doc, access);
+    doc = this.process(doc, process);
+
+    result.data = doc;
+    return result;
+  }
+
   async _update(
     id: string,
     data,
