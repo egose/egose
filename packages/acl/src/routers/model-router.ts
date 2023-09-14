@@ -272,7 +272,7 @@ export class ModelRouter {
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         let { filter, select, populate, process, options = {} } = req.body;
-        const { includePermissions, tryList, populateAccess } = options;
+        const { skim, includePermissions, tryList, populateAccess } = options;
 
         const ctl = req[CORE]._public(this.modelName);
         const result = await ctl._readFilter(
@@ -282,7 +282,7 @@ export class ModelRouter {
             populate,
             process,
           },
-          { includePermissions, tryList, populateAccess },
+          { skim, includePermissions, tryList, populateAccess },
         );
 
         handleResultError(result);
@@ -303,7 +303,7 @@ export class ModelRouter {
 
         const id = req.params[this.options.idParam];
         let { select, populate, process, options = {} } = req.body;
-        const { includePermissions, tryList, populateAccess } = options;
+        const { skim, includePermissions, tryList, populateAccess } = options;
 
         const ctl = req[CORE]._public(this.modelName);
         const result = await ctl._read(
@@ -313,7 +313,7 @@ export class ModelRouter {
             populate,
             process,
           },
-          { includePermissions, tryList, populateAccess },
+          { skim, includePermissions, tryList, populateAccess },
         );
 
         handleResultError(result);

@@ -281,7 +281,9 @@ export async function genDocPermissions(
 
   if (isFunction(docPermissionsFn)) {
     const permissions = this[PERMISSIONS];
-    docPermissions = await docPermissionsFn.call(this, doc, permissions, context);
+    try {
+      docPermissions = await docPermissionsFn.call(this, doc, permissions, context);
+    } catch {}
   }
 
   return docPermissions;
