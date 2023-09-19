@@ -50,6 +50,7 @@ import {
 import { copyAndDepopulate } from './processors';
 import { isDocument, arrToObj } from './lib';
 import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
+import Cache from './Cache';
 
 const exists = async (req: Request, model: Model<any>, doc: any, access: DocPermissionsAccess) => {
   const filter = await req[CORE]._genFilter(model.modelName, access, { _id: doc._id });
@@ -93,6 +94,11 @@ export async function genFilter(modelName: string, access: BaseFilterAccess = 'r
   if (!baseFilterFn) baseFilterFn = getModelOption(modelName, `baseQuery.${access}` as any, null);
   if (!isFunction(baseFilterFn)) return _filter || {};
 
+  const cacheKey = `${modelName}_baseFilter_${access}`;
+  if (this._caches.baseFilter.has(cacheKey)) {
+    return this._caches.baseFilter.get(cacheKey);
+  }
+
   const permissions = this[PERMISSIONS];
 
   const baseFilter = await baseFilterFn.call(this, permissions);
@@ -100,7 +106,9 @@ export async function genFilter(modelName: string, access: BaseFilterAccess = 'r
   if (baseFilter === true || isEmpty(baseFilter)) return _filter || {};
   if (!_filter) return baseFilter;
 
-  return { $and: [baseFilter, _filter] };
+  const result = { $and: [baseFilter, _filter] };
+  this._caches.baseFilter.set(cacheKey, result);
+  return result;
 }
 
 export async function genAllowedFields(modelName: string, doc: any, access: SelectAccess, baseFields = []) {
@@ -459,6 +467,7 @@ export interface MaclCore {
   _canActivate: typeof canActivate;
   _isAllowed: typeof isAllowed;
   _public: typeof getPublicController;
+  _caches: any;
 }
 
 export type ControllerFactory = typeof getController;
@@ -487,6 +496,9 @@ export async function setGenerators(req, res, next) {
     _canActivate: canActivate.bind(req),
     _isAllowed: isAllowed.bind(req),
     _public: getPublicController.bind(req),
+    _caches: {
+      baseFilter: new Cache<string, any>(),
+    },
   } as MaclCore;
 
   req.macl = getController.bind(req);
