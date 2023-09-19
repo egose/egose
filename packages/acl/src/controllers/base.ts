@@ -11,23 +11,6 @@ import {
   TransformAccess,
   BaseFilterAccess,
 } from '../interfaces';
-import {
-  decorate,
-  decorateAll,
-  genAllowedFields,
-  genDocPermissions,
-  genFilter,
-  genIDFilter,
-  genPopulate,
-  genSelect,
-  addDocPermissions,
-  addFieldPermissions,
-  pickAllowedFields,
-  prepare,
-  process,
-  transform,
-  validate,
-} from '../generators';
 
 export class Base {
   req: Request;
@@ -39,31 +22,31 @@ export class Base {
   }
 
   public decorate(doc: any, access: DecorateAccess, context?: MiddlewareContext): Promise<any> {
-    return decorate.call(this.req, this.modelName, doc, access, context);
+    return this.req.macl.decorate(this.modelName, doc, access, context);
   }
 
   public decorateAll(docs: any[], access: DecorateAllAccess): Promise<any> {
-    return decorateAll.call(this.req, this.modelName, docs, access);
+    return this.req.macl.decorateAll(this.modelName, docs, access);
   }
 
   public genAllowedFields(doc: any, access: SelectAccess, baseFields?: string[]): Promise<string[]> {
-    return genAllowedFields.call(this.req, this.modelName, doc, access, baseFields);
+    return this.req.macl.genAllowedFields(this.modelName, doc, access, baseFields);
   }
 
   public genDocPermissions(doc: any, access: DocPermissionsAccess, context?: MiddlewareContext): Promise<{}> {
-    return genDocPermissions.call(this.req, this.modelName, doc, access, context);
+    return this.req.macl.genDocPermissions(this.modelName, doc, access, context);
   }
 
   public genFilter(access?: BaseFilterAccess, filter?): Promise<any> {
-    return genFilter.call(this.req, this.modelName, access, filter);
+    return this.req.macl.genFilter(this.modelName, access, filter);
   }
 
   public genIDFilter(id: string): Promise<any> {
-    return genIDFilter.call(this.req, this.modelName, id);
+    return this.req.macl.genIDFilter(this.modelName, id);
   }
 
   public genPopulate(access?: SelectAccess, populate?): Promise<any[]> {
-    return genPopulate.call(this.req, this.modelName, access, populate);
+    return this.req.macl.genPopulate(this.modelName, access, populate);
   }
 
   public genSelect(
@@ -72,34 +55,34 @@ export class Base {
     skipChecks?: boolean,
     subPaths?: string[],
   ): Promise<any[]> {
-    return genSelect.call(this.req, this.modelName, access, targetFields, skipChecks, subPaths);
+    return this.req.macl.genSelect(this.modelName, access, targetFields, skipChecks, subPaths);
   }
 
   public addDocPermissions(doc: any, access: DocPermissionsAccess, context?: MiddlewareContext): Promise<any> {
-    return addDocPermissions.call(this.req, this.modelName, doc, access, context);
+    return this.req.macl.addDocPermissions(this.modelName, doc, access, context);
   }
 
   public addFieldPermissions(doc: any, access: DocPermissionsAccess, context?: MiddlewareContext): Promise<any> {
-    return addFieldPermissions.call(this.req, this.modelName, doc, access, context);
+    return this.req.macl.addFieldPermissions(this.modelName, doc, access, context);
   }
 
   public pickAllowedFields(doc: any, access: SelectAccess, baseFields?: string[]): Promise<any> {
-    return pickAllowedFields.call(this.req, this.modelName, doc, access, baseFields);
+    return this.req.macl.pickAllowedFields(this.modelName, doc, access, baseFields);
   }
 
   public prepare(allowedData: any, access: PrepareAccess, context?: MiddlewareContext): Promise<any> {
-    return prepare.call(this.req, this.modelName, allowedData, access, context);
+    return this.req.macl.prepare(this.modelName, allowedData, access, context);
   }
 
   public process(docObject: any, pipeline): any {
-    return process.call(this.req, this.modelName, docObject, pipeline);
+    return this.req.macl.process(this.modelName, docObject, pipeline);
   }
 
   public transform(doc: any, access: TransformAccess, context?: MiddlewareContext): Promise<any> {
-    return transform.call(this.req, this.modelName, doc, access, context);
+    return this.req.macl.transform(this.modelName, doc, access, context);
   }
 
   public validate(allowedData: any, access: ValidateAccess, context?: MiddlewareContext): Promise<boolean | any[]> {
-    return validate.call(this.req, this.modelName, allowedData, access, context);
+    return this.req.macl.validate(this.modelName, allowedData, access, context);
   }
 }

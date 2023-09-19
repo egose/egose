@@ -1,6 +1,6 @@
 import JsonRouter from 'express-json-router';
 import castArray from 'lodash/castArray';
-import { setGenerators, MaclCore } from '../generators';
+import { setCore } from '../core';
 import { mapCodeToMessage, mapCodeToStatusCode } from '../helpers';
 import { getGlobalOption, getModelOption } from '../options';
 import {
@@ -12,7 +12,7 @@ import {
   ControllerResult,
   RouteGuardAccess,
 } from '../interfaces';
-import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
+import { MIDDLEWARE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
 import { Codes, StatusCodes } from '../enums';
 
 const clientErrors = JsonRouter.clientErrors;
@@ -41,14 +41,14 @@ export class RootRouter {
   }
 
   private setRoutes() {
-    this.router.post(`${this.basename}`, setGenerators, async (req: Request) => {
-      const allowed = await req[CORE]._canActivate(this.routeGuard);
+    this.router.post(`${this.basename}`, setCore, async (req: Request) => {
+      const allowed = await req.macl.canActivate(this.routeGuard);
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const items = req.body || [];
       return Promise.all(
         items.map(async (item: RootQueryEntry) => {
-          const ctl = req[CORE]._public(item.model);
+          const ctl = req.macl.getPublicController(item.model);
           if (!ctl)
             return { success: false, code: Codes.BadRequest, data: null, message: `Model ${item.model} not found` };
 
@@ -56,7 +56,7 @@ export class RootRouter {
             return { success: false, code: Codes.BadRequest, data: null, message: `Operation ${item.op} not found` };
 
           const routeGuard = getModelOption(item.model, `routeGuard.${item.op as RouteGuardAccess}`);
-          const allowed = await req[CORE]._canActivate(routeGuard);
+          const allowed = await req.macl.canActivate(routeGuard);
           if (!allowed) return { success: false, code: Codes.Unauthorized, data: null, message: 'Unauthorized' };
 
           if (item.op === 'list') {

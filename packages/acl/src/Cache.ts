@@ -1,4 +1,4 @@
-class Cache<K, V> {
+export class Cache<K, V> {
   private cache: Map<K, V>;
 
   constructor() {
@@ -37,5 +37,3 @@ class Cache<K, V> {
     return this.cache.size;
   }
 }
-
-export default Cache;

@@ -1,6 +1,5 @@
 import express from 'express';
-import { CORE } from '../symbols';
-import { MaclCore, ControllerFactory } from '../generators';
+import { Core } from '../core';
 
 export type Validation = boolean | string | string[] | Function;
 
@@ -64,8 +63,7 @@ export interface Request extends express.Request {
     | 'returning_all',
     string
   >;
-  [CORE]: MaclCore;
-  macl: ControllerFactory;
+  macl: Core;
 }
 
 export interface ControllerResult {

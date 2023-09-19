@@ -1,18 +1,19 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import JsonRouter from 'express-json-router';
 import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
 import isFunction from 'lodash/isFunction';
 import isPlainObject from 'lodash/isPlainObject';
-import { setGenerators } from './generators';
+import { setCore } from './core';
 import Permission from './permission';
+import { Request } from './interfaces';
 import { createValidator, getDocPermissions } from './helpers';
 import { getGlobalOption, getModelOption } from './options';
-import { MIDDLEWARE, CORE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
+import { MIDDLEWARE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
 export default function macl() {
   return async function (req: Request, res: Response, next: NextFunction) {
-    await setGenerators(req, res, next);
+    await setCore(req, res, next);
   };
 }
 
@@ -40,7 +41,7 @@ export function guard(condition: unknown) {
 
     if (isPlainObject(condition)) {
       const { modelName, id, condition: _cond } = condition as GuardModelCondition;
-      const ctl = req[CORE]._public(modelName);
+      const ctl = req.macl.getPublicController(modelName);
       const select = getModelOption(modelName, `mandatoryFields.read`, undefined);
 
       let _id = id;
@@ -77,7 +78,7 @@ export function guard(condition: unknown) {
     } else if (isArray(cond)) {
       if (arrayHandler(cond)) return next();
     } else if (isFunction(cond)) {
-      const result = await cond.call(this, permissions);
+      const result = await cond.call(req, permissions);
       if (!!result) return next();
     }
 

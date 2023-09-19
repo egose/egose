@@ -44,6 +44,7 @@ export class Controller extends Base {
 
   constructor(req: Request, modelName: string) {
     super(req, modelName);
+
     this.model = new Model(modelName);
     this.options = getModelOptions(modelName);
     this.defaults = this.options.defaults || {};
@@ -408,7 +409,7 @@ export class Controller extends Base {
     const result = await iterateQuery(filter, async (sq, key) => {
       // @Deprecated option 'query'
       const { model, query, filter, mapper, ...rest } = sq;
-      const ctl = this.req.macl(model);
+      const ctl = this.req.macl.getController(model);
       const { data, count } = await ctl.find(filter ?? query, rest);
       if (mapper && count > 0) {
         const m = mapper.multi === false ? false : true;

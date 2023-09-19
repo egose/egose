@@ -28,7 +28,7 @@ const setRoutes = async () => {
   router.get('/guard1', [
     guard('isAdmin'),
     async (req, res, next) => {
-      const model = req.macl('User');
+      const model = req.macl.getController('User');
       const { data: user } = await model.findOne({}, {}, { lean: false });
       res.json(user.permissions);
     },
