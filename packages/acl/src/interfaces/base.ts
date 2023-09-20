@@ -66,7 +66,7 @@ export interface Request extends express.Request {
   macl: Core;
 }
 
-export interface ControllerResult {
+export interface ServiceResult {
   success: boolean;
   code: string;
   data: any;

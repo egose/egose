@@ -10,7 +10,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import pick from 'lodash/pick';
 import { normalizeSelect, toObject } from '../helpers';
-import { Controller } from './controller';
+import { Service } from './service';
 import {
   MiddlewareContext,
   FindAccess,
@@ -26,7 +26,7 @@ import {
   DistinctArgs,
   Request,
   BaseFilterAccess,
-  ControllerResult,
+  ServiceResult,
 } from '../interfaces';
 
 const filterChildren = (children, obj) => {
@@ -54,7 +54,7 @@ const genSubPopulate = (sub: string, popul: any) => {
   return populate;
 };
 
-export class PublicController extends Controller {
+export class PublicService extends Service {
   // constructor(req: Request, modelName: string) {
   //   super(req, modelName);
   // }
@@ -78,7 +78,7 @@ export class PublicController extends Controller {
       populateAccess = this.defaults.publicListOptions?.populateAccess ?? 'read',
       lean = this.defaults.publicListOptions?.lean ?? true,
     }: PublicListOptions = {},
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const result = await this.find(
       filter,
       { select, populate, sort, skip, limit, page, pageSize },
@@ -113,7 +113,7 @@ export class PublicController extends Controller {
       includePermissions = this.defaults.publicCreateOptions?.includePermissions ?? true,
       populateAccess = this.defaults.publicCreateOptions?.populateAccess ?? 'read',
     }: PublicCreateOptions = {},
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const result = await this.create(
       data,
       { populate },
@@ -131,7 +131,7 @@ export class PublicController extends Controller {
     return result;
   }
 
-  async _new(): Promise<ControllerResult> {
+  async _new(): Promise<ServiceResult> {
     return this.new();
   }
 
@@ -149,7 +149,7 @@ export class PublicController extends Controller {
       populateAccess = this.defaults.publicReadOptions?.populateAccess,
       lean = this.defaults.publicReadOptions?.lean ?? false,
     }: PublicReadOptions = {},
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     let access: FindAccess = 'read';
     const idFilter = await this.genIDFilter(id);
 
@@ -204,7 +204,7 @@ export class PublicController extends Controller {
       populateAccess = this.defaults.publicReadOptions?.populateAccess,
       lean = this.defaults.publicReadOptions?.lean ?? false,
     }: PublicReadOptions = {},
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     let access: FindAccess = 'read';
 
     let result = await this.findOne(
@@ -258,7 +258,7 @@ export class PublicController extends Controller {
       includePermissions = this.defaults.publicUpdateOptions?.includePermissions ?? true,
       populateAccess = this.defaults.publicUpdateOptions?.populateAccess ?? 'read',
     }: PublicUpdateOptions = {},
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const result = await this.updateById(
       id,
       data,
@@ -279,17 +279,17 @@ export class PublicController extends Controller {
     return result;
   }
 
-  async _delete(id: string): Promise<ControllerResult> {
+  async _delete(id: string): Promise<ServiceResult> {
     const result = await this.delete(id);
     return result;
   }
 
-  async _distinct(field: string, options: DistinctArgs = {}): Promise<ControllerResult> {
+  async _distinct(field: string, options: DistinctArgs = {}): Promise<ServiceResult> {
     const result = await this.distinct(field, options);
     return result;
   }
 
-  async _count(filter, access: BaseFilterAccess = 'list'): Promise<ControllerResult> {
+  async _count(filter, access: BaseFilterAccess = 'list'): Promise<ServiceResult> {
     const result = await this.count(filter, access);
     return result;
   }

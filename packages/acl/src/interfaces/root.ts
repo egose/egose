@@ -1,6 +1,6 @@
 import express from 'express';
 import { Validation } from './base';
-import { PublicCreateArgs, CreateArgs, PublicCreateOptions, CreateOptions } from './controller-create';
+import { PublicCreateArgs, CreateArgs, PublicCreateOptions, CreateOptions } from './service-create';
 import {
   PublicUpdateArgs,
   PublicUpdateOptions,
@@ -8,12 +8,12 @@ import {
   UpdateOneOptions,
   UpdateByIdArgs,
   UpdateByIdOptions,
-} from './controller-update';
-import { PublicListArgs, PublicListOptions } from './controller-list';
-import { PublicReadArgs, PublicReadOptions } from './controller-read';
-import { FindArgs, FindOptions, FindOneArgs, FindOneOptions, FindByIdArgs, FindByIdOptions } from './controller-find';
-import { ExistsOptions } from './controller-exists';
-import { DistinctArgs } from './controller';
+} from './service-update';
+import { PublicListArgs, PublicListOptions } from './service-list';
+import { PublicReadArgs, PublicReadOptions } from './service-read';
+import { FindArgs, FindOptions, FindOneArgs, FindOneOptions, FindByIdArgs, FindByIdOptions } from './service-find';
+import { ExistsOptions } from './service-exists';
+import { DistinctArgs } from './service';
 
 interface DefaultFindOneArgs extends Omit<FindOneArgs, 'overrides'> {}
 interface DefaultFindByIdArgs extends Omit<FindByIdArgs, 'overrides'> {}

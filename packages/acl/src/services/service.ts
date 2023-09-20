@@ -31,12 +31,12 @@ import {
   UpdateByIdOptions,
   BaseFilterAccess,
   ExistsOptions,
-  ControllerResult,
+  ServiceResult,
 } from '../interfaces';
 import { Codes, StatusCodes } from '../enums';
 import { Base } from './base';
 
-export class Controller extends Base {
+export class Service extends Base {
   model: Model;
   options: ModelRouterOptions;
   defaults: Defaults;
@@ -67,7 +67,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.findOneOptions?.populateAccess,
       lean = this.defaults.findOneOptions?.lean ?? false,
     }: FindOneOptions = {},
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     let [_filter, _select, _populate] = await Promise.all([
@@ -108,7 +108,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.findOneOptions?.populateAccess,
       lean = this.defaults.findOneOptions?.lean ?? false,
     }: FindByIdOptions = {},
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const { select: overrideSelect, populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
     const filter = overrideIdFilter || (await this.genIDFilter(id));
 
@@ -146,7 +146,7 @@ export class Controller extends Base {
       lean = this.defaults.findOptions?.lean ?? false,
     }: FindOptions = {},
     decorate?: Function,
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     const [_filter, _select, _populate, pagination] = await Promise.all([
@@ -202,7 +202,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.createOptions?.populateAccess ?? 'read',
     }: CreateOptions = {},
     decorate?: Function,
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const isArr = Array.isArray(data);
     let arr = isArr ? data : [data];
 
@@ -262,7 +262,7 @@ export class Controller extends Base {
     };
   }
 
-  public async new(): Promise<ControllerResult> {
+  public async new(): Promise<ServiceResult> {
     const data = await this.model.new();
     return {
       success: true,
@@ -281,7 +281,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.updateOneOptions?.populateAccess ?? 'read',
     }: UpdateOneOptions = {},
     decorate?: Function,
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const { filter: overrideFilter, populate: overridePopulate } = overrides;
 
     const [_filter, _populate] = await Promise.all([
@@ -346,7 +346,7 @@ export class Controller extends Base {
       populateAccess = this.defaults.updateByIdOptions?.populateAccess ?? 'read',
     }: UpdateByIdOptions = {},
     decorate?: Function,
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     const { populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
     const filter = overrideIdFilter || (await this.genIDFilter(id));
 
@@ -364,7 +364,7 @@ export class Controller extends Base {
     );
   }
 
-  public async delete(id: string): Promise<ControllerResult> {
+  public async delete(id: string): Promise<ServiceResult> {
     const filter = await this.genFilter('delete', await this.genIDFilter(id));
 
     const query = { filter };
@@ -386,13 +386,13 @@ export class Controller extends Base {
       access = this.defaults.existsOptions?.access ?? 'read',
       includeId = this.defaults.existsOptions?.includeId ?? false,
     }: ExistsOptions = {},
-  ): Promise<ControllerResult> {
+  ): Promise<ServiceResult> {
     filter = await this.genFilter(access, filter);
     const result = await this.model.exists(filter);
     return { success: true, code: Codes.Success, data: includeId ? result : !!result, query: { filter } };
   }
 
-  public async distinct(field: string, { filter }: DistinctArgs = {}): Promise<ControllerResult> {
+  public async distinct(field: string, { filter }: DistinctArgs = {}): Promise<ServiceResult> {
     filter = await this.genFilter('read', filter);
 
     const query = { filter };
@@ -404,7 +404,7 @@ export class Controller extends Base {
     return { success: true, code: Codes.Success, data: result, query };
   }
 
-  public async count(filter, access: BaseFilterAccess = 'list'): Promise<ControllerResult> {
+  public async count(filter, access: BaseFilterAccess = 'list'): Promise<ServiceResult> {
     filter = await this.genFilter(access, filter);
 
     const query = { filter };
@@ -422,8 +422,8 @@ export class Controller extends Base {
     const result = await iterateQuery(filter, async (sq, key) => {
       // @Deprecated option 'query'
       const { model, query, filter, mapper, ...rest } = sq;
-      const ctl = this.req.macl.getController(model);
-      const { data, count } = await ctl.find(filter ?? query, rest);
+      const svc = this.req.macl.getService(model);
+      const { data, count } = await svc.find(filter ?? query, rest);
       if (mapper && count > 0) {
         const m = mapper.multi === false ? false : true;
         const c = mapper.compact === true;

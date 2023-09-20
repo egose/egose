@@ -41,7 +41,7 @@ export function guard(condition: unknown) {
 
     if (isPlainObject(condition)) {
       const { modelName, id, condition: _cond } = condition as GuardModelCondition;
-      const ctl = req.macl.getPublicController(modelName);
+      const svc = req.macl.getPublicService(modelName);
       const select = getModelOption(modelName, `mandatoryFields.read`, undefined);
 
       let _id = id;
@@ -62,7 +62,7 @@ export function guard(condition: unknown) {
         return next(new JsonRouter.clientErrors.BadRequestError());
       }
 
-      const result = await ctl._read(_id, { select });
+      const result = await svc._read(_id, { select });
       if (!result.success) {
         return next(new JsonRouter.clientErrors.UnauthorizedError());
       }

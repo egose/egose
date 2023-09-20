@@ -9,7 +9,7 @@ import {
   Validation,
   RootQueryEntry,
   Request,
-  ControllerResult,
+  ServiceResult,
   RouteGuardAccess,
 } from '../interfaces';
 import { MIDDLEWARE, PERMISSIONS, PERMISSION_KEYS } from '../symbols';
@@ -34,7 +34,7 @@ export class RootRouter {
     this.setRoutes();
   }
 
-  private processResult(op: string, { success, code, data, count, totalCount, errors }: ControllerResult) {
+  private processResult(op: string, { success, code, data, count, totalCount, errors }: ServiceResult) {
     const message = mapCodeToMessage(code);
     const statusCode = mapCodeToStatusCode(code);
     return { success, code, data, count, totalCount, errors, message, statusCode, op };
@@ -48,8 +48,8 @@ export class RootRouter {
       const items = req.body || [];
       return Promise.all(
         items.map(async (item: RootQueryEntry) => {
-          const ctl = req.macl.getPublicController(item.model);
-          if (!ctl)
+          const svc = req.macl.getPublicService(item.model);
+          if (!svc)
             return { success: false, code: Codes.BadRequest, data: null, message: `Model ${item.model} not found` };
 
           if (!ALL_ROUTES.includes(item.op))
@@ -60,21 +60,21 @@ export class RootRouter {
           if (!allowed) return { success: false, code: Codes.Unauthorized, data: null, message: 'Unauthorized' };
 
           if (item.op === 'list') {
-            return this.processResult(item.op, await ctl._list(item.filter, item.args, item.options));
+            return this.processResult(item.op, await svc._list(item.filter, item.args, item.options));
           } else if (item.op === 'create') {
-            return this.processResult(item.op, await ctl._create(item.data, item.args));
+            return this.processResult(item.op, await svc._create(item.data, item.args));
           } else if (item.op === 'new') {
-            return this.processResult(item.op, await ctl._new());
+            return this.processResult(item.op, await svc._new());
           } else if (item.op === 'read') {
-            return this.processResult(item.op, await ctl._read(item.id, item.args, item.options));
+            return this.processResult(item.op, await svc._read(item.id, item.args, item.options));
           } else if (item.op === 'update') {
-            return this.processResult(item.op, await ctl._update(item.id, item.args, item.options));
+            return this.processResult(item.op, await svc._update(item.id, item.args, item.options));
           } else if (item.op === 'delete') {
-            return this.processResult(item.op, await ctl._delete(item.id));
+            return this.processResult(item.op, await svc._delete(item.id));
           } else if (item.op === 'distinct') {
-            return this.processResult(item.op, await ctl._distinct(item.field, { filter: item.filter }));
+            return this.processResult(item.op, await svc._distinct(item.field, { filter: item.filter }));
           } else if (item.op === 'count') {
-            return this.processResult(item.op, await ctl._count(item.filter));
+            return this.processResult(item.op, await svc._count(item.filter));
           } else {
             return { success: false, code: Codes.BadRequest, data: null, message: `operation ${item.op} not found` };
           }

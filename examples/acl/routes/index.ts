@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 
-import egose, { guard } from '@egose/acl';
+import egose, { Request, guard } from '@egose/acl';
 import { createOpenAPI } from '@egose/swagger';
 import auth from './auth';
 import { NODE_ENV } from '../config';
@@ -27,9 +27,9 @@ const setRoutes = async () => {
 
   router.get('/guard1', [
     guard('isAdmin'),
-    async (req, res, next) => {
-      const model = req.macl.getController('User');
-      const { data: user } = await model.findOne({}, {}, { lean: false });
+    async (req: Request, res, next) => {
+      const svc = req.macl.getService('User');
+      const { data: user } = await svc.findOne({}, {}, { lean: false });
       res.json(user.permissions);
     },
   ]);

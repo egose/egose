@@ -38,7 +38,7 @@ import {
   TransformAccess,
 } from './interfaces';
 import Permission, { Permissions } from './permission';
-import { Controller, PublicController, Base } from './controllers';
+import { Service, PublicService, Base } from './services';
 import {
   normalizeSelect,
   createValidator,
@@ -287,7 +287,7 @@ export class Core {
     access: DocPermissionsAccess,
     context: MiddlewareContext = {},
   ) {
-    const svc = this.req.macl.getController(modelName);
+    const svc = this.req.macl.getService(modelName);
     const docPermissionField = getModelOption(modelName, 'permissionField');
 
     // TODO: do we need falsy fields as well?
@@ -409,12 +409,16 @@ export class Core {
     return this.canActivate(routeGuard);
   }
 
-  getController(modelName: string) {
-    return new Controller(this.req, modelName);
+  getService(modelName: string) {
+    return new Service(this.req, modelName);
   }
 
-  getPublicController(modelName: string) {
-    return new PublicController(this.req, modelName);
+  getPublicService(modelName: string) {
+    return new PublicService(this.req, modelName);
+  }
+
+  service(modelName: string) {
+    return new PublicService(this.req, modelName);
   }
 
   private getGlobalPermission() {

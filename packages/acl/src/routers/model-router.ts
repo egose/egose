@@ -75,12 +75,12 @@ export class ModelRouter {
       const { skip, limit, page, page_size, skim, include_permissions, include_count, include_extra_headers } =
         req.query;
 
-      const ctl = req.macl.getPublicController(this.modelName);
+      const svc = req.macl.getPublicService(this.modelName);
 
       const includeCount = parseBooleanString(include_count);
       const includeExtraHeaders = parseBooleanString(include_extra_headers);
 
-      const result = await ctl._list(
+      const result = await svc._list(
         {},
         { skip, limit, page, pageSize: page_size },
         {
@@ -117,9 +117,9 @@ export class ModelRouter {
       let { query, filter, select, sort, populate, process, skip, limit, page, pageSize, options = {} } = req.body;
       const { skim, includePermissions, includeCount, includeExtraHeaders, populateAccess } = options;
 
-      const ctl = req.macl.getPublicController(this.modelName);
+      const svc = req.macl.getPublicService(this.modelName);
 
-      const result = await ctl._list(
+      const result = await svc._list(
         filter ?? query,
         { select, sort, populate, process, skip, limit, page, pageSize },
         {
@@ -155,8 +155,8 @@ export class ModelRouter {
 
       const { include_permissions } = req.query;
 
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._create(req.body, {}, { includePermissions: parseBooleanString(include_permissions) });
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._create(req.body, {}, { includePermissions: parseBooleanString(include_permissions) });
 
       handleResultError(result);
 
@@ -174,8 +174,8 @@ export class ModelRouter {
       const { data, select, populate, process, options = {} } = req.body;
       const { includePermissions, populateAccess } = options;
 
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._create(
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._create(
         data,
         { select, populate, process },
         { includePermissions: includePermissions ?? parseBooleanString(include_permissions), populateAccess },
@@ -190,8 +190,8 @@ export class ModelRouter {
     // NEW - EMPTY //
     /////////////////
     this.router.get(`${this.options.basePath}/new`, setCore, async (req: Request) => {
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._new();
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._new();
 
       handleResultError(result);
 
@@ -210,8 +210,8 @@ export class ModelRouter {
       const allowed = await req.macl.isAllowed(this.modelName, 'count');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._count({});
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._count({});
 
       handleResultError(result);
 
@@ -224,8 +224,8 @@ export class ModelRouter {
 
       // @Deprecated option 'query'
       const { query, filter, access } = req.body;
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._count(filter ?? query, access);
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._count(filter ?? query, access);
 
       handleResultError(result);
 
@@ -241,8 +241,8 @@ export class ModelRouter {
 
       const id = req.params[this.options.idParam];
       const { include_permissions, try_list } = req.query;
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._read(
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._read(
         id,
         {},
         {
@@ -266,8 +266,8 @@ export class ModelRouter {
       let { filter, select, populate, process, options = {} } = req.body;
       const { skim, includePermissions, tryList, populateAccess } = options;
 
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._readFilter(
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._readFilter(
         filter,
         {
           select,
@@ -296,8 +296,8 @@ export class ModelRouter {
         let { select, populate, process, options = {} } = req.body;
         const { skim, includePermissions, tryList, populateAccess } = options;
 
-        const ctl = req.macl.getPublicController(this.modelName);
-        const result = await ctl._read(
+        const svc = req.macl.getPublicService(this.modelName);
+        const result = await svc._read(
           id,
           {
             select,
@@ -323,8 +323,8 @@ export class ModelRouter {
       const id = req.params[this.options.idParam];
       const { returning_all } = req.query;
 
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._update(id, req.body, {}, { returningAll: parseBooleanString(returning_all) });
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._update(id, req.body, {}, { returningAll: parseBooleanString(returning_all) });
 
       handleResultError(result);
 
@@ -346,8 +346,8 @@ export class ModelRouter {
         const { data, select, populate, process, options = {} } = req.body;
         const { returningAll, includePermissions, populateAccess } = options;
 
-        const ctl = req.macl.getPublicController(this.modelName);
-        const result = await ctl._update(
+        const svc = req.macl.getPublicService(this.modelName);
+        const result = await svc._update(
           id,
           data,
           { select, populate, process },
@@ -368,8 +368,8 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const id = req.params[this.options.idParam];
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._delete(id);
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._delete(id);
 
       handleResultError(result);
 
@@ -384,8 +384,8 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { field } = req.params;
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._distinct(field);
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._distinct(field);
 
       handleResultError(result);
 
@@ -400,8 +400,8 @@ export class ModelRouter {
       // @Deprecated option 'query'
       const { query, filter } = req.body;
 
-      const ctl = req.macl.getPublicController(this.modelName);
-      const result = await ctl._distinct(field, { filter: filter ?? query });
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._distinct(field, { filter: filter ?? query });
 
       handleResultError(result);
 
@@ -426,8 +426,8 @@ export class ModelRouter {
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.options.idParam];
-        const ctl = req.macl.getPublicController(this.modelName);
-        return ctl.listSub(id, sub);
+        const svc = req.macl.getPublicService(this.modelName);
+        return svc.listSub(id, sub);
       });
 
       /////////////////////
@@ -441,8 +441,8 @@ export class ModelRouter {
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
-          const ctl = req.macl.getPublicController(this.modelName);
-          return ctl.listSub(id, sub, req.body);
+          const svc = req.macl.getPublicService(this.modelName);
+          return svc.listSub(id, sub, req.body);
         },
       );
 
@@ -458,8 +458,8 @@ export class ModelRouter {
 
           const id = req.params[this.options.idParam];
           const { subId } = req.params;
-          const ctl = req.macl.getPublicController(this.modelName);
-          return ctl.readSub(id, sub, subId);
+          const svc = req.macl.getPublicService(this.modelName);
+          return svc.readSub(id, sub, subId);
         },
       );
 
@@ -475,8 +475,8 @@ export class ModelRouter {
 
           const id = req.params[this.options.idParam];
           const { subId } = req.params;
-          const ctl = req.macl.getPublicController(this.modelName);
-          return ctl.readSub(id, sub, subId, req.body);
+          const svc = req.macl.getPublicService(this.modelName);
+          return svc.readSub(id, sub, subId, req.body);
         },
       );
 
@@ -492,8 +492,8 @@ export class ModelRouter {
 
           const id = req.params[this.options.idParam];
           const { subId } = req.params;
-          const ctl = req.macl.getPublicController(this.modelName);
-          return ctl.updateSub(id, sub, subId, req.body);
+          const svc = req.macl.getPublicService(this.modelName);
+          return svc.updateSub(id, sub, subId, req.body);
         },
       );
 
@@ -505,8 +505,8 @@ export class ModelRouter {
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.options.idParam];
-        const ctl = req.macl.getPublicController(this.modelName);
-        return ctl.createSub(id, sub, req.body);
+        const svc = req.macl.getPublicService(this.modelName);
+        return svc.createSub(id, sub, req.body);
       });
 
       ////////////
@@ -521,8 +521,8 @@ export class ModelRouter {
 
           const id = req.params[this.options.idParam];
           const { subId } = req.params;
-          const ctl = req.macl.getPublicController(this.modelName);
-          return ctl.deleteSub(id, sub, subId);
+          const svc = req.macl.getPublicService(this.modelName);
+          return svc.deleteSub(id, sub, subId);
         },
       );
     }
