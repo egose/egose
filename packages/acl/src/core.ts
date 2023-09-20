@@ -287,7 +287,7 @@ export class Core {
     access: DocPermissionsAccess,
     context: MiddlewareContext = {},
   ) {
-    const model = mongoose.model(modelName);
+    const svc = this.req.macl.getController(modelName);
     const docPermissionField = getModelOption(modelName, 'permissionField');
 
     // TODO: do we need falsy fields as well?
@@ -297,16 +297,16 @@ export class Core {
     let updateExists = true;
 
     if (access !== 'read') {
-      readExists = await this.exists(model, doc, 'read');
+      readExists = (await svc.exists({ _id: doc._id }, { access: 'read' })).data;
     }
 
     if (access !== 'update') {
-      updateExists = await this.exists(model, doc, 'update');
+      updateExists = (await svc.exists({ _id: doc._id }, { access: 'update' })).data;
     }
 
     const [views, edits] = await Promise.all([
-      readExists ? this.genAllowedFields(modelName, doc, 'read') : [],
-      updateExists ? this.genAllowedFields(modelName, doc, 'update') : [],
+      readExists ? svc.genAllowedFields(doc, 'read') : [],
+      updateExists ? svc.genAllowedFields(doc, 'update') : [],
     ]);
 
     const viewObj = reduce(
@@ -419,13 +419,6 @@ export class Core {
 
   private getGlobalPermission() {
     return this.req[PERMISSIONS];
-  }
-
-  private async exists(model: Model<any>, doc: any, access: BaseFilterAccess) {
-    const filter = await this.genFilter(model.modelName, access, { _id: doc._id });
-    if (filter === false) return false;
-    const result = await model.findOne(filter).select('_id').lean();
-    return !!result;
   }
 
   private async callMiddleware(

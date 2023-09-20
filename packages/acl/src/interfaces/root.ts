@@ -12,6 +12,7 @@ import {
 import { PublicListArgs, PublicListOptions } from './controller-list';
 import { PublicReadArgs, PublicReadOptions } from './controller-read';
 import { FindArgs, FindOptions, FindOneArgs, FindOneOptions, FindByIdArgs, FindByIdOptions } from './controller-find';
+import { ExistsOptions } from './controller-exists';
 import { DistinctArgs } from './controller';
 
 interface DefaultFindOneArgs extends Omit<FindOneArgs, 'overrides'> {}
@@ -31,6 +32,7 @@ export interface Defaults {
   updateOneOptions?: UpdateOneOptions;
   updateByIdArgs?: UpdateByIdArgs;
   updateByIdOptions?: UpdateByIdOptions;
+  existsOptions?: ExistsOptions;
   publicListArgs?: PublicListArgs;
   publicListOptions?: PublicListOptions;
   publicCreateArgs?: PublicCreateArgs;
@@ -156,6 +158,7 @@ export interface ExtendedModelRouterOptions extends ModelRouterOptions, Extended
   'defaults.updateOneOptions'?: UpdateOneOptions;
   'defaults.updateByIdArgs'?: UpdateByIdArgs;
   'defaults.updateByIdOptions'?: UpdateByIdOptions;
+  'defaults.existsOptions'?: ExistsOptions;
   'defaults.publicListArgs'?: PublicListArgs;
   'defaults.publicListOptions'?: PublicListOptions;
   'defaults.publicCreateArgs'?: PublicCreateArgs;

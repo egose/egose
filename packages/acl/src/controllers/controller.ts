@@ -30,6 +30,7 @@ import {
   UpdateByIdArgs,
   UpdateByIdOptions,
   BaseFilterAccess,
+  ExistsOptions,
   ControllerResult,
 } from '../interfaces';
 import { Codes, StatusCodes } from '../enums';
@@ -377,6 +378,18 @@ export class Controller extends Base {
     // see https://mongoosejs.com/docs/api/model.html#Model.prototype.deleteOne()
     await ('deleteOne' in doc ? doc.deleteOne() : doc.remove());
     return { success: true, code: Codes.Success, data: doc._id, query };
+  }
+
+  public async exists(
+    filter: any,
+    {
+      access = this.defaults.existsOptions?.access ?? 'read',
+      includeId = this.defaults.existsOptions?.includeId ?? false,
+    }: ExistsOptions = {},
+  ): Promise<ControllerResult> {
+    filter = await this.genFilter(access, filter);
+    const result = await this.model.exists(filter);
+    return { success: true, code: Codes.Success, data: includeId ? result : !!result, query: { filter } };
   }
 
   public async distinct(field: string, { filter }: DistinctArgs = {}): Promise<ControllerResult> {

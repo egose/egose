@@ -107,6 +107,11 @@ class Model {
     return this.model.findOneAndDelete(filter);
   }
 
+  exists(filter) {
+    if (!filter) return null;
+    return this.findOne(filter).select('_id').lean();
+  }
+
   // see https://mongoosejs.com/docs/api.html#query_Query-countDocuments
   countDocuments(filter = {}) {
     return this.model.countDocuments(filter);
