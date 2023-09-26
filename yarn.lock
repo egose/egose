@@ -2490,9 +2490,9 @@
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
 
 "@types/superagent@*":
-  version "4.1.15"
-  resolved "https://registry.yarnpkg.com/@types/superagent/-/superagent-4.1.15.tgz#63297de457eba5e2bc502a7609426c4cceab434a"
-  integrity sha512-mu/N4uvfDN2zVQQ5AYJI/g4qxn2bHB6521t1UuH09ShNWjebTqN0ZFuYK9uYjcgmI0dTQEs+Owi1EO6U0OkOZQ==
+  version "4.1.19"
+  resolved "https://registry.yarnpkg.com/@types/superagent/-/superagent-4.1.19.tgz#33f4fa460fb9e79e5e47a96731725141c667acd0"
+  integrity sha512-McM1mlc7PBZpCaw0fw/36uFqo0YeA6m8JqoyE4OfqXsZCIg0hPP2xdE6FM7r6fdprDZHlJwDpydUj1R++93hCA==
   dependencies:
     "@types/cookiejar" "*"
     "@types/node" "*"
@@ -2506,9 +2506,9 @@
     "@types/node" "*"
 
 "@types/supertest@^2.0.11":
-  version "2.0.12"
-  resolved "https://registry.yarnpkg.com/@types/supertest/-/supertest-2.0.12.tgz#ddb4a0568597c9aadff8dbec5b2e8fddbe8692fc"
-  integrity sha512-X3HPWTwXRerBZS7Mo1k6vMVR1Z6zmJcDVn5O/31whe0tnjE4te6ZJSJGq1RiqHPjzPdMTfjCFogDJmwng9xHaQ==
+  version "2.0.13"
+  resolved "https://registry.yarnpkg.com/@types/supertest/-/supertest-2.0.13.tgz#797b3df9abb9a09c4c740c9c615d618c7921ad41"
+  integrity sha512-Vc/5/pRwSC055fU7Wu8erTj4gLpID9SdG2zRMuqaHLni3GTsrJ8gyB6MbFZZGLW6vQaGPhiUWRB6uWglv87MEg==
   dependencies:
     "@types/superagent" "*"
 
