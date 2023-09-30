@@ -6966,9 +6966,9 @@ mongodb@5.8.1:
     "@mongodb-js/saslprep" "^1.1.0"
 
 mongoose-schema-jsonschema@^2.0.2:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/mongoose-schema-jsonschema/-/mongoose-schema-jsonschema-2.1.0.tgz#4ba73705e29a50e02f3b0654b449753cec541012"
-  integrity sha512-Fqy8EtohH75pM0oSTIMBrWHFjQ1JXFB7aBQ1B43EIGRDGl3wUGG4NLjYsj+hzNxlE7NAWWO/nhqzRQEDoWGBjg==
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/mongoose-schema-jsonschema/-/mongoose-schema-jsonschema-2.1.1.tgz#b8dc6556d90e437b9ea57c8c4f9096104181079c"
+  integrity sha512-K0oBS4jx/su5UzsjFQrHaMTVCUDU3oy0st9nyj6CiS/g8ga0oq1VymFMHBnPSQ+zvepKY5t9rl0F0xmYCNbPBQ==
   dependencies:
     pluralize "^8.0.0"
 
