@@ -418,7 +418,11 @@ export class Core {
   }
 
   service(modelName: string) {
-    return new PublicService(this.req, modelName);
+    return this.getPublicService(modelName);
+  }
+
+  svc(modelName: string) {
+    return this.getPublicService(modelName);
   }
 
   private getGlobalPermission() {
