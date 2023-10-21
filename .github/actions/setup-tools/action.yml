@@ -4,23 +4,17 @@ description: Setup required tools in the workspace
 runs:
   using: composite
   steps:
-  - name: Install asdf
-    uses: asdf-vm/actions/setup@v3
-
-  - name: Cache tools
-    uses: actions/cache@v3
+  - name: Setup Tools
+    uses: egose/actions/asdf-tools@d725ec2e6318ef28fde560028547d79aa604a897
     with:
-      path: /home/runner/.asdf
-      key: ${{ runner.os }}-${{ hashFiles('**/.tool-versions') }}
+      plugins: |
+        mongodb=https://github.com/junminahn/asdf-mongodb.git
 
-  - name: Install required tools
+  - name: Install additional asdf packages
     run: |
-      asdf plugin-add mongodb https://github.com/junminahn/asdf-mongodb.git || true
-      cat .tool-versions | cut -f 1 -d ' ' | xargs -n 1 asdf plugin-add || true
-      asdf plugin-update --all
-      asdf install
-      asdf reshim
-    shell: bash
+      asdf install mongodb 4.4.8
+      asdf install mongodb 5.3.2
+      asdf install mongodb 6.0.11
 
   - name: Install python tools
     run: |

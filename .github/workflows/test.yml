@@ -7,7 +7,9 @@ jobs:
     strategy:
       matrix:
         express: [4.6.0, latest]
-        mongoose: [5.2.0, 6.0.15, 6.10.5, latest]
+        # See https://mongoosejs.com/docs/compatibility.html
+        # <mongodb-ver>_<mongoose-ver>
+        mongoose: [4.4.8_5.2.0, 5.3.2_6.0.15, 6.0.11_6.10.5, 6.0.11_latest]
     steps:
     - uses: hmarr/debug-action@v2
     - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4
@@ -20,8 +22,11 @@ jobs:
 
     - name: Install target package versions
       run: |
+        IFS="_"
+        read -ra parts <<< ${{ matrix.mongoose }}
+        asdf local mongodb ${parts[0]}
         yarn upgrade express@${{ matrix.express }} --dev
-        yarn upgrade mongoose@${{ matrix.mongoose }} --dev
+        yarn upgrade mongoose@${parts[1]} --dev
 
     - name: Start mongod as a Daemon
       run: |
