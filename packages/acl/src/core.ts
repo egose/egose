@@ -91,7 +91,7 @@ export class Core {
       return this.caches.baseFilter.get(cacheKey);
     }
 
-    const permissions = this.getGlobalPermission();
+    const permissions = this.getGlobalPermissions();
 
     const baseFilter = await baseFilterFn.call(this.req, permissions);
     if (baseFilter === false) return false;
@@ -103,19 +103,30 @@ export class Core {
     return result;
   }
 
+  private removePrefix(str, prefix) {
+    if (!prefix) return str;
+
+    if (str.startsWith(prefix)) {
+      return str.substring(prefix.length);
+    }
+    return str;
+  }
+
   async genAllowedFields(modelName: string, doc: any, access: SelectAccess, baseFields = []) {
     let fields = [...baseFields] || [];
 
     const permissionSchema = getModelOption(modelName, 'permissionSchema');
     if (!permissionSchema) return fields;
 
-    const permissions = this.getGlobalPermission();
+    const modelPermissionPrefix = getModelOption(modelName, 'modelPermissionPrefix', '');
+
+    const permissions = this.getGlobalPermissions();
     const docPermissions = getDocPermissions(modelName, doc);
     // get keys from permission schema as some fields might not be filled when created
     const keys = Object.keys(permissionSchema);
     // const keys = getModelKeys(doc);
 
-    const phas = (key) => permissions.has(key) || docPermissions[key];
+    const phas = (key) => permissions.has(key) || docPermissions[this.removePrefix(key, modelPermissionPrefix)];
     const [stringHandler, arrayHandler] = createValidator(phas);
 
     for (let x = 0; x < keys.length; x++) {
@@ -157,7 +168,7 @@ export class Core {
     const permissionSchema = getModelOption(modelName, ['permissionSchema'].concat(subPaths).join('.') as any);
     if (!permissionSchema) return fields;
 
-    const permissions = this.getGlobalPermission();
+    const permissions = this.getGlobalPermissions();
 
     const phas = (key) => {
       if (permissions.prop(key)) {
@@ -239,7 +250,7 @@ export class Core {
     const validate = getModelOption(modelName, `validate.${access}`, null);
 
     if (isFunction(validate)) {
-      const permissions = this.getGlobalPermission();
+      const permissions = this.getGlobalPermissions();
       return validate.call(this.req, allowedData, permissions, context) as boolean | any[];
     } else if (isBoolean(validate) || isArray(validate)) {
       return validate;
@@ -250,7 +261,7 @@ export class Core {
 
   async prepare(modelName: string, allowedData: any, access: PrepareAccess, context: MiddlewareContext = {}) {
     const prepare = getModelOption(modelName, `prepare.${access}`, null);
-    const permissions = this.getGlobalPermission();
+    const permissions = this.getGlobalPermissions();
     return this.callMiddleware(prepare, allowedData, permissions, context);
   }
 
@@ -265,7 +276,7 @@ export class Core {
     let docPermissions = {};
 
     if (isFunction(docPermissionsFn)) {
-      const permissions = this.getGlobalPermission();
+      const permissions = this.getGlobalPermissions();
       try {
         docPermissions = await docPermissionsFn.call(this.req, doc, permissions, context);
       } catch {}
@@ -336,7 +347,7 @@ export class Core {
   async decorate(modelName: string, doc: any, access: DecorateAccess, context: MiddlewareContext = {}) {
     const decorate = getModelOption(modelName, `decorate.${access}`, null);
 
-    const permissions = this.getGlobalPermission();
+    const permissions = this.getGlobalPermissions();
     context.docPermissions = getDocPermissions(modelName, doc);
 
     return this.callMiddleware(decorate, doc, permissions, context);
@@ -344,7 +355,7 @@ export class Core {
 
   async decorateAll(modelName: string, docs: any[], access: DecorateAllAccess) {
     const decorateAll = getModelOption(modelName, `decorateAll.${access}`, null);
-    const permissions = this.getGlobalPermission();
+    const permissions = this.getGlobalPermissions();
 
     return this.callMiddleware(decorateAll, docs, permissions, {});
   }
@@ -387,7 +398,7 @@ export class Core {
   async canActivate(routeGuard: Validation) {
     let allowed = false;
 
-    const permissions = this.getGlobalPermission();
+    const permissions = this.getGlobalPermissions();
     const phas = (key) => permissions.has(key);
     const [stringHandler, arrayHandler] = createValidator(phas);
 
@@ -425,7 +436,7 @@ export class Core {
     return this.getPublicService(modelName);
   }
 
-  private getGlobalPermission() {
+  private getGlobalPermissions() {
     return this.req[PERMISSIONS];
   }
 

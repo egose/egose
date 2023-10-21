@@ -4,6 +4,7 @@ export const orgRouter = egose.createRouter('Org', {
   basePath: null,
   queryPath: '_extra',
   parentPath: '/api',
+  modelPermissionPrefix: 'm::',
 });
 
 orgRouter

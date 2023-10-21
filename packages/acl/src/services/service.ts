@@ -87,7 +87,11 @@ export class Service extends Base {
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
-    if (includePermissions || !skim) doc = await this.addDocPermissions(doc, access);
+    let includeDocPermissions = includePermissions;
+    if (!includeDocPermissions && !skim) {
+      includeDocPermissions = this.checkIfModelPermissionExists([access, 'read', 'update']);
+    }
+    if (includeDocPermissions) doc = await this.addDocPermissions(doc, access);
     if (includePermissions) doc = await this.addFieldPermissions(doc, access);
     doc = await this.pickAllowedFields(doc, access, includePermissions ? this.baseFieldsExt : this.baseFields);
 
@@ -175,7 +179,11 @@ export class Service extends Base {
 
     docs = await Promise.all(
       docs.map(async (doc) => {
-        if (includePermissions || !skim) doc = await this.addDocPermissions(doc, 'list');
+        let includeDocPermissions = includePermissions;
+        if (!includeDocPermissions && !skim) {
+          includeDocPermissions = this.checkIfModelPermissionExists(['list', 'read', 'update']);
+        }
+        if (includeDocPermissions) doc = await this.addDocPermissions(doc, 'list');
         if (includePermissions) doc = await this.addFieldPermissions(doc, 'list');
         doc = await this.pickAllowedFields(doc, 'list', includePermissions ? this.baseFieldsExt : this.baseFields);
         doc = await _decorate(doc);
@@ -244,7 +252,11 @@ export class Service extends Base {
     let docs = await this.model.create(items);
     docs = await Promise.all(
       docs.map(async (doc, index) => {
-        if (includePermissions || !skim) doc = await this.addDocPermissions(doc, 'create', contexts[index]);
+        let includeDocPermissions = includePermissions;
+        if (!includeDocPermissions && !skim) {
+          includeDocPermissions = this.checkIfModelPermissionExists(['create', 'read', 'update']);
+        }
+        if (includeDocPermissions) doc = await this.addDocPermissions(doc, 'create', contexts[index]);
         if (includePermissions) doc = await this.addFieldPermissions(doc, 'read', contexts[index]);
         if (populate) await populateDoc(doc, await this.genPopulate(populateAccess, populate));
         doc = await this.pickAllowedFields(doc, 'read', includePermissions ? this.baseFieldsExt : this.baseFields);
@@ -327,7 +339,11 @@ export class Service extends Base {
     doc = await doc.save();
     context.finalDocObject = doc.toObject({ virtuals: false });
 
-    if (includePermissions || !skim) doc = await this.addDocPermissions(doc, 'update', context);
+    let includeDocPermissions = includePermissions;
+    if (!includeDocPermissions && !skim) {
+      includeDocPermissions = this.checkIfModelPermissionExists(['read', 'update']);
+    }
+    if (includeDocPermissions) doc = await this.addDocPermissions(doc, 'update', context);
     if (includePermissions) doc = await this.addFieldPermissions(doc, 'update', context);
     if (_populate) await populateDoc(doc, _populate);
     doc = await this.pickAllowedFields(doc, 'read', includePermissions ? this.baseFieldsExt : this.baseFields);

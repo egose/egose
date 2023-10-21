@@ -1,3 +1,4 @@
+import { getModelOption } from '../options';
 import {
   MiddlewareContext,
   Request,
@@ -84,5 +85,10 @@ export class Base {
 
   public validate(allowedData: any, access: ValidateAccess, context?: MiddlewareContext): Promise<boolean | any[]> {
     return this.req.macl.validate(this.modelName, allowedData, access, context);
+  }
+
+  public checkIfModelPermissionExists(accesses: DocPermissionsAccess[]) {
+    const modelPermissionKeys = getModelOption(this.modelName, '_modelPermissionKeys');
+    return accesses.some((access) => modelPermissionKeys[access]?.length > 0);
   }
 }

@@ -84,6 +84,7 @@ export interface DefaultModelRouterOptions {
   queryPath?: string;
   mutationPath?: string;
   routeGuard?: Validation | Access;
+  modelPermissionPrefix?: string;
 }
 
 export interface ExtendedDefaultModelRouterOptions extends DefaultModelRouterOptions {
@@ -103,7 +104,9 @@ export interface ModelRouterOptions extends DefaultModelRouterOptions {
   modelName?: string;
   basePath?: string;
   permissionSchema?: PermissionSchema;
-  permissionSchemaKeys?: string[];
+  _permissionSchemaKeys?: string[];
+  _globalPermissionKeys?: string[];
+  _modelPermissionKeys?: string[];
   mandatoryFields?: string[];
   docPermissions?: DocPermissions | Function;
   baseFilter?: any;

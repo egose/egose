@@ -1,6 +1,6 @@
 nodejs 18.18.2
 yarn 1.22.19
 python 3.12.0
-mongodb 4.4.2
+mongodb 6.0.11
 git-chglog 0.15.1
 semtag 0.1.1

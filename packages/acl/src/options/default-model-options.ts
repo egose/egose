@@ -13,6 +13,7 @@ const defaultModelOptions = new OptionsManager<DefaultModelRouterOptions, Extend
   queryPath: DEFAULT_QUERY_PATH,
   mutationPath: DEFAULT_MUTATION_PATH,
   routeGuard: false,
+  modelPermissionPrefix: '',
 }).build();
 
 export const setDefaultModelOptions = (options: DefaultModelRouterOptions) => {

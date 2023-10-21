@@ -5,13 +5,14 @@ import JsonRouter from 'express-json-router';
 export const userRouter = egose.createRouter('User', {
   basePath: null,
   parentPath: '/api',
+  modelPermissionPrefix: 'm::',
 });
 
 userRouter
   .permissionSchema({
-    name: { list: true, read: true, update: ['edit.name', 'edit.dummy'], create: true },
-    role: { list: 'isAdmin', read: true, update: 'edit.role', create: 'isAdmin' },
-    public: { list: false, read: true, update: 'edit.public', create: true },
+    name: { list: true, read: true, update: ['m::edit.name', 'm::edit.dummy'], create: true },
+    role: { list: 'isAdmin', read: true, update: 'm::edit.role', create: 'isAdmin' },
+    public: { list: false, read: true, update: 'm::edit.public', create: true },
     statusHistory: {
       list: (permissions) => {
         return false;
@@ -28,7 +29,7 @@ userRouter
         document: { list: false, read: true, update: true, create: true },
       },
     },
-    orgs: { list: true, read: true, update: 'edit.orgs', create: true },
+    orgs: { list: true, read: true, update: 'm::edit.orgs', create: true },
   })
   .docPermissions(function (doc, permissions) {
     const isMe = String(doc._id) === String(this._user?._id);
