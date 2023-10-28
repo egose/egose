@@ -19,6 +19,7 @@ runs:
 
   - name: Install python tools
     run: |
+      pip3 install --upgrade pip
       pip install -r requirements.txt
       asdf reshim
     shell: bash

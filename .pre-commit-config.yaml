@@ -12,7 +12,7 @@ repos:
   - id: trailing-whitespace
   - id: check-merge-conflict
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.7.0
+  rev: a362181620503bf7446d3f5c98cc004b9403543d
   hooks:
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
