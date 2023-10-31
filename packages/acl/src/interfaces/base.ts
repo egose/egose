@@ -49,6 +49,14 @@ export interface RootQueryEntry {
   options?: any;
 }
 
+export interface SubQueryEntry extends RootQueryEntry {
+  sqOptions?: {
+    path?: string;
+    flatten?: boolean;
+    compact?: boolean;
+  };
+}
+
 export interface Request extends express.Request {
   query: Record<
     | 'skip'

@@ -7,7 +7,7 @@ import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import pick from 'lodash/pick';
 import Model from '../model';
-import { getModelOptions } from '../options';
+import { getModelOption, getModelOptions } from '../options';
 import { iterateQuery, CustomError, getDocPermissions, genPagination, populateDoc } from '../helpers';
 import {
   ModelRouterOptions,
@@ -32,9 +32,12 @@ import {
   BaseFilterAccess,
   ExistsOptions,
   ServiceResult,
+  SubQueryEntry,
 } from '../interfaces';
 import { Codes, StatusCodes } from '../enums';
 import { Base } from './base';
+
+const ALLOWED_ROUTES = ['list', 'read'];
 
 export class Service extends Base {
   model: Model;
@@ -435,24 +438,38 @@ export class Service extends Base {
   }
 
   private async operateQuery(filter) {
-    const result = await iterateQuery(filter, async (sq, key) => {
-      // @Deprecated option 'query'
-      const { model, query, filter, mapper, ...rest } = sq;
-      const svc = this.req.macl.getService(model);
-      const { data, count } = await svc.find(filter ?? query, rest);
-      if (mapper && count > 0) {
-        const m = mapper.multi === false ? false : true;
-        const c = mapper.compact === true;
-        const f = mapper.flatten === true;
-        const path = mapper.path || mapper;
-        if (!m) return get(data[0], path, isNil(mapper.defaultValue) ? null : mapper.defaultValue);
+    const result = await iterateQuery(filter, async (sq: SubQueryEntry, key) => {
+      const { model, op, id, filter, args, options, sqOptions = {} } = sq;
 
-        let items = data.map((v) => get(v, path));
-        if (f) items = flatten(items);
-        if (c) items = compact(items);
-        return items;
+      const svc = this.req.macl.getPublicService(model);
+      if (!svc) return null;
+      if (!ALLOWED_ROUTES.includes(op)) return null;
+      let result!: ServiceResult;
+
+      if (op === 'list') {
+        result = await svc.find(filter, args, options);
+      } else if (op === 'read') {
+        if (id) {
+          result = await svc.findById(id, args, options);
+        } else if (filter) {
+          result = await svc.findOne(filter, args, options);
+        } else {
+          return null;
+        }
       }
-      return data;
+
+      if (!result.success) return null;
+
+      let ret = result.data;
+      if (sqOptions.path) {
+        ret = isArray(ret) ? flatten(ret.map((v) => get(v, sqOptions.path))) : get(ret, sqOptions.path);
+      }
+
+      if (sqOptions.compact) {
+        ret = compact(ret);
+      }
+
+      return ret;
     });
 
     return result;

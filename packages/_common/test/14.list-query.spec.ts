@@ -260,7 +260,7 @@ describe('List Sub-query', () => {
       .send({
         filter: {
           _id: {
-            $$sq: { model: 'User', mapper: { path: 'orgs', multi: false }, filter: { name: 'lucy2' } },
+            $$sq: { model: 'User', op: 'list', sqOptions: { path: 'orgs', compact: true }, filter: { name: 'lucy2' } },
           },
         },
       })

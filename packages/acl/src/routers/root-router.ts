@@ -66,7 +66,13 @@ export class RootRouter {
           } else if (item.op === 'new') {
             return this.processResult(item.op, await svc._new());
           } else if (item.op === 'read') {
-            return this.processResult(item.op, await svc._read(item.id, item.args, item.options));
+            if (item.id) {
+              return this.processResult(item.op, await svc._read(item.id, item.args, item.options));
+            }
+            if (item.filter) {
+              return this.processResult(item.op, await svc._readFilter(item.filter, item.args, item.options));
+            }
+            return { success: false, code: Codes.BadRequest, data: null, message: `Operation ${item.op} invalid` };
           } else if (item.op === 'update') {
             return this.processResult(item.op, await svc._update(item.id, item.args, item.options));
           } else if (item.op === 'delete') {
