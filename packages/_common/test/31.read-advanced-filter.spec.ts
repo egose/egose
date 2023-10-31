@@ -15,6 +15,6 @@ describe('Read-Advanced-Filter User', () => {
       .expect(200);
 
     expect(response.body.name).to.equal('john');
-    expect(response.body._permissions).exist;
+    expect(response.body._permissions).not.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 });

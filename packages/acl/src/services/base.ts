@@ -59,6 +59,10 @@ export class Base {
     return this.req.macl.genSelect(this.modelName, access, targetFields, skipChecks, subPaths);
   }
 
+  public addEmptyPermissions(doc: any): any {
+    return this.req.macl.addEmptyPermissions(this.modelName, doc);
+  }
+
   public addDocPermissions(doc: any, access: DocPermissionsAccess, context?: MiddlewareContext): Promise<any> {
     return this.req.macl.addDocPermissions(this.modelName, doc, access, context);
   }

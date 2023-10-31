@@ -12,7 +12,7 @@ describe('Read-Query User', () => {
     expect(response.status).to.equal(200);
     expect(response.success).to.equal(true);
     expect(response.data.name).to.equal('john');
-    expect(response.data._permissions).exist;
+    expect(response.data._permissions).not.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
   it('should not return the target user by read privilege', async () => {
@@ -46,7 +46,7 @@ describe('Read-Query User', () => {
 
     expect(response.status).to.equal(200);
     expect(response.success).to.equal(true);
-    expect(response.data._permissions).not.exist;
+    expect(response.data._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
   it('should return the unpopulated user orgs', async () => {

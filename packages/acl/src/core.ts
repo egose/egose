@@ -285,6 +285,13 @@ export class Core {
     return docPermissions;
   }
 
+  addEmptyPermissions(modelName: string, doc: any) {
+    const docPermissionField = getModelOption(modelName, 'permissionField');
+    // Mongoose `toObject` method omits empty values
+    setDocPermissions(doc, docPermissionField, { _view: { $: '_' }, _edit: { $: '_' } });
+    return doc;
+  }
+
   async addDocPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext = {}) {
     const docPermissionField = getModelOption(modelName, 'permissionField');
     const docPermissions = await this.genDocPermissions(modelName, doc, access, context);

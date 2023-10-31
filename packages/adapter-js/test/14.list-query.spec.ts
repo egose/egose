@@ -16,7 +16,7 @@ describe('List-Query Users', () => {
     expect(response.data.length).to.equal(userCount);
     expect(response.data[0].name).exist;
     expect(response.data[0].role).exist;
-    expect(response.data[0]._permissions).not.exist;
+    expect(response.data[0]._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
   it('should list all public users and `john`', async () => {
@@ -29,7 +29,7 @@ describe('List-Query Users', () => {
     expect(response.data.length).to.equal(userCount);
     expect(response.data[0].name).exist;
     expect(response.data[0].role).not.exist;
-    expect(response.data[0]._permissions).not.exist;
+    expect(response.data[0]._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
   it('should list all public users and `lucy2`', async () => {
@@ -42,7 +42,7 @@ describe('List-Query Users', () => {
     expect(response.data.length).to.equal(userCount);
     expect(response.data[0].name).exist;
     expect(response.data[0].role).not.exist;
-    expect(response.data[0]._permissions).not.exist;
+    expect(response.data[0]._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
   it('should include document count with documents', async () => {
@@ -61,7 +61,7 @@ describe('List-Query Users', () => {
     expect(response.data.length).to.equal(userCount);
     expect(response.data[0].name).exist;
     expect(response.data[0].role).exist;
-    expect(response.data[0]._permissions).not.exist;
+    expect(response.data[0]._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
   it('should include document count that scopes to the session user', async () => {
@@ -90,7 +90,7 @@ describe('List-Query Users', () => {
 
     expect(response.status).to.equal(200);
     expect(response.success).to.equal(true);
-    expect(response.data[0]._permissions).not.exist;
+    expect(response.data[0]._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
   it('should return the first user', async () => {

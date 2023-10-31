@@ -23,7 +23,7 @@ describe('Update Users', () => {
     expect(response.body.name).to.equal('nick');
     expect(response.body.role).to.equal('admin');
     expect(response.body.orgs[0]).to.be.an('object');
-    expect(response.body._permissions).exist;
+    expect(response.body._permissions).not.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
   it('should update an user `john` by admin excl. `permissions` field', async () => {
@@ -44,6 +44,6 @@ describe('Update Users', () => {
     expect(response.body.name).to.equal('nick');
     expect(response.body.role).to.equal('admin');
     expect(response.body.orgs[0]).to.be.an('object');
-    expect(response.body._permissions).not.exist;
+    expect(response.body._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 });
