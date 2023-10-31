@@ -34,7 +34,7 @@ export interface Org {
 
 export const services = {
   userService: adapter.createModelService<User>({ modelName: 'User', basePath: 'users' }),
-  orgService: adapter.createModelService<Org>({ modelName: 'Org', basePath: 'orgs' }),
+  orgService: adapter.createModelService<Org>({ modelName: 'Org', basePath: 'orgs', queryPath: '_extra' }),
 };
 
 before(async function () {

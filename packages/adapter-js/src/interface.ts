@@ -1,5 +1,10 @@
 import { Projection, Populate, PopulateAccess } from './types';
 
+export interface sqOptions {
+  path?: string;
+  compact?: boolean;
+}
+
 export interface ListArgs {
   skip?: number;
   limit?: number;
@@ -11,6 +16,7 @@ export interface ListOptions {
   skim?: boolean;
   includePermissions?: boolean;
   includeCount?: boolean;
+  sq?: sqOptions;
 }
 
 export interface ListAdvancedArgs {
@@ -28,11 +34,13 @@ export interface ListAdvancedOptions {
   includePermissions?: boolean;
   includeCount?: boolean;
   populateAccess?: PopulateAccess;
+  sq?: sqOptions;
 }
 
 export interface ReadOptions {
   includePermissions?: boolean;
   tryList?: boolean;
+  sq?: sqOptions;
 }
 
 export interface ReadAdvancedArgs {
@@ -44,6 +52,7 @@ export interface ReadAdvancedOptions {
   includePermissions?: boolean;
   tryList?: boolean;
   populateAccess?: PopulateAccess;
+  sq?: sqOptions;
 }
 
 export interface CreateOptions {

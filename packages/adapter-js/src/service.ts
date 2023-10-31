@@ -31,6 +31,7 @@ import {
 } from './interface';
 
 import { Model } from './model';
+import { replaceSubQuery } from './helpers';
 
 const setIfNotFound = (obj: object, key: string, value: any) => {
   if (!get(obj, key)) set(obj, key, value);
@@ -89,6 +90,7 @@ export class ModelService<T extends Document> {
       skim = this._defaults.listOptions.skim ?? true,
       includePermissions = this._defaults.listOptions.includePermissions ?? false,
       includeCount = this._defaults.listOptions.includeCount ?? false,
+      sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
@@ -136,6 +138,7 @@ export class ModelService<T extends Document> {
             includeCount,
             includeExtraHeaders: false,
           },
+          sqOptions: sq,
         },
         __requestConfig: reqConfig,
         __service: this,
@@ -166,6 +169,7 @@ export class ModelService<T extends Document> {
       includePermissions = this._defaults.listAdvancedOptions.includePermissions ?? false,
       includeCount = this._defaults.listAdvancedOptions.includeCount ?? false,
       populateAccess = this._defaults.listAdvancedOptions.populateAccess,
+      sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
@@ -179,7 +183,7 @@ export class ModelService<T extends Document> {
           .post(
             `${this._basePath}/${this._queryPath}`,
             {
-              filter,
+              filter: replaceSubQuery(filter),
               select,
               sort,
               populate,
@@ -220,6 +224,7 @@ export class ModelService<T extends Document> {
             includeExtraHeaders: false,
             populateAccess,
           },
+          sqOptions: sq,
         },
         __requestConfig: reqConfig,
         __service: this,
@@ -233,6 +238,7 @@ export class ModelService<T extends Document> {
     const {
       includePermissions = this._defaults.readOptions.includePermissions ?? true,
       tryList = this._defaults.readOptions.tryList ?? true,
+      sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
@@ -266,6 +272,7 @@ export class ModelService<T extends Document> {
             includePermissions,
             tryList,
           },
+          sqOptions: sq,
         },
         __requestConfig: reqConfig,
         __service: this,
@@ -288,6 +295,7 @@ export class ModelService<T extends Document> {
       includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
       tryList = this._defaults.readAdvancedOptions.tryList ?? true,
       populateAccess = this._defaults.readAdvancedOptions.populateAccess,
+      sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
@@ -326,6 +334,7 @@ export class ModelService<T extends Document> {
             tryList,
             populateAccess,
           },
+          sqOptions: sq,
         },
         __requestConfig: reqConfig,
         __service: this,
@@ -348,6 +357,7 @@ export class ModelService<T extends Document> {
       includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
       tryList = this._defaults.readAdvancedOptions.tryList ?? true,
       populateAccess = this._defaults.readAdvancedOptions.populateAccess,
+      sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
@@ -358,7 +368,7 @@ export class ModelService<T extends Document> {
           .post(
             `${this._basePath}/${this._queryPath}/__filter`,
             {
-              filter,
+              filter: replaceSubQuery(filter),
               select,
               populate,
               options: {
@@ -387,6 +397,7 @@ export class ModelService<T extends Document> {
             tryList,
             populateAccess,
           },
+          sqOptions: sq,
         },
         __requestConfig: reqConfig,
         __service: this,

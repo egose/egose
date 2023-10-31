@@ -50,7 +50,7 @@ class Model {
     const currVersionKey = this.model.schema.get('versionKey');
     if (!currVersionKey) this.model.schema.set('versionKey', '__v');
 
-    this.modelAttrs = getModelAtt(this.modelName)
+    this.modelAttrs = getModelAtt(this.modelName);
 
     // this.model.collection.indexes({}, (err, result = []) => {
     //   this.indexKeys = result.reduce(reducer1, []);

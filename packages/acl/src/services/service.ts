@@ -74,7 +74,7 @@ export class Service extends Base {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     let [_filter, _select, _populate] = await Promise.all([
-      overrideFilter || this.genFilter(access, filter),
+      overrideFilter || this.genFilter(access, await this.operateQuery(filter)),
       overrideSelect || this.genSelect(access, select),
       overridePopulate || this.genPopulate(populateAccess || access, populate),
     ]);

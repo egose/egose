@@ -52,7 +52,6 @@ export interface RootQueryEntry {
 export interface SubQueryEntry extends RootQueryEntry {
   sqOptions?: {
     path?: string;
-    flatten?: boolean;
     compact?: boolean;
   };
 }

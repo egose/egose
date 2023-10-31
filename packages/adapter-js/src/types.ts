@@ -1,6 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 import { Model } from './model';
 import { ModelService } from './service';
+import { sqOptions } from './interface';
 
 export interface KeyValueProjection {
   [key: string]: 1 | -1;
@@ -45,6 +46,7 @@ export interface ModelPromiseMeta {
     data?: any;
     args?: any;
     options?: any;
+    sqOptions?: sqOptions;
   };
   __requestConfig?: AxiosRequestConfig;
   __service?: ModelService<any>;
