@@ -116,8 +116,8 @@ export class ModelService<T extends Document> {
           )
           .then(this.handleSuccess)
           .then((result: ListModelResponse<T>) => {
-            const totalCount = get(result, 'headers.egose-total-count');
-            if (totalCount) result.totalCount = Number(totalCount);
+            const totalCount = get(result, 'headers.egose-total-count', 0);
+            result.totalCount = Number(totalCount);
 
             result.data = result.success ? result.raw.map((item) => Model.create<T>(item, this)) : [];
             return result;
@@ -199,8 +199,8 @@ export class ModelService<T extends Document> {
           )
           .then(this.handleSuccess)
           .then((result: ListModelResponse<T>) => {
-            const totalCount = get(result, 'headers.egose-total-count');
-            if (totalCount) result.totalCount = Number(totalCount);
+            const totalCount = get(result, 'headers.egose-total-count', 0);
+            result.totalCount = Number(totalCount);
 
             result.data = result.success ? result.raw.map((item) => Model.create<T>(item, this)) : [];
             return result;
@@ -260,7 +260,7 @@ export class ModelService<T extends Document> {
         __query: {
           model: this._modelName,
           op: 'read',
-          filter: {},
+          id: identifier,
           args: {},
           options: {
             includePermissions,
@@ -319,7 +319,68 @@ export class ModelService<T extends Document> {
         __query: {
           model: this._modelName,
           op: 'read',
-          filter: {},
+          id: identifier,
+          args: { select, populate },
+          options: {
+            includePermissions,
+            tryList,
+            populateAccess,
+          },
+        },
+        __requestConfig: reqConfig,
+        __service: this,
+      },
+    );
+
+    return result;
+  }
+
+  readAdvancedFilter(
+    filter: any,
+    args?: ReadAdvancedArgs,
+    options?: ReadAdvancedOptions,
+    axiosRequestConfig?: AxiosRequestConfig,
+  ) {
+    const { select = this._defaults.readAdvancedArgs.select, populate = this._defaults.readAdvancedArgs.populate } =
+      args ?? {};
+
+    const {
+      includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
+      tryList = this._defaults.readAdvancedOptions.tryList ?? true,
+      populateAccess = this._defaults.readAdvancedOptions.populateAccess,
+    } = options ?? {};
+
+    const reqConfig = axiosRequestConfig ?? {};
+
+    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+      () =>
+        this._axios
+          .post(
+            `${this._basePath}/${this._queryPath}/__filter`,
+            {
+              filter,
+              select,
+              populate,
+              options: {
+                includePermissions,
+                tryList,
+                populateAccess,
+              },
+            },
+            reqConfig,
+          )
+          .then(this.handleSuccess)
+          .then((result) => {
+            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+            return result;
+          })
+          .catch(this.handleError),
+      {
+        __op: 'readAdvancedFilter',
+        __query: {
+          model: this._modelName,
+          op: 'read',
+          filter,
           args: { select, populate },
           options: {
             includePermissions,
@@ -697,6 +758,11 @@ export class ModelService<T extends Document> {
   private handleError(error) {
     const result: Response<any, any> = {
       success: false,
+      raw: null,
+      data: null,
+      message: null,
+      status: null,
+      headers: null,
     };
 
     if (error.response) {

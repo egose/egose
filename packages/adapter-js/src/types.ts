@@ -23,11 +23,11 @@ export interface Document {
 
 export interface Response<T1, T2 = T1> {
   success: boolean;
-  raw?: T1;
-  data?: T2;
-  message?: string;
-  status?: number;
-  headers?: Record<string, string>;
+  raw: T1;
+  data: T2;
+  message: string;
+  status: number;
+  headers: Record<string, string>;
 }
 
 export type ModelResponse<T> = Response<T, Model<T> & T>;
