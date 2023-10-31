@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { getModelRef, getModelAtt } from './meta';
 
 interface FindProps {
   filter: any;
@@ -35,6 +36,7 @@ class Model {
   jsonSchema: Record<string, any>;
   indexKeys: string[];
   indexMap: any;
+  modelAttrs: string[];
 
   constructor(modelName: string) {
     this.modelName = modelName;
@@ -47,6 +49,8 @@ class Model {
     // In order to use optimistic concurrency, a version key must be set on the schema.
     const currVersionKey = this.model.schema.get('versionKey');
     if (!currVersionKey) this.model.schema.set('versionKey', '__v');
+
+    this.modelAttrs = getModelAtt(this.modelName)
 
     // this.model.collection.indexes({}, (err, result = []) => {
     //   this.indexKeys = result.reduce(reducer1, []);
@@ -70,7 +74,7 @@ class Model {
     if (select) builder = builder.select(select);
     if (skip) builder = builder.skip(skip);
     if (limit) builder = builder.limit(limit);
-    if (sort) builder = builder.sort(sort);
+    if (sort && this.modelAttrs.includes(sort)) builder = builder.sort(sort);
     if (populate) builder = builder.populate(populate);
     if (lean) builder = builder.lean();
     // builder = builder.setOptions({ sanitizeFilter: true });
