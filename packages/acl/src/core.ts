@@ -24,6 +24,7 @@ import { getModelRef } from './meta';
 import {
   Populate,
   Projection,
+  Filter,
   MiddlewareContext,
   Validation,
   Request,
@@ -80,7 +81,7 @@ export class Core {
     return { _id: id };
   }
 
-  async genFilter(modelName: string, access: BaseFilterAccess = 'read', _filter: any = null) {
+  async genFilter(modelName: string, access: BaseFilterAccess = 'read', _filter: Filter = null): Promise<Filter> {
     let baseFilterFn = getModelOption(modelName, `baseFilter.${access}`, null);
     // @Deprecated option 'baseQuery'
     if (!baseFilterFn) baseFilterFn = getModelOption(modelName, `baseQuery.${access}` as any, null);

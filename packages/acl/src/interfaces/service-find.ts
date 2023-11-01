@@ -1,15 +1,15 @@
-import { Projection, Populate, PopulateAccess, FindAccess } from './base';
+import { Projection, Sort, Filter, Populate, PopulateAccess, FindAccess } from './base';
 
 export interface FindArgs {
   select?: Projection;
   populate?: Populate[] | string;
-  sort?: string[] | string;
+  sort?: Sort;
   skip?: string | number;
   limit?: string | number;
   page?: string | number;
   pageSize?: string | number;
   overrides?: {
-    filter?: any;
+    filter?: Filter;
     select?: Projection;
     populate?: Populate[] | string;
   };
@@ -27,7 +27,7 @@ export interface FindOneArgs {
   select?: Projection;
   populate?: Populate[] | string;
   overrides?: {
-    filter?: any;
+    filter?: Filter;
     select?: Projection;
     populate?: Populate[] | string;
   };

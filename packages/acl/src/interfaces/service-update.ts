@@ -1,4 +1,4 @@
-import { Projection, Populate, PopulateAccess } from './base';
+import { Filter, Projection, Populate, PopulateAccess } from './base';
 
 export interface PublicUpdateArgs {
   select?: Projection;
@@ -8,7 +8,7 @@ export interface PublicUpdateArgs {
 
 export interface UpdateOneArgs extends Omit<PublicUpdateArgs, 'select' | 'process'> {
   overrides?: {
-    filter?: any;
+    filter?: Filter;
     populate?: Populate[] | string;
   };
 }

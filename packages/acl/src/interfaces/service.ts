@@ -1,3 +1,5 @@
+import { Filter } from './base';
+
 export interface DistinctArgs {
-  filter?: any;
+  filter?: Filter;
 }

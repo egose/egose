@@ -1,10 +1,11 @@
-import mongoose from 'mongoose';
+import mongoose, { FilterQuery } from 'mongoose';
 import { getModelRef, getModelAtt } from './meta';
+import { Sort, Filter } from './interfaces';
 
 interface FindProps {
-  filter: any;
+  filter: Filter;
   select?: any;
-  sort?: any;
+  sort?: Sort;
   populate?: any;
   limit?: any;
   skip?: any;
@@ -12,7 +13,7 @@ interface FindProps {
 }
 
 interface FindOneProps {
-  filter: any;
+  filter: Filter;
   select?: any;
   populate?: any;
   lean?: boolean;
@@ -70,11 +71,11 @@ class Model {
   find({ filter, select, sort, populate, limit, skip, lean }: FindProps) {
     // sort = this.pruneSort(sort);
 
-    let builder = this.model.find(filter);
+    let builder = this.model.find(filter as FilterQuery<any>);
     if (select) builder = builder.select(select);
     if (skip) builder = builder.skip(skip);
     if (limit) builder = builder.limit(limit);
-    if (sort && this.modelAttrs.includes(sort)) builder = builder.sort(sort);
+    if (sort) builder = builder.sort(sort);
     if (populate) builder = builder.populate(populate);
     if (lean) builder = builder.lean();
     // builder = builder.setOptions({ sanitizeFilter: true });
@@ -99,7 +100,7 @@ class Model {
   }
 
   findOne({ filter, select, populate, lean }: FindOneProps) {
-    let builder = this.model.findOne(filter);
+    let builder = this.model.findOne(filter as FilterQuery<any>);
     if (select) builder = builder.select(select);
     if (populate) builder = builder.populate(populate);
     if (lean) builder = builder.lean();

@@ -9,6 +9,10 @@ export interface KeyValueProjection {
 
 export type Projection = string[] | string | KeyValueProjection;
 
+export type SortOrder = -1 | 1 | 'asc' | 'ascending' | 'desc' | 'descending';
+
+export type Sort = string | { [key: string]: SortOrder } | [string, SortOrder][] | undefined | null;
+
 export type PopulateAccess = 'list' | 'read';
 
 export interface Populate {

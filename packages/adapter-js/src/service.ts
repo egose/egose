@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 import set from 'lodash/set';
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
+import { FilterQuery } from 'mongoose';
 import {
   Projection,
   Populate,
@@ -149,7 +150,7 @@ export class ModelService<T extends Document> {
   }
 
   listAdvanced(
-    filter: any,
+    filter: FilterQuery<T>,
     args?: ListAdvancedArgs,
     options?: ListAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
@@ -183,7 +184,7 @@ export class ModelService<T extends Document> {
           .post(
             `${this._basePath}/${this._queryPath}`,
             {
-              filter: replaceSubQuery(filter),
+              filter: replaceSubQuery<T>(filter),
               select,
               sort,
               populate,
@@ -345,7 +346,7 @@ export class ModelService<T extends Document> {
   }
 
   readAdvancedFilter(
-    filter: any,
+    filter: FilterQuery<T>,
     args?: ReadAdvancedArgs,
     options?: ReadAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
@@ -368,7 +369,7 @@ export class ModelService<T extends Document> {
           .post(
             `${this._basePath}/${this._queryPath}/__filter`,
             {
-              filter: replaceSubQuery(filter),
+              filter: replaceSubQuery<T>(filter),
               select,
               populate,
               options: {
@@ -673,7 +674,7 @@ export class ModelService<T extends Document> {
     return result;
   }
 
-  distinctAdvanced(field: string, conditions: object, axiosRequestConfig?: AxiosRequestConfig) {
+  distinctAdvanced(field: string, conditions: FilterQuery<T>, axiosRequestConfig?: AxiosRequestConfig) {
     const reqConfig = axiosRequestConfig ?? {};
 
     const result: ModelPromiseMeta & Promise<Response<string[]>> = wrapLazyPromise<
@@ -732,7 +733,7 @@ export class ModelService<T extends Document> {
     return result;
   }
 
-  countAdvanced(filter: any, args?: { access?: string }, axiosRequestConfig?: AxiosRequestConfig) {
+  countAdvanced(filter: FilterQuery<T>, args?: { access?: string }, axiosRequestConfig?: AxiosRequestConfig) {
     const { access } = args ?? {};
     const reqConfig = axiosRequestConfig ?? {};
 

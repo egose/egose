@@ -38,7 +38,7 @@ export class Base {
     return this.req.macl.genDocPermissions(this.modelName, doc, access, context);
   }
 
-  public genFilter(access?: BaseFilterAccess, filter?): Promise<any> {
+  public genFilter(access?: BaseFilterAccess, filter?) {
     return this.req.macl.genFilter(this.modelName, access, filter);
   }
 

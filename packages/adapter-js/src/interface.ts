@@ -1,4 +1,4 @@
-import { Projection, Populate, PopulateAccess } from './types';
+import { Projection, Sort, Populate, PopulateAccess } from './types';
 
 export interface sqOptions {
   path?: string;
@@ -22,7 +22,7 @@ export interface ListOptions {
 export interface ListAdvancedArgs {
   select?: Projection;
   populate?: Populate[] | Populate | string;
-  sort?: string[] | string;
+  sort?: Sort;
   skip?: string | number;
   limit?: string | number;
   page?: string | number;

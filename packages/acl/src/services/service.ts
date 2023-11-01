@@ -10,6 +10,7 @@ import Model from '../model';
 import { getModelOption, getModelOptions } from '../options';
 import { iterateQuery, CustomError, getDocPermissions, genPagination, populateDoc } from '../helpers';
 import {
+  Filter,
   ModelRouterOptions,
   MiddlewareContext,
   SubPopulate,
@@ -57,7 +58,7 @@ export class Service extends Base {
   }
 
   public async findOne(
-    filter: any,
+    filter: Filter,
     {
       select = this.defaults.findOneArgs?.select,
       populate = this.defaults.findOneArgs?.populate,
@@ -135,7 +136,7 @@ export class Service extends Base {
   }
 
   public async find(
-    filter: any,
+    filter: Filter,
     {
       select = this.defaults.findArgs?.select,
       populate = this.defaults.findArgs?.populate,
@@ -292,7 +293,7 @@ export class Service extends Base {
   }
 
   public async updateOne(
-    filter: any,
+    filter: Filter,
     data,
     { populate = this.defaults.updateOneArgs?.populate, overrides = {} }: UpdateOneArgs = {},
     {
@@ -407,7 +408,7 @@ export class Service extends Base {
   }
 
   public async exists(
-    filter: any,
+    filter: Filter,
     {
       access = this.defaults.existsOptions?.access ?? 'read',
       includeId = this.defaults.existsOptions?.includeId ?? false,

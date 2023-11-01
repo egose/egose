@@ -12,6 +12,7 @@ import pick from 'lodash/pick';
 import { normalizeSelect, toObject } from '../helpers';
 import { Service } from './service';
 import {
+  Filter,
   MiddlewareContext,
   FindAccess,
   SubPopulate,
@@ -60,7 +61,7 @@ export class PublicService extends Service {
   // }
 
   async _list(
-    filter: any,
+    filter: Filter,
     {
       select = this.defaults.publicListArgs?.select,
       populate = this.defaults.publicListArgs?.populate,
@@ -191,7 +192,7 @@ export class PublicService extends Service {
   }
 
   async _readFilter(
-    filter: any,
+    filter: Filter,
     {
       select = this.defaults.publicReadArgs?.select,
       populate = this.defaults.publicReadArgs?.populate,

@@ -1,8 +1,9 @@
 import isPlainObject from 'lodash/isPlainObject';
 import isArray from 'lodash/isArray';
 import mapValues from 'lodash/mapValues';
+import { FilterQuery } from 'mongoose';
 
-export function replaceSubQuery(filter: any) {
+export function replaceSubQuery<T>(filter: FilterQuery<T>) {
   if (!isPlainObject(filter)) return filter;
 
   const ret = mapValues(filter, (val, key) => {
@@ -23,6 +24,5 @@ export function replaceSubQuery(filter: any) {
     return val;
   });
 
-  console.log('retretret', ret);
   return ret;
 }
