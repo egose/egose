@@ -236,3 +236,77 @@ describe('List-Query Users', () => {
     expect(response.data[1].orgs).to.not.exist;
   });
 });
+
+describe('List Include', () => {
+  it('should include matching user documents with org _id', async () => {
+    const response = await services.orgService.listAdvanced(
+      {},
+      {
+        select: '_id',
+        include: {
+          ref: 'User',
+          op: 'list',
+          path: 'users',
+          localField: '_id',
+          foreignField: 'orgs',
+        },
+      },
+      null,
+      {
+        headers: { user: 'admin' },
+      },
+    );
+
+    expect(response.status).to.equal(200);
+    expect(response.success).to.equal(true);
+
+    expect(response.raw.length).greaterThan(0);
+    for (let x = 0; x < response.raw.length; x++) {
+      const org = response.raw[x];
+      expect(org.users.length).greaterThan(0);
+      expect(org.users.every((user) => user.orgs.some((orgId) => String(orgId) === String(org._id)))).to.true;
+    }
+  });
+
+  it('should include matching a single user document with org _id', async () => {
+    const response = await services.orgService.listAdvanced(
+      {},
+      {
+        select: '_id',
+        include: [
+          {
+            ref: 'User',
+            op: 'read',
+            path: 'users1',
+            localField: '_id',
+            foreignField: 'orgs',
+          },
+          {
+            ref: 'User',
+            op: 'read',
+            path: 'users2',
+            localField: '_id',
+            foreignField: 'orgs',
+          },
+        ],
+      },
+      null,
+      {
+        headers: { user: 'admin' },
+      },
+    );
+
+    expect(response.status).to.equal(200);
+    expect(response.success).to.equal(true);
+
+    for (let x = 0; x < response.raw.length; x++) {
+      const org = response.raw[x];
+
+      expect(org.users1).not.empty;
+      expect(org.users1.orgs.some((orgId) => String(orgId) === String(org._id))).to.true;
+
+      expect(org.users2).not.empty;
+      expect(org.users2.orgs.some((orgId) => String(orgId) === String(org._id))).to.true;
+    }
+  });
+});

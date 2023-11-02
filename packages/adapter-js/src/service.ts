@@ -158,6 +158,7 @@ export class ModelService<T extends Document> {
     const {
       select = this._defaults.listAdvancedArgs.select,
       populate = this._defaults.listAdvancedArgs.populate,
+      include = this._defaults.listAdvancedArgs.include,
       sort = this._defaults.listAdvancedArgs.sort,
       skip = this._defaults.listAdvancedArgs.skip,
       limit = this._defaults.listAdvancedArgs.limit,
@@ -188,6 +189,7 @@ export class ModelService<T extends Document> {
               select,
               sort,
               populate,
+              include,
               skip,
               limit,
               page,
@@ -217,7 +219,7 @@ export class ModelService<T extends Document> {
           model: this._modelName,
           op: 'list',
           filter: {},
-          args: { select, sort, populate, skip, limit, page, pageSize },
+          args: { select, sort, populate, include, skip, limit, page, pageSize },
           options: {
             skim,
             includePermissions,
@@ -289,8 +291,11 @@ export class ModelService<T extends Document> {
     options?: ReadAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
-    const { select = this._defaults.readAdvancedArgs.select, populate = this._defaults.readAdvancedArgs.populate } =
-      args ?? {};
+    const {
+      select = this._defaults.readAdvancedArgs.select,
+      populate = this._defaults.readAdvancedArgs.populate,
+      include = this._defaults.readAdvancedArgs.include,
+    } = args ?? {};
 
     const {
       includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
@@ -309,6 +314,7 @@ export class ModelService<T extends Document> {
             {
               select,
               populate,
+              include,
               options: {
                 includePermissions,
                 tryList,
@@ -329,7 +335,7 @@ export class ModelService<T extends Document> {
           model: this._modelName,
           op: 'read',
           id: identifier,
-          args: { select, populate },
+          args: { select, populate, include },
           options: {
             includePermissions,
             tryList,
@@ -351,8 +357,11 @@ export class ModelService<T extends Document> {
     options?: ReadAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
-    const { select = this._defaults.readAdvancedArgs.select, populate = this._defaults.readAdvancedArgs.populate } =
-      args ?? {};
+    const {
+      select = this._defaults.readAdvancedArgs.select,
+      populate = this._defaults.readAdvancedArgs.populate,
+      include = this._defaults.readAdvancedArgs.include,
+    } = args ?? {};
 
     const {
       includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
@@ -372,6 +381,7 @@ export class ModelService<T extends Document> {
               filter: replaceSubQuery<T>(filter),
               select,
               populate,
+              include,
               options: {
                 includePermissions,
                 tryList,
@@ -392,7 +402,7 @@ export class ModelService<T extends Document> {
           model: this._modelName,
           op: 'read',
           filter,
-          args: { select, populate },
+          args: { select, populate, include },
           options: {
             includePermissions,
             tryList,

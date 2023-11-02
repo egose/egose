@@ -13,6 +13,16 @@ export type SortOrder = -1 | 1 | 'asc' | 'ascending' | 'desc' | 'descending';
 
 export type Sort = string | { [key: string]: SortOrder } | [string, SortOrder][] | undefined | null;
 
+export interface Include {
+  ref: string;
+  op: 'list' | 'read';
+  path: string;
+  localField: string;
+  foreignField: string;
+  args?: any;
+  options?: any;
+}
+
 export type PopulateAccess = 'list' | 'read';
 
 export interface Populate {

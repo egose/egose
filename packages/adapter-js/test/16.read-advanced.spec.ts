@@ -175,3 +175,63 @@ describe('Read-Query User', () => {
     expect(response.data.orgs).to.exist;
   });
 });
+
+describe('List Include', () => {
+  it('should include matching org documents with orgs', async () => {
+    const response = await services.userService.readAdvanced(
+      'lucy2',
+      {
+        include: {
+          ref: 'Org',
+          op: 'list',
+          path: 'orgs1',
+          localField: 'orgs',
+          foreignField: '_id',
+        },
+      },
+      null,
+      { headers: { user: 'admin' } },
+    );
+
+    expect(response.status).to.equal(200);
+    expect(response.success).to.equal(true);
+
+    expect(response.raw.orgs1.length).to.equal(response.raw.orgs.length);
+    for (let x = 0; x < response.raw.orgs1.length; x++) {
+      const org = response.raw.orgs1[x];
+      expect(String(org._id)).to.equal(String(response.raw.orgs[x]));
+    }
+  });
+
+  it('should include matching a single org document with orgs', async () => {
+    const response = await services.userService.readAdvanced(
+      'lucy2',
+      {
+        include: [
+          {
+            ref: 'Org',
+            op: 'read',
+            path: 'orgs1',
+            localField: 'orgs',
+            foreignField: '_id',
+          },
+          {
+            ref: 'Org',
+            op: 'read',
+            path: 'orgs2',
+            localField: 'orgs',
+            foreignField: '_id',
+          },
+        ],
+      },
+      null,
+      { headers: { user: 'admin' } },
+    );
+
+    expect(response.status).to.equal(200);
+    expect(response.success).to.equal(true);
+
+    expect(response.raw.orgs1).not.empty;
+    expect(response.raw.orgs2).not.empty;
+  });
+});
