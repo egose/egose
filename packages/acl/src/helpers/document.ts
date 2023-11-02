@@ -5,7 +5,7 @@ import pick from 'lodash/pick';
 import { isDocument, isPromise } from '../lib';
 import { getModelOption } from '../options';
 
-export function getDocPermissions(modelName, doc) {
+export function getDocValue(modelName, doc) {
   const docPermissionField = getModelOption(modelName, 'permissionField');
   let docPermissions = {};
   if (isDocument(doc)) {
@@ -17,7 +17,7 @@ export function getDocPermissions(modelName, doc) {
   return docPermissions;
 }
 
-export function setDocPermissions(doc, path, value) {
+export function setDocValue(doc, path, value) {
   if (isDocument(doc)) {
     set(doc._doc, path, value);
   } else if (isPlainObject(doc)) {

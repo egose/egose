@@ -7,7 +7,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import { setCore } from './core';
 import Permission from './permission';
 import { Request } from './interfaces';
-import { createValidator, getDocPermissions } from './helpers';
+import { createValidator, getDocValue } from './helpers';
 import { getGlobalOption, getModelOption } from './options';
 import { MIDDLEWARE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
 
@@ -67,7 +67,7 @@ export function guard(condition: unknown) {
         return next(new JsonRouter.clientErrors.UnauthorizedError());
       }
 
-      const docPermissions = getDocPermissions(modelName, result.data);
+      const docPermissions = getDocValue(modelName, result.data);
       phas = (key) => permissions.has(key) || docPermissions[key];
       cond = _cond;
     }

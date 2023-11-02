@@ -1,8 +1,9 @@
-import { Projection, Populate, PopulateAccess } from './base';
+import { Projection, Populate, Include, PopulateAccess } from './base';
 
 export interface PublicReadArgs {
   select?: Projection;
   populate?: Populate[] | string;
+  include?: Include | Include[];
   process?: any;
 }
 

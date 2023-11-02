@@ -65,6 +65,7 @@ export class PublicService extends Service {
     {
       select = this.defaults.publicListArgs?.select,
       populate = this.defaults.publicListArgs?.populate,
+      include = this.defaults.publicListArgs?.include,
       sort = this.defaults.publicListArgs?.sort,
       skip = this.defaults.publicListArgs?.skip,
       limit = this.defaults.publicListArgs?.limit,
@@ -82,7 +83,7 @@ export class PublicService extends Service {
   ): Promise<ServiceResult> {
     const result = await this.find(
       filter,
-      { select, populate, sort, skip, limit, page, pageSize },
+      { select, populate, include, sort, skip, limit, page, pageSize },
       { skim, includePermissions, includeCount, populateAccess, lean },
       async (doc) => {
         doc = toObject(doc);
@@ -141,6 +142,7 @@ export class PublicService extends Service {
     {
       select = this.defaults.publicReadArgs?.select,
       populate = this.defaults.publicReadArgs?.populate,
+      include = this.defaults.publicReadArgs?.include,
       process = this.defaults.publicReadArgs?.process ?? [],
     }: PublicReadArgs = {},
     {
@@ -159,6 +161,7 @@ export class PublicService extends Service {
       {
         select,
         populate,
+        include,
         overrides: { idFilter },
       },
       { skim, includePermissions, access, populateAccess, lean },
@@ -196,6 +199,7 @@ export class PublicService extends Service {
     {
       select = this.defaults.publicReadArgs?.select,
       populate = this.defaults.publicReadArgs?.populate,
+      include = this.defaults.publicReadArgs?.include,
       process = this.defaults.publicReadArgs?.process ?? [],
     }: PublicReadArgs = {},
     {
@@ -213,6 +217,7 @@ export class PublicService extends Service {
       {
         select,
         populate,
+        include,
         overrides: {},
       },
       { skim, includePermissions, access, populateAccess, lean },

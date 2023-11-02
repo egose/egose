@@ -271,3 +271,68 @@ describe('List Sub-query', () => {
     expect(result).deep.equal(orgIds);
   });
 });
+
+describe('List Include', () => {
+  it('should include matching user documents with org _id', async () => {
+    const response = await request(app)
+      .post('/api/orgs/_extra')
+      .set('user', 'admin')
+      .send({
+        filter: {},
+        include: {
+          ref: 'User',
+          op: 'list',
+          path: 'users',
+          localField: '_id',
+          foreignField: 'orgs',
+        },
+      })
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body.length).greaterThan(0);
+    for (let x = 0; x < response.body.length; x++) {
+      const org = response.body[x];
+      expect(org.users.length).greaterThan(0);
+      expect(org.users.every((user) => user.orgs.some((orgId) => String(orgId) === String(org._id)))).to.true;
+    }
+  });
+
+  it('should include matching a single user document with org _id', async () => {
+    const response = await request(app)
+      .post('/api/orgs/_extra')
+      .set('user', 'admin')
+      .send({
+        filter: {},
+        include: [
+          {
+            ref: 'User',
+            op: 'read',
+            path: 'users1',
+            localField: '_id',
+            foreignField: 'orgs',
+          },
+          {
+            ref: 'User',
+            op: 'read',
+            path: 'users2',
+            localField: '_id',
+            foreignField: 'orgs',
+          },
+        ],
+      })
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body.length).greaterThan(0);
+    for (let x = 0; x < response.body.length; x++) {
+      const org = response.body[x];
+
+      expect(org.users1).not.empty;
+      expect(org.users1.orgs.some((orgId) => String(orgId) === String(org._id))).to.true;
+
+      expect(org.users2).not.empty;
+      expect(org.users2.orgs.some((orgId) => String(orgId) === String(org._id))).to.true;
+    }
+  });
+});

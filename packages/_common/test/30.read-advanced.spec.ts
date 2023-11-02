@@ -202,3 +202,57 @@ describe('Read-Query User', () => {
     expect(response.body.orgs).to.exist;
   });
 });
+
+describe('List Include', () => {
+  it('should include matching org documents with orgs', async () => {
+    const response = await request(app)
+      .post('/api/users/__query/lucy2')
+      .set('user', 'admin')
+      .send({
+        include: {
+          ref: 'Org',
+          op: 'list',
+          path: 'orgs1',
+          localField: 'orgs',
+          foreignField: '_id',
+        },
+      })
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body.orgs1.length).to.equal(response.body.orgs.length);
+    for (let x = 0; x < response.body.orgs1.length; x++) {
+      const org = response.body.orgs1[x];
+      expect(String(org._id)).to.equal(String(response.body.orgs[x]));
+    }
+  });
+
+  it('should include matching a single org document with orgs', async () => {
+    const response = await request(app)
+      .post('/api/users/__query/lucy2')
+      .set('user', 'admin')
+      .send({
+        include: [
+          {
+            ref: 'Org',
+            op: 'read',
+            path: 'orgs1',
+            localField: 'orgs',
+            foreignField: '_id',
+          },
+          {
+            ref: 'Org',
+            op: 'read',
+            path: 'orgs2',
+            localField: 'orgs',
+            foreignField: '_id',
+          },
+        ],
+      })
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body.orgs1).not.empty;
+    expect(response.body.orgs2).not.empty;
+  });
+});

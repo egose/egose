@@ -1,8 +1,9 @@
-import { Projection, Sort, Filter, Populate, PopulateAccess, FindAccess } from './base';
+import { Include, Projection, Sort, Filter, Populate, PopulateAccess, FindAccess } from './base';
 
 export interface FindArgs {
   select?: Projection;
   populate?: Populate[] | string;
+  include?: Include | Include[];
   sort?: Sort;
   skip?: string | number;
   limit?: string | number;
@@ -26,6 +27,7 @@ export interface FindOptions {
 export interface FindOneArgs {
   select?: Projection;
   populate?: Populate[] | string;
+  include?: Include | Include[];
   overrides?: {
     filter?: Filter;
     select?: Projection;
@@ -44,6 +46,7 @@ export interface FindOneOptions {
 export interface FindByIdArgs {
   select?: Projection;
   populate?: Populate[] | string;
+  include?: Include | Include[];
   overrides?: {
     select?: Projection;
     populate?: Populate[] | string;

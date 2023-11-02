@@ -114,14 +114,27 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       // @Deprecated option 'query'
-      let { query, filter, select, sort, populate, process, skip, limit, page, pageSize, options = {} } = req.body;
+      let {
+        query,
+        filter,
+        select,
+        sort,
+        populate,
+        include,
+        process,
+        skip,
+        limit,
+        page,
+        pageSize,
+        options = {},
+      } = req.body;
       const { skim, includePermissions, includeCount, includeExtraHeaders, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
 
       const result = await svc._list(
         filter ?? query,
-        { select, sort, populate, process, skip, limit, page, pageSize },
+        { select, sort, populate, include, process, skip, limit, page, pageSize },
         {
           skim,
           includePermissions,
@@ -263,7 +276,7 @@ export class ModelRouter {
       const allowed = await req.macl.isAllowed(this.modelName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      let { filter, select, populate, process, options = {} } = req.body;
+      let { filter, select, populate, include, process, options = {} } = req.body;
       const { skim, includePermissions, tryList, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
@@ -272,6 +285,7 @@ export class ModelRouter {
         {
           select,
           populate,
+          include,
           process,
         },
         { skim, includePermissions, tryList, populateAccess },
@@ -293,7 +307,7 @@ export class ModelRouter {
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.options.idParam];
-        let { select, populate, process, options = {} } = req.body;
+        let { select, populate, include, process, options = {} } = req.body;
         const { skim, includePermissions, tryList, populateAccess } = options;
 
         const svc = req.macl.getPublicService(this.modelName);
@@ -302,6 +316,7 @@ export class ModelRouter {
           {
             select,
             populate,
+            include,
             process,
           },
           { skim, includePermissions, tryList, populateAccess },

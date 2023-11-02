@@ -1,5 +1,29 @@
+import castArray from 'lodash/castArray';
+import forEach from 'lodash/forEach';
+import compact from 'lodash/compact';
+import flatten from 'lodash/flatten';
+import get from 'lodash/get';
+import set from 'lodash/set';
+import map from 'lodash/map';
+import isArray from 'lodash/isArray';
+import isBoolean from 'lodash/isBoolean';
+import isFunction from 'lodash/isFunction';
+import isNil from 'lodash/isNil';
+import pick from 'lodash/pick';
+import uniq from 'lodash/uniq';
+import intersectionBy from 'lodash/intersectionBy';
 import { getModelOption } from '../options';
 import {
+  iterateQuery,
+  CustomError,
+  setDocValue,
+  getDocValue,
+  genPagination,
+  normalizeSelect,
+  populateDoc,
+} from '../helpers';
+import {
+  Include,
   MiddlewareContext,
   Request,
   Projection,
@@ -11,6 +35,8 @@ import {
   PrepareAccess,
   TransformAccess,
   BaseFilterAccess,
+  ServiceResult,
+  SubQueryEntry,
 } from '../interfaces';
 
 export class Base {
@@ -94,5 +120,116 @@ export class Base {
   public checkIfModelPermissionExists(accesses: DocPermissionsAccess[]) {
     const modelPermissionKeys = getModelOption(this.modelName, '_modelPermissionKeys');
     return accesses.some((access) => modelPermissionKeys[access]?.length > 0);
+  }
+
+  protected processInclude(include: Include | Include[]) {
+    const includes = compact(castArray(include)).filter(({ ref, op, path, localField, foreignField }) => {
+      return ref && op && path && localField && foreignField;
+    });
+
+    // include Include local fields and paths
+    let includeLocalFields = [];
+    let includePaths = [];
+
+    forEach(includes, (inc) => {
+      includeLocalFields.push(inc.localField);
+      includePaths.push(inc.path);
+    });
+
+    includeLocalFields = uniq(compact(includeLocalFields));
+    includePaths = uniq(compact(includePaths));
+
+    return {
+      includes,
+      includeLocalFields,
+      includePaths,
+    };
+  }
+
+  protected async includeDocs(docs, include: Include | Include[]) {
+    if (!include) return docs;
+
+    const includes = compact(castArray(include));
+    if (includes.length === 0) return docs;
+
+    const isSingle = !isArray(docs);
+    if (isSingle) docs = [docs];
+
+    const includeLocalValues = {};
+    forEach(docs, (doc, i) => {
+      forEach(includes, ({ localField }, j) => {
+        if (!includeLocalValues[j]) includeLocalValues[j] = [];
+        includeLocalValues[j].push(get(doc, localField));
+      });
+    });
+
+    for (let x = 0; x < includes.length; x++) {
+      const { ref, op, path, localField, foreignField, args = {}, options = {} } = includes[x];
+
+      const svc = this.req.macl.getPublicService(ref);
+      if (!svc) continue;
+
+      const filter = { [foreignField]: { $in: flatten(includeLocalValues[x]) } };
+
+      const result = await svc.find(filter, args, {
+        ...options,
+        lean: true,
+        includePermissions: false,
+        includeCount: false,
+      });
+
+      if (!result.success) continue;
+
+      for (let y = 0; y < docs.length; y++) {
+        const doc = docs[y];
+        const localValue = get(doc, localField);
+        const filterFn = (row) =>
+          intersectionBy(castArray(localValue), castArray(get(row, foreignField)), String).length > 0;
+        const matches = result.data.filter(filterFn);
+        setDocValue(doc, path, op === 'list' ? matches : matches[0]);
+      }
+    }
+
+    return isSingle ? docs[0] : docs;
+  }
+
+  protected async operateQuery(filter) {
+    const result = await iterateQuery(filter, async (sq: SubQueryEntry, key) => {
+      const { model, op, id, filter, args, options, sqOptions = {} } = sq;
+
+      const svc = this.req.macl.getPublicService(model);
+      if (!svc) return null;
+
+      let result!: ServiceResult;
+
+      if (op === 'list') {
+        result = await svc.find(filter, args, options);
+      } else if (op === 'read') {
+        if (id) {
+          result = await svc.findById(id, args, options);
+        } else if (filter) {
+          result = await svc.findOne(filter, args, options);
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+
+      if (!result.success) return null;
+
+      let ret = result.data;
+      if (sqOptions.path) {
+        ret = isArray(ret) ? flatten(ret.map((v) => get(v, sqOptions.path))) : get(ret, sqOptions.path);
+      }
+
+      if (sqOptions.compact) {
+        ret = compact(ret);
+      }
+
+      return ret;
+    });
+
+    return result;
   }
 }

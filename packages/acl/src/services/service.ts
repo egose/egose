@@ -1,16 +1,31 @@
+import castArray from 'lodash/castArray';
+import forEach from 'lodash/forEach';
 import compact from 'lodash/compact';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
+import set from 'lodash/set';
+import map from 'lodash/map';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import pick from 'lodash/pick';
+import uniq from 'lodash/uniq';
+import intersectionBy from 'lodash/intersectionBy';
 import Model from '../model';
 import { getModelOption, getModelOptions } from '../options';
-import { iterateQuery, CustomError, getDocPermissions, genPagination, populateDoc } from '../helpers';
+import {
+  iterateQuery,
+  CustomError,
+  setDocValue,
+  getDocValue,
+  genPagination,
+  normalizeSelect,
+  populateDoc,
+} from '../helpers';
 import {
   Filter,
+  Include,
   ModelRouterOptions,
   MiddlewareContext,
   SubPopulate,
@@ -38,8 +53,6 @@ import {
 import { Codes, StatusCodes } from '../enums';
 import { Base } from './base';
 
-const ALLOWED_ROUTES = ['list', 'read'];
-
 export class Service extends Base {
   model: Model;
   options: ModelRouterOptions;
@@ -62,6 +75,7 @@ export class Service extends Base {
     {
       select = this.defaults.findOneArgs?.select,
       populate = this.defaults.findOneArgs?.populate,
+      include = this.defaults.findOneArgs?.include,
       overrides = {},
     }: FindOneArgs = {},
     {
@@ -80,9 +94,12 @@ export class Service extends Base {
       overridePopulate || this.genPopulate(populateAccess || access, populate),
     ]);
 
+    const finalSelect = normalizeSelect(_select);
+    const { includes, includeLocalFields, includePaths } = this.processInclude(include);
+
     const query = {
       filter: _filter,
-      select: _select,
+      select: finalSelect.concat(includeLocalFields),
       populate: _populate,
     };
 
@@ -91,13 +108,15 @@ export class Service extends Base {
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
+    doc = await this.includeDocs(doc, includes);
+
     let includeDocPermissions = includePermissions;
     if (!includeDocPermissions && !skim) {
       includeDocPermissions = this.checkIfModelPermissionExists([access, 'read', 'update']);
     }
     if (includeDocPermissions) doc = await this.addDocPermissions(doc, access);
     if (includePermissions) doc = await this.addFieldPermissions(doc, access);
-    doc = await this.pickAllowedFields(doc, access, this.baseFieldsExt);
+    doc = await this.pickAllowedFields(doc, access, this.baseFieldsExt.concat(includePaths));
     if (!includePermissions) doc = this.addEmptyPermissions(doc);
 
     return { success: true, code: Codes.Success, data: doc, query };
@@ -108,6 +127,7 @@ export class Service extends Base {
     {
       select = this.defaults.findByIdArgs?.select,
       populate = this.defaults.findByIdArgs?.populate,
+      include = this.defaults.findByIdArgs?.include,
       overrides = {},
     }: FindByIdArgs = {},
     {
@@ -126,6 +146,7 @@ export class Service extends Base {
       {
         select,
         populate,
+        include,
         overrides: {
           select: overrideSelect,
           populate: overridePopulate,
@@ -140,6 +161,7 @@ export class Service extends Base {
     {
       select = this.defaults.findArgs?.select,
       populate = this.defaults.findArgs?.populate,
+      include = this.defaults.findArgs?.include,
       sort = this.defaults.findArgs?.sort,
       skip = this.defaults.findArgs?.skip,
       limit = this.defaults.findArgs?.limit,
@@ -165,13 +187,23 @@ export class Service extends Base {
       genPagination({ skip, limit, page, pageSize }, this.options.listHardLimit),
     ]);
 
+    const finalSelect = normalizeSelect(_select);
+
     // filter populated fields based on select fields
     const filteredPopulate =
-      Array.isArray(_select) && Array.isArray(_populate)
-        ? _populate.filter((p) => _select.includes(p.path.split('.')[0]))
+      isArray(finalSelect) && isArray(_populate)
+        ? _populate.filter((p) => finalSelect.includes(p.path.split('.')[0]))
         : _populate;
 
-    const query = { filter: _filter, select: _select, populate: filteredPopulate, sort, ...pagination };
+    const { includes, includeLocalFields, includePaths } = this.processInclude(include);
+
+    const query = {
+      filter: _filter,
+      select: finalSelect.concat(includeLocalFields),
+      populate: filteredPopulate,
+      sort,
+      ...pagination,
+    };
 
     if (_filter === false) return { success: false, code: 'forbidden', data: [], count: 0, totalCount: null, query };
 
@@ -182,6 +214,8 @@ export class Service extends Base {
 
     const _decorate = isFunction(decorate) ? decorate : (v) => v;
 
+    docs = await this.includeDocs(docs, includes);
+
     docs = await Promise.all(
       docs.map(async (doc) => {
         let includeDocPermissions = includePermissions;
@@ -190,9 +224,9 @@ export class Service extends Base {
         }
         if (includeDocPermissions) doc = await this.addDocPermissions(doc, 'list');
         if (includePermissions) doc = await this.addFieldPermissions(doc, 'list');
-        doc = await this.pickAllowedFields(doc, 'list', this.baseFieldsExt);
+        doc = await this.pickAllowedFields(doc, 'list', this.baseFieldsExt.concat(includePaths));
         doc = await _decorate(doc);
-        if (!includePermissions) doc = this.addEmptyPermissions(doc);
+        doc = this.addEmptyPermissions(doc);
 
         return doc;
       }),
@@ -324,7 +358,7 @@ export class Service extends Base {
     context.originalData = data;
 
     doc = await this.addDocPermissions(doc, 'update', context);
-    context.docPermissions = this.getDocPermissions(doc);
+    context.docPermissions = this.getDocValue(doc);
 
     context.currentDoc = doc;
     const allowedFields = await this.genAllowedFields(doc, 'update');
@@ -441,45 +475,7 @@ export class Service extends Base {
     return { success: true, code: Codes.Success, data: await this.model.countDocuments(filter), query };
   }
 
-  public getDocPermissions(doc) {
-    return getDocPermissions(this.modelName, doc);
-  }
-
-  private async operateQuery(filter) {
-    const result = await iterateQuery(filter, async (sq: SubQueryEntry, key) => {
-      const { model, op, id, filter, args, options, sqOptions = {} } = sq;
-
-      const svc = this.req.macl.getPublicService(model);
-      if (!svc) return null;
-      if (!ALLOWED_ROUTES.includes(op)) return null;
-      let result!: ServiceResult;
-
-      if (op === 'list') {
-        result = await svc.find(filter, args, options);
-      } else if (op === 'read') {
-        if (id) {
-          result = await svc.findById(id, args, options);
-        } else if (filter) {
-          result = await svc.findOne(filter, args, options);
-        } else {
-          return null;
-        }
-      }
-
-      if (!result.success) return null;
-
-      let ret = result.data;
-      if (sqOptions.path) {
-        ret = isArray(ret) ? flatten(ret.map((v) => get(v, sqOptions.path))) : get(ret, sqOptions.path);
-      }
-
-      if (sqOptions.compact) {
-        ret = compact(ret);
-      }
-
-      return ret;
-    });
-
-    return result;
+  public getDocValue(doc) {
+    return getDocValue(this.modelName, doc);
   }
 }

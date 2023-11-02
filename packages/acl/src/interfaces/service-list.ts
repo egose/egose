@@ -1,8 +1,9 @@
-import { Projection, Sort, Populate, PopulateAccess } from './base';
+import { Include, Projection, Sort, Populate, PopulateAccess } from './base';
 
 export interface PublicListArgs {
   select?: Projection;
   populate?: Populate[] | string;
+  include?: Include | Include[];
   sort?: Sort;
   skip?: string | number;
   limit?: string | number;

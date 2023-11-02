@@ -43,8 +43,8 @@ import { Service, PublicService, Base } from './services';
 import {
   normalizeSelect,
   createValidator,
-  getDocPermissions,
-  setDocPermissions,
+  getDocValue,
+  setDocValue,
   toObject,
   pickDocFields,
   genPagination,
@@ -122,7 +122,7 @@ export class Core {
     const modelPermissionPrefix = getModelOption(modelName, 'modelPermissionPrefix', '');
 
     const permissions = this.getGlobalPermissions();
-    const docPermissions = getDocPermissions(modelName, doc);
+    const docPermissions = getDocValue(modelName, doc);
     // get keys from permission schema as some fields might not be filled when created
     const keys = Object.keys(permissionSchema);
     // const keys = getModelKeys(doc);
@@ -289,14 +289,14 @@ export class Core {
   addEmptyPermissions(modelName: string, doc: any) {
     const docPermissionField = getModelOption(modelName, 'permissionField');
     // Mongoose `toObject` method omits empty values
-    setDocPermissions(doc, docPermissionField, { _view: { $: '_' }, _edit: { $: '_' } });
+    setDocValue(doc, docPermissionField, { _view: { $: '_' }, _edit: { $: '_' } });
     return doc;
   }
 
   async addDocPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext = {}) {
     const docPermissionField = getModelOption(modelName, 'permissionField');
     const docPermissions = await this.genDocPermissions(modelName, doc, access, context);
-    setDocPermissions(doc, docPermissionField, docPermissions);
+    setDocValue(doc, docPermissionField, docPermissions);
     return doc;
   }
 
@@ -346,8 +346,8 @@ export class Core {
       {},
     );
 
-    setDocPermissions(doc, `${docPermissionField}._view`, viewObj);
-    setDocPermissions(doc, `${docPermissionField}._edit`, editObj);
+    setDocValue(doc, `${docPermissionField}._view`, viewObj);
+    setDocValue(doc, `${docPermissionField}._edit`, editObj);
 
     return doc;
   }
@@ -356,7 +356,7 @@ export class Core {
     const decorate = getModelOption(modelName, `decorate.${access}`, null);
 
     const permissions = this.getGlobalPermissions();
-    context.docPermissions = getDocPermissions(modelName, doc);
+    context.docPermissions = getDocValue(modelName, doc);
 
     return this.callMiddleware(decorate, doc, permissions, context);
   }

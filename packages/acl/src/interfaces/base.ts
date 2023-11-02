@@ -16,6 +16,16 @@ export type Sort = string | { [key: string]: SortOrder } | [string, SortOrder][]
 
 export type Filter = boolean | FilterQuery<any>;
 
+export interface Include {
+  ref: string;
+  op: 'list' | 'read';
+  path: string;
+  localField: string;
+  foreignField: string;
+  args?: any;
+  options?: any;
+}
+
 export type FindAccess = 'list' | 'read';
 export type PopulateAccess = 'list' | 'read';
 
