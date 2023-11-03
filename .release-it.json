@@ -2,7 +2,7 @@
   "git": {
     "commitMessage": "chore: release candidate v${version}",
     "tagName": "v${version}",
-    "tagAnnotation": "${name}\n${changelog}"
+    "tagAnnotation": "release candidate\n${changelog}"
   },
   "npm": {
     "publish": false
