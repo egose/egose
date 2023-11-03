@@ -1,8 +1,8 @@
 import get from 'lodash/get';
 import set from 'lodash/set';
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
-import { FilterQuery } from 'mongoose';
 import {
+  FilterQuery,
   Projection,
   Populate,
   PopulateAccess,

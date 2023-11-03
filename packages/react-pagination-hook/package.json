@@ -22,14 +22,14 @@
     "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "dependencies": {},
   "peerDependencies": {
     "@egose/adapter-js": "0.0.0-PLACEHOLDER"
   },
   "tsup": {
-    "target": "node14",
+    "target": "node18",
     "entry": [
       "src/index.tsx"
     ],

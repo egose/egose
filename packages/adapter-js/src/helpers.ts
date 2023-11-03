@@ -1,7 +1,7 @@
 import isPlainObject from 'lodash/isPlainObject';
 import isArray from 'lodash/isArray';
 import mapValues from 'lodash/mapValues';
-import { FilterQuery } from 'mongoose';
+import { FilterQuery } from './types';
 
 export function replaceSubQuery<T>(filter: FilterQuery<T>) {
   if (!isPlainObject(filter)) return filter;

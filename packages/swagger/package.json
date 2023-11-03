@@ -24,7 +24,7 @@
     "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "dependencies": {
     "@openapi-contrib/json-schema-to-openapi-schema": "^2.2.5",
@@ -37,7 +37,7 @@
     "mongoose": ">=5.2.0"
   },
   "tsup": {
-    "target": "node14",
+    "target": "node18",
     "entry": [
       "src/index.ts"
     ],

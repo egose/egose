@@ -2,6 +2,7 @@ import { AxiosRequestConfig } from 'axios';
 import { Model } from './model';
 import { ModelService } from './service';
 import { sqOptions } from './interface';
+import { _FilterQuery } from './mongoose/types';
 
 export interface KeyValueProjection {
   [key: string]: 1 | -1;
@@ -12,6 +13,8 @@ export type Projection = string[] | string | KeyValueProjection;
 export type SortOrder = -1 | 1 | 'asc' | 'ascending' | 'desc' | 'descending';
 
 export type Sort = string | { [key: string]: SortOrder } | [string, SortOrder][] | undefined | null;
+
+export type FilterQuery<T> = _FilterQuery<T>;
 
 export interface Include {
   ref: string;
