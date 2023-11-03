@@ -1,14 +1,17 @@
 {
   "name": "egose",
   "private": true,
-  "description": "A toolkit to handle Express.js requests easier",
+  "version": "0.21.1",
+  "description": "A compilation of tools designed to assist in building WebApps using Express and Mongoose",
   "author": "Junmin Ahn",
   "license": "MIT",
   "scripts": {
     "format": "git ls-files '*.js' '*.ts' | xargs prettier --write",
     "clean": "lerna clean",
     "test": "lerna run test",
-    "lint": "lerna run lint"
+    "lint": "lerna run lint",
+    "release": "release-it",
+    "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -n .conventional-changelog.mjs -s -r 0 --skip-unstable"
   },
   "workspaces": {
     "packages": [
@@ -36,6 +39,7 @@
     "babel-loader": "^9.1.2",
     "body-parser": "^1.20.2",
     "chai": "^4.3.7",
+    "conventional-changelog-cli": "^4.1.0",
     "cookie-parser": "^1.4.5",
     "css-loader": "^6.7.3",
     "dotenv": "^16.0.2",
@@ -63,6 +67,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "reflect-metadata": "^0.1.13",
+    "release-it": "^16.2.1",
     "style-loader": "^3.3.2",
     "supertest": "^6.3.3",
     "ts-loader": "^9.4.2",
