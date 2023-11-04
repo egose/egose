@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isArray from 'lodash/isArray';
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
 import {
   FilterQuery,
@@ -770,6 +771,291 @@ export class ModelService<T extends Document> {
     );
 
     return result;
+  }
+
+  id(id: string) {
+    return {
+      subs: <S = T>(field: keyof T) => {
+        const sub = String(field);
+        return {
+          list: (axiosRequestConfig?: AxiosRequestConfig) => {
+            const reqConfig = axiosRequestConfig ?? {};
+
+            const result: ModelPromiseMeta & Promise<ListModelResponse<S>> = wrapLazyPromise<
+              ListModelResponse<S>,
+              ModelPromiseMeta
+            >(
+              () =>
+                this._axios
+                  .get(
+                    `${this._basePath}/${id}/${sub}`,
+                    mergeConfig(reqConfig, {
+                      params: {},
+                    }),
+                  )
+                  .then(this.handleSuccess)
+                  .then((result: ListModelResponse<S>) => {
+                    result.totalCount = isArray(result.raw) ? result.raw.length : 0;
+                    result.data = [];
+                    return result;
+                  })
+                  .catch(this.handleError),
+              {
+                __op: 'listSub',
+                __query: {
+                  model: this._modelName,
+                  op: 'listsub',
+                  id,
+                  sub,
+                  filter: {},
+                  args: {},
+                  options: {},
+                },
+                __requestConfig: reqConfig,
+                __service: this,
+              },
+            );
+
+            return result;
+          },
+          listAdvanced: (filter?: any, args?: { select: string[] }, axiosRequestConfig?: AxiosRequestConfig) => {
+            const { select } = args ?? {};
+            const reqConfig = axiosRequestConfig ?? {};
+
+            const result: ModelPromiseMeta & Promise<ListModelResponse<S>> = wrapLazyPromise<
+              ListModelResponse<S>,
+              ModelPromiseMeta
+            >(
+              () =>
+                this._axios
+                  .post(`${this._basePath}/${id}/${sub}/${this._queryPath}`, { filter, fields: select }, reqConfig)
+                  .then(this.handleSuccess)
+                  .then((result: ListModelResponse<S>) => {
+                    result.totalCount = result.raw.length;
+                    result.data = [];
+                    return result;
+                  })
+                  .catch(this.handleError),
+              {
+                __op: 'listAdvancedSub',
+                __query: {
+                  model: this._modelName,
+                  op: 'listsub',
+                  id,
+                  sub,
+                  filter,
+                  args: { select },
+                  options: {},
+                },
+                __requestConfig: reqConfig,
+                __service: this,
+              },
+            );
+
+            return result;
+          },
+          read: (subId: string, axiosRequestConfig?: AxiosRequestConfig) => {
+            const reqConfig = axiosRequestConfig ?? {};
+
+            const result: ModelPromiseMeta & Promise<ModelResponse<S>> = wrapLazyPromise<
+              ModelResponse<S>,
+              ModelPromiseMeta
+            >(
+              () =>
+                this._axios
+                  .get(
+                    `${this._basePath}/${id}/${sub}/${subId}`,
+                    mergeConfig(reqConfig, {
+                      params: {},
+                    }),
+                  )
+                  .then(this.handleSuccess)
+                  .then((result) => {
+                    result.data = null;
+                    return result;
+                  })
+                  .catch(this.handleError),
+              {
+                __op: 'readSub',
+                __query: {
+                  model: this._modelName,
+                  op: 'readsub',
+                  id,
+                  sub,
+                  subId,
+                  args: {},
+                  options: {},
+                },
+                __requestConfig: reqConfig,
+                __service: this,
+              },
+            );
+
+            return result;
+          },
+          readAdvanced: (
+            subId: string,
+            args?: { select?: string[]; populate?: any },
+            axiosRequestConfig?: AxiosRequestConfig,
+          ) => {
+            const { select, populate } = args ?? {};
+            const reqConfig = axiosRequestConfig ?? {};
+
+            const result: ModelPromiseMeta & Promise<ModelResponse<S>> = wrapLazyPromise<
+              ModelResponse<S>,
+              ModelPromiseMeta
+            >(
+              () =>
+                this._axios
+                  .post(
+                    `${this._basePath}/${id}/${sub}/${subId}/${this._queryPath}`,
+                    {
+                      fields: select,
+                      populate,
+                    },
+                    reqConfig,
+                  )
+                  .then(this.handleSuccess)
+                  .then((result) => {
+                    result.data = null;
+                    return result;
+                  })
+                  .catch(this.handleError),
+              {
+                __op: 'readAdvancedSub',
+                __query: {
+                  model: this._modelName,
+                  op: 'readsub',
+                  id,
+                  sub,
+                  subId,
+                  args: { select, populate },
+                  options: {},
+                },
+                __requestConfig: reqConfig,
+                __service: this,
+              },
+            );
+
+            return result;
+          },
+          update: (
+            subId: string,
+            data: object,
+            options?: { returningSub: boolean },
+            axiosRequestConfig?: AxiosRequestConfig,
+          ) => {
+            const { returningSub } = options ?? {};
+            const reqConfig = axiosRequestConfig ?? {};
+
+            const result: ModelPromiseMeta & Promise<ModelResponse<S>> = wrapLazyPromise<
+              ModelResponse<S>,
+              ModelPromiseMeta
+            >(
+              () =>
+                this._axios
+                  .patch(
+                    `${this._basePath}/${id}/${sub}/${subId}`,
+                    data,
+                    mergeConfig(reqConfig, { params: { returning_sub: returningSub === true } }),
+                  )
+                  .then(this.handleSuccess)
+                  .then((result) => {
+                    result.data = null;
+                    return result;
+                  })
+                  .catch(this.handleError),
+              {
+                __op: 'updateSub',
+                __query: {
+                  model: this._modelName,
+                  op: 'updatesub',
+                  id,
+                  sub,
+                  subId,
+                  data,
+                  options: {
+                    returningSub,
+                  },
+                },
+                __requestConfig: reqConfig,
+                __service: this,
+              },
+            );
+
+            return result;
+          },
+          create: (data: object, axiosRequestConfig?: AxiosRequestConfig) => {
+            const reqConfig = axiosRequestConfig ?? {};
+
+            const result: ModelPromiseMeta & Promise<ModelResponse<S>> = wrapLazyPromise<
+              ModelResponse<S>,
+              ModelPromiseMeta
+            >(
+              () =>
+                this._axios
+                  .post(`${this._basePath}/${id}/${sub}`, data, mergeConfig(reqConfig, { params: {} }))
+                  .then(this.handleSuccess)
+                  .then((result) => {
+                    result.data = null;
+                    return result;
+                  })
+                  .catch(this.handleError),
+              {
+                __op: 'createSub',
+                __query: {
+                  model: this._modelName,
+                  op: 'createsub',
+                  id,
+                  sub,
+                  data,
+                  options: {},
+                },
+                __requestConfig: reqConfig,
+                __service: this,
+              },
+            );
+
+            return result;
+          },
+          delete: (subId: string, axiosRequestConfig?: AxiosRequestConfig) => {
+            const reqConfig = axiosRequestConfig ?? {};
+
+            const result: ModelPromiseMeta & Promise<Response<string>> = wrapLazyPromise<
+              Response<string>,
+              ModelPromiseMeta
+            >(
+              () =>
+                this._axios
+                  .delete(`${this._basePath}/${id}/${sub}/${subId}`, reqConfig)
+                  .then(this.handleSuccess)
+                  .then((result) => {
+                    result.data = null;
+                    return result;
+                  })
+                  .catch(this.handleError),
+              {
+                __op: 'deleteSub',
+                __query: {
+                  model: this._modelName,
+                  op: 'deletesub',
+                  id,
+                  sub,
+                  subId,
+                },
+                __requestConfig: reqConfig,
+                __service: this,
+              },
+            );
+
+            return result;
+          },
+        };
+      },
+      fetch: (args?: ReadAdvancedArgs, options?: ReadAdvancedOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+        return this.readAdvanced(id, args, options, axiosRequestConfig);
+      },
+    };
   }
 
   private handleSuccess(res: AxiosResponse<any, any>, extra = {}) {

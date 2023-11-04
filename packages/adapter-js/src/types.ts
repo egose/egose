@@ -58,6 +58,8 @@ export interface ModelPromiseMeta {
     model: string;
     op: string;
     id?: string;
+    sub?: string;
+    subId?: string;
     field?: string;
     filter?: any;
     data?: any;
