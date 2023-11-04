@@ -1,4 +1,21 @@
-## [0.21.1](https://github.com/egose/egose/compare/v0.21.0...v0.21.1) (2023-11-03)
+## [0.22.0](https://github.com/egose/egose/compare/v0.21.2...v0.22.0) (2023-11-04)
+
+
+### Features
+
+* **adapter-js:** support sub documents routes & services ([03075ab](https://github.com/egose/egose/commit/03075ab8ea6086abfe65615396b400fb936e412f))
+
+
+### Refactors
+
+* **acl:** organize sub document routes & services ([e57d302](https://github.com/egose/egose/commit/e57d302a69868a69c447957539bc6811d9ef5388))
+
+## [0.21.2](https://github.com/egose/egose/compare/v0.21.0...v0.21.2) (2023-11-03)
+
+
+### Docs
+
+* add CHANGELOG.md ([888a1b3](https://github.com/egose/egose/commit/888a1b36f7cceb26dfa09ca052f71da98b4c016c))
 
 ## [0.21.0](https://github.com/egose/egose/compare/v0.20.1...v0.21.0) (2023-11-02)
 
