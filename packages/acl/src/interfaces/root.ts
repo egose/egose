@@ -172,12 +172,22 @@ export interface ExtendedModelRouterOptions extends ModelRouterOptions, Extended
   'defaults.publicUpdateOptions'?: PublicUpdateOptions;
 }
 
-export type SelectAccess = 'list' | 'create' | 'read' | 'update';
-export type RouteGuardAccess = 'new' | 'list' | 'read' | 'update' | 'delete' | 'create' | 'distinct' | 'count' | 'subs';
-export type DocPermissionsAccess = 'list' | 'create' | 'read' | 'update';
-export type BaseFilterAccess = 'list' | 'read' | 'update' | 'delete';
-export type DecorateAccess = 'list' | 'create' | 'read' | 'update';
-export type DecorateAllAccess = 'list';
-export type ValidateAccess = 'create' | 'update';
-export type PrepareAccess = 'create' | 'update';
-export type TransformAccess = 'update';
+export type SelectAccess = 'list' | 'create' | 'read' | 'update' | string;
+export type RouteGuardAccess =
+  | 'new'
+  | 'list'
+  | 'read'
+  | 'update'
+  | 'delete'
+  | 'create'
+  | 'distinct'
+  | 'count'
+  | 'subs'
+  | string;
+export type DocPermissionsAccess = 'list' | 'create' | 'read' | 'update' | string;
+export type BaseFilterAccess = 'list' | 'read' | 'update' | 'delete' | string;
+export type DecorateAccess = 'list' | 'create' | 'read' | 'update' | string;
+export type DecorateAllAccess = 'list' | string;
+export type ValidateAccess = 'create' | 'update' | string;
+export type PrepareAccess = 'create' | 'update' | string;
+export type TransformAccess = 'update' | string;

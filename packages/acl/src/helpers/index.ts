@@ -57,7 +57,7 @@ export function buildRefs(schema: any) {
   return references;
 }
 
-export function buildSubPaths(schema: any) {
+export function buildSubPaths(schema: any): string[] {
   const subPaths = [];
 
   forEach(schema, (val, key) => {
@@ -95,19 +95,19 @@ export async function iterateQuery(query: any, handler: Function) {
   });
 }
 
-export const createValidator = (fn: (key) => boolean) => {
-  const stringHandler = (key) =>
+export const createValidator = (fn: (key: string) => boolean) => {
+  const stringHandler = (key: string) =>
     key
       .trim()
       .split(' ')
       .every((v) => fn(v));
 
-  const arrayHandler = (arr) =>
+  const arrayHandler = (arr: string[] | string[][]) =>
     arr.some((item) => {
       if (isString(item)) return stringHandler(item);
       else if (isArray(item)) return arrayHandler(item);
       else return false;
     });
 
-  return [stringHandler, arrayHandler];
+  return { stringHandler, arrayHandler };
 };

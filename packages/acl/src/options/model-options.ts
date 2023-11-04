@@ -151,7 +151,7 @@ export const getModelOptions = (modelName: string) => {
 
 export const getModelOption = <K extends keyof ExtendedModelRouterOptions>(
   modelName: string,
-  key: K,
+  key: K | string,
   defaultValue?: ExtendedModelRouterOptions[K],
 ) => {
   const manager = getOrCreateModelOptions(modelName);
@@ -164,7 +164,7 @@ export const getModelOption = <K extends keyof ExtendedModelRouterOptions>(
   if (option) return option;
 
   const parentKey = keys.slice(0, -1).join('.') as keyof ModelRouterOptions;
-  option = manager.get(`${parentKey}.default` as any);
+  option = manager.get(`${parentKey}.default`);
 
   if (option === undefined) option = manager.get(parentKey, defaultModelValue);
   return option;

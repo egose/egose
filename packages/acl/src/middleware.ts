@@ -72,7 +72,7 @@ export function guard(condition: unknown) {
       cond = _cond;
     }
 
-    const [stringHandler, arrayHandler] = createValidator(phas);
+    const { stringHandler, arrayHandler } = createValidator(phas);
     if (isString(cond)) {
       if (stringHandler(cond)) return next();
     } else if (isArray(cond)) {

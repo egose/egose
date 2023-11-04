@@ -22,6 +22,10 @@ import {
   genPagination,
   normalizeSelect,
   populateDoc,
+  filterChildren,
+  findById,
+  toObject,
+  genSubPopulate,
 } from '../helpers';
 import {
   Filter,
@@ -49,6 +53,7 @@ import {
   ExistsOptions,
   ServiceResult,
   SubQueryEntry,
+  FindAccess,
 } from '../interfaces';
 import { Codes, StatusCodes } from '../enums';
 import { Base } from './base';
@@ -477,5 +482,119 @@ export class Service extends Base {
 
   public getDocValue(doc) {
     return getDocValue(this.modelName, doc);
+  }
+
+  async listSub(id, sub, options?: { filter: any; fields: string[] }): Promise<ServiceResult> {
+    let { filter: ft, fields } = options ?? {};
+
+    const parentDoc = await this.getParentDoc(id, sub, null, { access: 'read' });
+    if (!parentDoc) return { success: false, code: Codes.NotFound, data: [] };
+    let result = get(parentDoc, sub);
+
+    const [subFilter, subSelect] = await Promise.all([
+      this.genFilter(`subs.${sub}.list`, ft),
+      this.genSelect('list', fields, false, [sub, 'sub']),
+    ]);
+
+    result = filterChildren(result, subFilter);
+    if (subSelect) result = result.map((v) => pick(toObject(v), subSelect.concat('_id')));
+
+    return { success: true, code: Codes.Success, data: result };
+  }
+
+  public async readSub(id, sub, subId, options?: { fields: string[]; populate: any }): Promise<ServiceResult> {
+    let { fields, populate } = options ?? {};
+
+    const parentDoc = await this.getParentDoc(id, sub, { populate }, { access: 'read' });
+    if (!parentDoc) return { success: false, code: Codes.NotFound, data: null };
+    let result = get(parentDoc, sub);
+
+    const [subFilter, subSelect] = await Promise.all([
+      this.genFilter(`subs.${sub}.read` as any),
+      this.genSelect('read', fields, false, [sub, 'sub']),
+    ]);
+
+    result = filterChildren(result, subFilter);
+    result = findById(result, subId);
+    if (!result) return { success: false, code: Codes.NotFound, data: null };
+
+    if (subSelect) result = pick(toObject(result), subSelect.concat(['_id']));
+    return { success: true, code: Codes.Success, data: result };
+  }
+
+  public async updateSub(id, sub, subId, data): Promise<ServiceResult> {
+    const parentDoc = await this.getParentDoc(id, sub, null, { access: 'update' });
+    if (!parentDoc) return { success: false, code: Codes.NotFound, data: null };
+    let result = get(parentDoc, sub);
+
+    const [subFilter, subReadSelect, subUpdateSelect] = await Promise.all([
+      this.genFilter(`subs.${sub}.update`),
+      this.genSelect('read', null, false, [sub, 'sub']),
+      this.genSelect('update', null, false, [sub, 'sub']),
+    ]);
+
+    result = filterChildren(result, subFilter);
+    result = findById(result, subId);
+    if (!result) return { success: false, code: Codes.NotFound, data: null };
+
+    const allowedData = pick(data, subUpdateSelect);
+    Object.assign(result, allowedData);
+
+    await parentDoc.save();
+    if (subReadSelect) result = pick(toObject(result), subReadSelect.concat(['_id']));
+    return { success: true, code: Codes.Success, data: result };
+  }
+
+  public async createSub(id, sub, data, options?: { addFirst: boolean }): Promise<ServiceResult> {
+    const { addFirst } = options ?? {};
+
+    const parentDoc = await this.getParentDoc(id, sub, null, { access: 'update' });
+    if (!parentDoc) return { success: false, code: Codes.NotFound, data: null };
+    let result = get(parentDoc, sub);
+
+    const [subCreateSelect, subReadSelect] = await Promise.all([
+      this.genSelect('create', null, false, [sub, 'sub']),
+      this.genSelect('read', null, false, [sub, 'sub']),
+    ]);
+
+    const allowedData = pick(data, subCreateSelect);
+    addFirst === true ? result.unshift(allowedData) : result.push(allowedData);
+
+    await parentDoc.save();
+    if (subReadSelect) result = result.map((v) => pick(toObject(v), subReadSelect.concat(['_id'])));
+    return { success: true, code: Codes.Created, data: result };
+  }
+
+  public async deleteSub(id, sub, subId): Promise<ServiceResult> {
+    const parentDoc = await this.getParentDoc(id, sub, null, { access: 'update' });
+    if (!parentDoc) return { success: false, code: Codes.NotFound, data: null };
+    let result = get(parentDoc, sub);
+
+    const subFilter = await this.genFilter(`subs.${sub}.delete` as any);
+
+    result = filterChildren(result, subFilter);
+    result = findById(result, subId);
+    if (!result) return { success: false, code: Codes.NotFound, data: null };
+
+    // starting from version 7.x, the 'deleteOne' method replaces the 'remove' method for subdocuments.
+    // see https://mongoosejs.com/docs/subdocs.html#removing-subdocs
+    await ('deleteOne' in result ? result.deleteOne() : result.remove());
+    await parentDoc.save();
+    return { success: true, code: Codes.Success, data: result._id };
+  }
+
+  public async getParentDoc(
+    id,
+    sub,
+    args?: { populate?: SubPopulate | SubPopulate[] },
+    options?: { access?: any; lean?: boolean },
+  ) {
+    const { populate } = args ?? {};
+    const { access = 'read', lean = false } = options ?? {};
+
+    const parentFilter = await this.genFilter(access, await this.genIDFilter(id));
+
+    if (parentFilter === false) return null;
+    return this.model.findOne({ filter: parentFilter, select: sub, populate: genSubPopulate(sub, populate), lean });
   }
 }

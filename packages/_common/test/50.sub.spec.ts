@@ -19,7 +19,7 @@ describe('Sub-Document User', () => {
     expect(response.body[0].document).not.exist;
   });
 
-  it('should return expected fields for status history list query route', async () => {
+  it('should return expected fields for status history list advanced route', async () => {
     const response = await request(app)
       .post('/api/users/lucy2/statusHistory/__query')
       .set('user', 'lucy2')
@@ -43,13 +43,13 @@ describe('Sub-Document User', () => {
       .expect('Content-Type', /json/)
       .expect(200);
 
-    expect(response.body.id).to.equal(subId);
+    expect(response.body._id).to.equal(subId);
     expect(response.body.name).exist;
     expect(response.body.approved).exist;
     expect(response.body.document).to.be.a('string');
   });
 
-  it('should return expected fields for status history read query route', async () => {
+  it('should return expected fields for status history read advanced route', async () => {
     const lucy2: any = await mongoose.model('User').findOne({ name: 'lucy2' }).select('statusHistory');
     const subId = String(lucy2.statusHistory[0]._id);
 
@@ -60,7 +60,7 @@ describe('Sub-Document User', () => {
       .expect('Content-Type', /json/)
       .expect(200);
 
-    expect(response.body.id).to.equal(subId);
+    expect(response.body._id).to.equal(subId);
     expect(response.body.name).exist;
     expect(response.body.approved).not.exist;
     expect(response.body.document).not.exist;
@@ -81,7 +81,7 @@ describe('Sub-Document User', () => {
       .expect('Content-Type', /json/)
       .expect(200);
 
-    expect(response.body.id).to.equal(subId);
+    expect(response.body._id).to.equal(subId);
     expect(response.body.name).to.equal(newName);
     expect(response.body.approved).to.equal(oldApproved);
 
@@ -101,7 +101,7 @@ describe('Sub-Document User', () => {
       .set('user', 'admin')
       .send({ name: 'manager', approved: true })
       .expect('Content-Type', /json/)
-      .expect(200);
+      .expect(201);
 
     expect(response.body.length).to.equal(count + 1);
     expect(response.body[count].name).to.equal('manager');
@@ -126,7 +126,7 @@ describe('Sub-Document User', () => {
     expect(lucy2.statusHistory.length).to.equal(initialCount - 1);
   });
 
-  it('should return unpopulated document field for status history read query route', async () => {
+  it('should return unpopulated document field for status history read advanced route', async () => {
     const lucy2: any = await mongoose.model('User').findOne({ name: 'lucy2' }).select('statusHistory');
     const subId = String(lucy2.statusHistory[0]._id);
 
@@ -137,11 +137,11 @@ describe('Sub-Document User', () => {
       .expect('Content-Type', /json/)
       .expect(200);
 
-    expect(response.body.id).to.equal(subId);
+    expect(response.body._id).to.equal(subId);
     expect(response.body.document).to.be.a('string');
   });
 
-  it('should return populated document field for status history read query route', async () => {
+  it('should return populated document field for status history read advanced route', async () => {
     const lucy2: any = await mongoose.model('User').findOne({ name: 'lucy2' }).select('statusHistory');
     const subId = String(lucy2.statusHistory[0]._id);
     const documentId = String(lucy2.statusHistory[0].document);
@@ -153,7 +153,7 @@ describe('Sub-Document User', () => {
       .expect('Content-Type', /json/)
       .expect(200);
 
-    expect(response.body.id).to.equal(subId);
+    expect(response.body._id).to.equal(subId);
     expect(response.body.document._id).to.equal(documentId);
   });
 });

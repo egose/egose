@@ -28,11 +28,11 @@ export class OptionsManager<T1 extends object, T2 extends object> {
     return this;
   }
 
-  get<K extends keyof T2>(key: K, defaultValue?: T2[K]) {
+  get<K extends keyof T2>(key: K | string, defaultValue?: T2[K]) {
     return get(this.currentOptions, key, defaultValue);
   }
 
-  set<K extends keyof T2>(key: K, value: T2[K]) {
+  set<K extends keyof T2>(key: K | string, value: T2[K]) {
     set(this.currentOptions, key, value);
   }
 
@@ -44,7 +44,7 @@ export class OptionsManager<T1 extends object, T2 extends object> {
     assign(this.currentOptions, options);
   }
 
-  onchange<K extends keyof T1>(key: K, func: Function) {
+  onchange<K extends keyof T1>(key: K | string, func: Function) {
     set(this.listeners, key, func);
     return this;
   }

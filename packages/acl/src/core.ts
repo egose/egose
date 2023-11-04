@@ -84,7 +84,7 @@ export class Core {
   async genFilter(modelName: string, access: BaseFilterAccess = 'read', _filter: Filter = null): Promise<Filter> {
     let baseFilterFn = getModelOption(modelName, `baseFilter.${access}`, null);
     // @Deprecated option 'baseQuery'
-    if (!baseFilterFn) baseFilterFn = getModelOption(modelName, `baseQuery.${access}` as any, null);
+    if (!baseFilterFn) baseFilterFn = getModelOption(modelName, `baseQuery.${access}`, null);
     if (!isFunction(baseFilterFn)) return _filter || {};
 
     const cacheKey = `${modelName}_baseFilter_${access}`;
@@ -128,7 +128,7 @@ export class Core {
     // const keys = getModelKeys(doc);
 
     const phas = (key) => permissions.has(key) || docPermissions[this.removePrefix(key, modelPermissionPrefix)];
-    const [stringHandler, arrayHandler] = createValidator(phas);
+    const { stringHandler, arrayHandler } = createValidator(phas);
 
     for (let x = 0; x < keys.length; x++) {
       const key = keys[x];
@@ -166,7 +166,7 @@ export class Core {
     let normalizedSelect = normalizeSelect(targetFields);
     let fields = [];
 
-    const permissionSchema = getModelOption(modelName, ['permissionSchema'].concat(subPaths).join('.') as any);
+    const permissionSchema = getModelOption(modelName, ['permissionSchema'].concat(subPaths).join('.'));
     if (!permissionSchema) return fields;
 
     const permissions = this.getGlobalPermissions();
@@ -181,7 +181,7 @@ export class Core {
       return false;
     };
 
-    const [stringHandler, arrayHandler] = createValidator(phas);
+    const { stringHandler, arrayHandler } = createValidator(phas);
 
     const keys = Object.keys(permissionSchema);
     for (let x = 0; x < keys.length; x++) {
@@ -408,22 +408,22 @@ export class Core {
 
     const permissions = this.getGlobalPermissions();
     const phas = (key) => permissions.has(key);
-    const [stringHandler, arrayHandler] = createValidator(phas);
+    const { stringHandler, arrayHandler } = createValidator(phas);
 
     if (isBoolean(routeGuard)) {
-      return routeGuard === true;
+      allowed = routeGuard === true;
     } else if (isString(routeGuard)) {
-      return stringHandler(routeGuard);
+      allowed = stringHandler(routeGuard);
     } else if (isArray(routeGuard)) {
-      return arrayHandler(routeGuard);
+      allowed = arrayHandler(routeGuard);
     } else if (isFunction(routeGuard)) {
-      return routeGuard.call(this.req, permissions);
+      allowed = routeGuard.call(this.req, permissions);
     }
 
     return allowed;
   }
 
-  async isAllowed(modelName: string, access: RouteGuardAccess) {
+  async isAllowed(modelName: string, access: RouteGuardAccess | string) {
     const routeGuard = getModelOption(modelName, `routeGuard.${access}`);
     return this.canActivate(routeGuard);
   }
@@ -445,7 +445,7 @@ export class Core {
   }
 
   private getGlobalPermissions() {
-    return this.req[PERMISSIONS];
+    return this.req[PERMISSIONS] as Permission;
   }
 
   private async callMiddleware(

@@ -437,12 +437,15 @@ export class ModelRouter {
       // LIST //
       //////////
       this.router.get(`${this.options.basePath}/:${this.options.idParam}/${sub}`, setCore, async (req: Request) => {
-        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.list` as any);
+        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.list`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.options.idParam];
         const svc = req.macl.getPublicService(this.modelName);
-        return svc.listSub(id, sub);
+        const result = await svc.listSub(id, sub);
+
+        handleResultError(result);
+        return result.data;
       });
 
       /////////////////////
@@ -452,12 +455,15 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/${this.options.queryPath}`,
         setCore,
         async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.list` as any);
+          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.list`);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
           const svc = req.macl.getPublicService(this.modelName);
-          return svc.listSub(id, sub, req.body);
+          const result = await svc.listSub(id, sub, req.body);
+
+          handleResultError(result);
+          return result.data;
         },
       );
 
@@ -468,13 +474,16 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
         setCore,
         async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.read` as any);
+          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.read`);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
           const { subId } = req.params;
           const svc = req.macl.getPublicService(this.modelName);
-          return svc.readSub(id, sub, subId);
+          const result = await svc.readSub(id, sub, subId);
+
+          handleResultError(result);
+          return result.data;
         },
       );
 
@@ -485,13 +494,16 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId/${this.options.queryPath}`,
         setCore,
         async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.read` as any);
+          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.read`);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
           const { subId } = req.params;
           const svc = req.macl.getPublicService(this.modelName);
-          return svc.readSub(id, sub, subId, req.body);
+          const result = await svc.readSub(id, sub, subId, req.body);
+
+          handleResultError(result);
+          return result.data;
         },
       );
 
@@ -502,13 +514,16 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
         setCore,
         async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.update` as any);
+          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.update`);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
           const { subId } = req.params;
           const svc = req.macl.getPublicService(this.modelName);
-          return svc.updateSub(id, sub, subId, req.body);
+          const result = await svc.updateSub(id, sub, subId, req.body);
+
+          handleResultError(result);
+          return result.data;
         },
       );
 
@@ -516,12 +531,16 @@ export class ModelRouter {
       // CREATE //
       ////////////
       this.router.post(`${this.options.basePath}/:${this.options.idParam}/${sub}`, setCore, async (req: Request) => {
-        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.create` as any);
+        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.create`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.options.idParam];
         const svc = req.macl.getPublicService(this.modelName);
-        return svc.createSub(id, sub, req.body);
+        const result = await svc.createSub(id, sub, req.body);
+
+        handleResultError(result);
+
+        return new success.Created(result.data);
       });
 
       ////////////
@@ -531,13 +550,16 @@ export class ModelRouter {
         `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
         setCore,
         async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.delete` as any);
+          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.delete`);
           if (!allowed) throw new clientErrors.UnauthorizedError();
 
           const id = req.params[this.options.idParam];
           const { subId } = req.params;
           const svc = req.macl.getPublicService(this.modelName);
-          return svc.deleteSub(id, sub, subId);
+          const result = await svc.deleteSub(id, sub, subId);
+
+          handleResultError(result);
+          return result.data;
         },
       );
     }

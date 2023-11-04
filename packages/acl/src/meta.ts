@@ -6,7 +6,7 @@ import { buildRefs, buildSubPaths } from './helpers';
 
 let isReady = false;
 const modelRefs = {};
-const modelSubs = {};
+const modelSubs: { [key: string]: string[] } = {};
 const modelAtts = {};
 const listeners = [];
 
@@ -36,5 +36,5 @@ let _interval = setInterval(() => {
 }, 10);
 
 export const getModelRef = (modelName: string, refPath: string) => get(modelRefs, `${modelName}.${refPath}`, null);
-export const getModelSub = (modelName: string) => get(modelSubs, modelName, []);
+export const getModelSub = (modelName: string) => get(modelSubs, modelName, []) as string[];
 export const getModelAtt = (modelName: string) => get(modelAtts, modelName, []);
