@@ -231,7 +231,7 @@ export class Service extends Base {
         if (includePermissions) doc = await this.addFieldPermissions(doc, 'list');
         doc = await this.pickAllowedFields(doc, 'list', this.baseFieldsExt.concat(includePaths));
         doc = await _decorate(doc);
-        doc = this.addEmptyPermissions(doc);
+        if (!includePermissions) doc = this.addEmptyPermissions(doc);
 
         return doc;
       }),

@@ -77,6 +77,16 @@ describe('List Users', () => {
     expect(response.body[0]._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
+  it('should include permissions in documents', async () => {
+    const response = await request(app)
+      .get('/api/users?include_permissions=true')
+      .set('user', 'admin')
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body[0]._permissions).not.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
+  });
+
   it('should return the first user', async () => {
     const users: any = await mongoose.model('User').find({}).limit(1);
 
