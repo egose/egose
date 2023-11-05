@@ -50,7 +50,7 @@ export interface Response<T1, T2 = T1> {
 
 export type ModelResponse<T> = Response<T, Model<T> & T>;
 export type ArrayModelResponse<T> = Response<T[], (Model<T> & T)[]>;
-export type ListModelResponse<T> = ArrayModelResponse<T> & { totalCount?: number };
+export type ListModelResponse<T> = ArrayModelResponse<T> & { totalCount: number };
 
 export interface ModelPromiseMeta {
   __op: string;

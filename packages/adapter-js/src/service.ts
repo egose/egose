@@ -126,7 +126,7 @@ export class ModelService<T extends Document> {
             result.data = result.success ? result.raw.map((item) => Model.create<T>(item, this)) : [];
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ListModelResponse<T>>),
       {
         __op: 'list',
         __query: {
@@ -213,7 +213,7 @@ export class ModelService<T extends Document> {
             result.data = result.success ? result.raw.map((item) => Model.create<T>(item, this)) : [];
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ListModelResponse<T>>),
       {
         __op: 'listAdvanced',
         __query: {
@@ -260,11 +260,11 @@ export class ModelService<T extends Document> {
             }),
           )
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: ModelResponse<T>) => {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ModelResponse<T>>),
       {
         __op: 'read',
         __query: {
@@ -325,11 +325,11 @@ export class ModelService<T extends Document> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: ModelResponse<T>) => {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ModelResponse<T>>),
       {
         __op: 'readAdvanced',
         __query: {
@@ -392,11 +392,11 @@ export class ModelService<T extends Document> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: ModelResponse<T>) => {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ModelResponse<T>>),
       {
         __op: 'readAdvancedFilter',
         __query: {
@@ -427,13 +427,13 @@ export class ModelService<T extends Document> {
         this._axios
           .get(`${this._basePath}/new`, reqConfig)
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: ModelResponse<T>) => {
             delete result.raw._id;
 
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ModelResponse<T>>),
       {
         __op: 'new',
         __query: {
@@ -457,11 +457,11 @@ export class ModelService<T extends Document> {
         this._axios
           .post(this._basePath, data, mergeConfig(reqConfig, { params: { include_permissions: includePermissions } }))
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: ModelResponse<T>) => {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ModelResponse<T>>),
       {
         __op: 'create',
         __query: {
@@ -505,11 +505,11 @@ export class ModelService<T extends Document> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: ModelResponse<T>) => {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ModelResponse<T>>),
       {
         __op: 'createAdvanced',
         __query: {
@@ -543,11 +543,11 @@ export class ModelService<T extends Document> {
             mergeConfig(reqConfig, { params: { returning_all: returningAll } }),
           )
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: ModelResponse<T>) => {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ModelResponse<T>>),
       {
         __op: 'update',
         __query: {
@@ -599,11 +599,11 @@ export class ModelService<T extends Document> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: ModelResponse<T>) => {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<ModelResponse<T>>),
       {
         __op: 'updateAdvanced',
         __query: {
@@ -634,11 +634,11 @@ export class ModelService<T extends Document> {
         this._axios
           .delete(`${this._basePath}/${identifier}`, reqConfig)
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: Response<string>) => {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<Response<string>>),
       {
         __op: 'delete',
         __query: {
@@ -665,11 +665,11 @@ export class ModelService<T extends Document> {
         this._axios
           .get(`${this._basePath}/distinct/${field}`, reqConfig)
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: Response<string[]>) => {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<Response<string[]>>),
       {
         __op: 'distinct',
         __query: {
@@ -696,11 +696,11 @@ export class ModelService<T extends Document> {
         this._axios
           .post(`${this._basePath}/distinct/${field}`, conditions, reqConfig)
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: Response<string[]>) => {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<Response<string[]>>),
       {
         __op: 'distinctAdvanced',
         __query: {
@@ -725,11 +725,11 @@ export class ModelService<T extends Document> {
         this._axios
           .get(`${this._basePath}/count`, reqConfig)
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: Response<number>) => {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<Response<number>>),
       {
         __op: 'count',
         __query: {
@@ -753,11 +753,11 @@ export class ModelService<T extends Document> {
         this._axios
           .post(`${this._basePath}/count`, { filter, access }, reqConfig)
           .then(this.handleSuccess)
-          .then((result) => {
+          .then((result: Response<number>) => {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError),
+          .catch(this.handleError<Response<number>>),
       {
         __op: 'countAdvanced',
         __query: {
@@ -799,7 +799,7 @@ export class ModelService<T extends Document> {
                     result.data = [];
                     return result;
                   })
-                  .catch(this.handleError),
+                  .catch(this.handleError<ListModelResponse<S>>),
               {
                 __op: 'listSub',
                 __query: {
@@ -835,7 +835,7 @@ export class ModelService<T extends Document> {
                     result.data = [];
                     return result;
                   })
-                  .catch(this.handleError),
+                  .catch(this.handleError<ListModelResponse<S>>),
               {
                 __op: 'listAdvancedSub',
                 __query: {
@@ -870,11 +870,11 @@ export class ModelService<T extends Document> {
                     }),
                   )
                   .then(this.handleSuccess)
-                  .then((result) => {
+                  .then((result: ModelResponse<S>) => {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError),
+                  .catch(this.handleError<ModelResponse<S>>),
               {
                 __op: 'readSub',
                 __query: {
@@ -916,11 +916,11 @@ export class ModelService<T extends Document> {
                     reqConfig,
                   )
                   .then(this.handleSuccess)
-                  .then((result) => {
+                  .then((result: ModelResponse<S>) => {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError),
+                  .catch(this.handleError<ModelResponse<S>>),
               {
                 __op: 'readAdvancedSub',
                 __query: {
@@ -960,11 +960,11 @@ export class ModelService<T extends Document> {
                     mergeConfig(reqConfig, { params: { returning_sub: returningSub === true } }),
                   )
                   .then(this.handleSuccess)
-                  .then((result) => {
+                  .then((result: ModelResponse<S>) => {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError),
+                  .catch(this.handleError<ModelResponse<S>>),
               {
                 __op: 'updateSub',
                 __query: {
@@ -996,11 +996,11 @@ export class ModelService<T extends Document> {
                 this._axios
                   .post(`${this._basePath}/${id}/${sub}`, data, mergeConfig(reqConfig, { params: {} }))
                   .then(this.handleSuccess)
-                  .then((result) => {
+                  .then((result: ModelResponse<S>) => {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError),
+                  .catch(this.handleError<ModelResponse<S>>),
               {
                 __op: 'createSub',
                 __query: {
@@ -1029,11 +1029,11 @@ export class ModelService<T extends Document> {
                 this._axios
                   .delete(`${this._basePath}/${id}/${sub}/${subId}`, reqConfig)
                   .then(this.handleSuccess)
-                  .then((result) => {
+                  .then((result: Response<string>) => {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError),
+                  .catch(this.handleError<Response<string>>),
               {
                 __op: 'deleteSub',
                 __query: {
@@ -1063,8 +1063,8 @@ export class ModelService<T extends Document> {
   }
 
   // See https://axios-http.com/docs/handling_errors
-  private handleError(error) {
-    const result: Response<any, any> = {
+  private handleError<T>(error) {
+    const result: any = {
       success: false,
       raw: null,
       data: null,
@@ -1089,6 +1089,6 @@ export class ModelService<T extends Document> {
       result.message = error.message;
     }
 
-    return result;
+    return result as T;
   }
 }
