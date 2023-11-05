@@ -123,8 +123,8 @@ export class Base {
   }
 
   protected processInclude(include: Include | Include[]) {
-    const includes = compact(castArray(include)).filter(({ ref, op, path, localField, foreignField }) => {
-      return ref && op && path && localField && foreignField;
+    const includes = compact(castArray(include)).filter(({ model, op, path, localField, foreignField }) => {
+      return model && op && path && localField && foreignField;
     });
 
     // include Include local fields and paths
@@ -164,9 +164,9 @@ export class Base {
     });
 
     for (let x = 0; x < includes.length; x++) {
-      const { ref, op, path, localField, foreignField, args = {}, options = {} } = includes[x];
+      const { model, op, path, localField, foreignField, args = {}, options = {} } = includes[x];
 
-      const svc = this.req.macl.getPublicService(ref);
+      const svc = this.req.macl.getPublicService(model);
       if (!svc) continue;
 
       const filter = { [foreignField]: { $in: flatten(includeLocalValues[x]) } };

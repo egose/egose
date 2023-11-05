@@ -182,7 +182,7 @@ describe('List Include', () => {
       'lucy2',
       {
         include: {
-          ref: 'Org',
+          model: 'Org',
           op: 'list',
           path: 'orgs1',
           localField: 'orgs',
@@ -209,14 +209,14 @@ describe('List Include', () => {
       {
         include: [
           {
-            ref: 'Org',
+            model: 'Org',
             op: 'read',
             path: 'orgs1',
             localField: 'orgs',
             foreignField: '_id',
           },
           {
-            ref: 'Org',
+            model: 'Org',
             op: 'read',
             path: 'orgs2',
             localField: 'orgs',

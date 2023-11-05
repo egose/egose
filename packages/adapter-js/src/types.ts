@@ -17,7 +17,7 @@ export type Sort = string | { [key: string]: SortOrder } | [string, SortOrder][]
 export type FilterQuery<T> = _FilterQuery<T>;
 
 export interface Include {
-  ref: string;
+  model: string;
   op: 'list' | 'read';
   path: string;
   localField: string;

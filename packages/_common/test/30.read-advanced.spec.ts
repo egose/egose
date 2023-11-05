@@ -210,7 +210,7 @@ describe('List Include', () => {
       .set('user', 'admin')
       .send({
         include: {
-          ref: 'Org',
+          model: 'Org',
           op: 'list',
           path: 'orgs1',
           localField: 'orgs',
@@ -234,14 +234,14 @@ describe('List Include', () => {
       .send({
         include: [
           {
-            ref: 'Org',
+            model: 'Org',
             op: 'read',
             path: 'orgs1',
             localField: 'orgs',
             foreignField: '_id',
           },
           {
-            ref: 'Org',
+            model: 'Org',
             op: 'read',
             path: 'orgs2',
             localField: 'orgs',

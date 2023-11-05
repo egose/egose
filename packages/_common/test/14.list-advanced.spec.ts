@@ -280,7 +280,7 @@ describe('List Include', () => {
       .send({
         filter: {},
         include: {
-          ref: 'User',
+          model: 'User',
           op: 'list',
           path: 'users',
           localField: '_id',
@@ -306,14 +306,14 @@ describe('List Include', () => {
         filter: {},
         include: [
           {
-            ref: 'User',
+            model: 'User',
             op: 'read',
             path: 'users1',
             localField: '_id',
             foreignField: 'orgs',
           },
           {
-            ref: 'User',
+            model: 'User',
             op: 'read',
             path: 'users2',
             localField: '_id',
