@@ -102,3 +102,5 @@ export const wrapLazyPromise = <T, M = undefined>(promiseFn: () => Promise<T>, m
 
   return prom as M & Promise<T>;
 };
+
+export type ResponseCallback = <R>(res: R) => void;

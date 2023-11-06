@@ -1,6 +1,7 @@
 import get from 'lodash/get';
 import set from 'lodash/set';
 import isArray from 'lodash/isArray';
+import noop from 'lodash/noop';
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
 import {
   FilterQuery,
@@ -13,6 +14,7 @@ import {
   ListModelResponse,
   wrapLazyPromise,
   ModelPromiseMeta,
+  ResponseCallback,
 } from './types';
 
 import {
@@ -45,6 +47,8 @@ interface Props {
   basePath: string;
   queryPath: string;
   mutationPath: string;
+  onSuccess: ResponseCallback;
+  onFailure: ResponseCallback;
 }
 
 export class ModelService<T extends Document> {
@@ -53,15 +57,28 @@ export class ModelService<T extends Document> {
   private _basePath!: string;
   private _queryPath!: string;
   private _mutationPath!: string;
+  private _handleCallbacks!: <T extends { success: boolean }>(res: T) => T;
   private _defaults!: Defaults;
 
-  constructor({ axios, modelName, basePath, queryPath, mutationPath }: Props, defaults?: Defaults) {
+  constructor(
+    { axios, modelName, basePath, queryPath, mutationPath, onSuccess, onFailure }: Props,
+    defaults?: Defaults,
+  ) {
     this._axios = axios;
     this._modelName = modelName;
     this._basePath = basePath;
     this._queryPath = queryPath;
     this._mutationPath = mutationPath;
     this._defaults = defaults ?? {};
+
+    const _onSuccess = onSuccess ?? noop;
+    const _onFailure = onFailure ?? noop;
+
+    this._handleCallbacks = <T extends { success: boolean }>(res: T) => {
+      if (res.success) _onSuccess(res);
+      else _onFailure(res);
+      return res;
+    };
 
     [
       'listArgs',
@@ -126,7 +143,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? result.raw.map((item) => Model.create<T>(item, this)) : [];
             return result;
           })
-          .catch(this.handleError<ListModelResponse<T>>),
+          .catch(this.handleError<ListModelResponse<T>>)
+          .then(this._handleCallbacks<ListModelResponse<T>>),
       {
         __op: 'list',
         __query: {
@@ -213,7 +231,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? result.raw.map((item) => Model.create<T>(item, this)) : [];
             return result;
           })
-          .catch(this.handleError<ListModelResponse<T>>),
+          .catch(this.handleError<ListModelResponse<T>>)
+          .then(this._handleCallbacks<ListModelResponse<T>>),
       {
         __op: 'listAdvanced',
         __query: {
@@ -264,7 +283,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>),
+          .catch(this.handleError<ModelResponse<T>>)
+          .then(this._handleCallbacks<ModelResponse<T>>),
       {
         __op: 'read',
         __query: {
@@ -329,7 +349,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>),
+          .catch(this.handleError<ModelResponse<T>>)
+          .then(this._handleCallbacks<ModelResponse<T>>),
       {
         __op: 'readAdvanced',
         __query: {
@@ -396,7 +417,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>),
+          .catch(this.handleError<ModelResponse<T>>)
+          .then(this._handleCallbacks<ModelResponse<T>>),
       {
         __op: 'readAdvancedFilter',
         __query: {
@@ -433,7 +455,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>),
+          .catch(this.handleError<ModelResponse<T>>)
+          .then(this._handleCallbacks<ModelResponse<T>>),
       {
         __op: 'new',
         __query: {
@@ -461,7 +484,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>),
+          .catch(this.handleError<ModelResponse<T>>)
+          .then(this._handleCallbacks<ModelResponse<T>>),
       {
         __op: 'create',
         __query: {
@@ -509,7 +533,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>),
+          .catch(this.handleError<ModelResponse<T>>)
+          .then(this._handleCallbacks<ModelResponse<T>>),
       {
         __op: 'createAdvanced',
         __query: {
@@ -547,7 +572,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>),
+          .catch(this.handleError<ModelResponse<T>>)
+          .then(this._handleCallbacks<ModelResponse<T>>),
       {
         __op: 'update',
         __query: {
@@ -603,7 +629,8 @@ export class ModelService<T extends Document> {
             result.data = result.success ? Model.create<T>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>),
+          .catch(this.handleError<ModelResponse<T>>)
+          .then(this._handleCallbacks<ModelResponse<T>>),
       {
         __op: 'updateAdvanced',
         __query: {
@@ -638,7 +665,8 @@ export class ModelService<T extends Document> {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError<Response<string>>),
+          .catch(this.handleError<Response<string>>)
+          .then(this._handleCallbacks<Response<string>>),
       {
         __op: 'delete',
         __query: {
@@ -669,7 +697,8 @@ export class ModelService<T extends Document> {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError<Response<string[]>>),
+          .catch(this.handleError<Response<string[]>>)
+          .then(this._handleCallbacks<Response<string[]>>),
       {
         __op: 'distinct',
         __query: {
@@ -700,7 +729,8 @@ export class ModelService<T extends Document> {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError<Response<string[]>>),
+          .catch(this.handleError<Response<string[]>>)
+          .then(this._handleCallbacks<Response<string[]>>),
       {
         __op: 'distinctAdvanced',
         __query: {
@@ -729,7 +759,8 @@ export class ModelService<T extends Document> {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError<Response<number>>),
+          .catch(this.handleError<Response<number>>)
+          .then(this._handleCallbacks<Response<number>>),
       {
         __op: 'count',
         __query: {
@@ -757,7 +788,8 @@ export class ModelService<T extends Document> {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError<Response<number>>),
+          .catch(this.handleError<Response<number>>)
+          .then(this._handleCallbacks<Response<number>>),
       {
         __op: 'countAdvanced',
         __query: {
@@ -799,7 +831,8 @@ export class ModelService<T extends Document> {
                     result.data = [];
                     return result;
                   })
-                  .catch(this.handleError<ListModelResponse<S>>),
+                  .catch(this.handleError<ListModelResponse<S>>)
+                  .then(this._handleCallbacks<ListModelResponse<S>>),
               {
                 __op: 'listSub',
                 __query: {
@@ -835,7 +868,8 @@ export class ModelService<T extends Document> {
                     result.data = [];
                     return result;
                   })
-                  .catch(this.handleError<ListModelResponse<S>>),
+                  .catch(this.handleError<ListModelResponse<S>>)
+                  .then(this._handleCallbacks<ListModelResponse<S>>),
               {
                 __op: 'listAdvancedSub',
                 __query: {
@@ -874,7 +908,8 @@ export class ModelService<T extends Document> {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError<ModelResponse<S>>),
+                  .catch(this.handleError<ModelResponse<S>>)
+                  .then(this._handleCallbacks<ModelResponse<S>>),
               {
                 __op: 'readSub',
                 __query: {
@@ -920,7 +955,8 @@ export class ModelService<T extends Document> {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError<ModelResponse<S>>),
+                  .catch(this.handleError<ModelResponse<S>>)
+                  .then(this._handleCallbacks<ModelResponse<S>>),
               {
                 __op: 'readAdvancedSub',
                 __query: {
@@ -964,7 +1000,8 @@ export class ModelService<T extends Document> {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError<ModelResponse<S>>),
+                  .catch(this.handleError<ModelResponse<S>>)
+                  .then(this._handleCallbacks<ModelResponse<S>>),
               {
                 __op: 'updateSub',
                 __query: {
@@ -1000,7 +1037,8 @@ export class ModelService<T extends Document> {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError<ModelResponse<S>>),
+                  .catch(this.handleError<ModelResponse<S>>)
+                  .then(this._handleCallbacks<ModelResponse<S>>),
               {
                 __op: 'createSub',
                 __query: {
@@ -1033,7 +1071,8 @@ export class ModelService<T extends Document> {
                     result.data = null;
                     return result;
                   })
-                  .catch(this.handleError<Response<string>>),
+                  .catch(this.handleError<Response<string>>)
+                  .then(this._handleCallbacks<Response<string>>),
               {
                 __op: 'deleteSub',
                 __query: {

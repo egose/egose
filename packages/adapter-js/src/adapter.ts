@@ -2,7 +2,7 @@ import axios, { CreateAxiosDefaults, mergeConfig } from 'axios';
 import isEmpty from 'lodash/isEmpty';
 import { ModelService } from './service';
 import { Model } from './model';
-import { ModelPromiseMeta } from './types';
+import { ModelPromiseMeta, ResponseCallback } from './types';
 import { Defaults } from './interface';
 import castArray from 'lodash/castArray';
 
@@ -17,10 +17,13 @@ const defaultAxiosConfig = Object.freeze({
   },
 });
 
-export function createAdapter(axiosConfig?: CreateAxiosDefaults, egoseOptions?: { rootRouterPath?: string }) {
+export function createAdapter(
+  axiosConfig?: CreateAxiosDefaults,
+  egoseOptions?: { rootRouterPath?: string; onSuccess?: ResponseCallback; onFailure?: ResponseCallback },
+) {
   const merged = mergeConfig(defaultAxiosConfig, axiosConfig ?? {});
   const instance = axios.create(merged);
-  const { rootRouterPath = 'macl' } = egoseOptions ?? {};
+  const { rootRouterPath = 'macl', onSuccess: onSuccessRoot, onFailure: onFailureRoot } = egoseOptions ?? {};
 
   return Object.freeze({
     axios: instance,
@@ -30,15 +33,30 @@ export function createAdapter(axiosConfig?: CreateAxiosDefaults, egoseOptions?: 
         basePath,
         queryPath = '__query',
         mutationPath = '__mutation',
+        onSuccess,
+        onFailure,
       }: {
         modelName: string;
         basePath: string;
         queryPath?: string;
         mutationPath?: string;
+        onSuccess?: ResponseCallback;
+        onFailure?: ResponseCallback;
       },
       defaults?: Defaults,
     ) => {
-      return new ModelService<T>({ axios: instance, modelName, basePath, queryPath, mutationPath }, defaults);
+      return new ModelService<T>(
+        {
+          axios: instance,
+          modelName,
+          basePath,
+          queryPath,
+          mutationPath,
+          onSuccess: onSuccess ?? onSuccessRoot,
+          onFailure: onFailure ?? onFailureRoot,
+        },
+        defaults,
+      );
     },
     group: async <T extends (ModelPromiseMeta & Promise<unknown>)[]>(
       ...proms: T
