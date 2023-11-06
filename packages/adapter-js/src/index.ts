@@ -5,6 +5,7 @@ import { createAdapter } from './adapter';
 export * from './service';
 export * from './model';
 export * from './types';
+export * from './utils';
 
 export { createAdapter };
 export default { createAdapter };
