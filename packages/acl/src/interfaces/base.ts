@@ -73,6 +73,12 @@ export interface SubQueryEntry extends RootQueryEntry {
   };
 }
 
+export interface Task {
+  type: string;
+  args: any;
+  options: { [key: string]: any };
+}
+
 export interface Request extends express.Request {
   query: Record<
     | 'skip'

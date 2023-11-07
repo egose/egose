@@ -1,12 +1,12 @@
-import { Projection, Populate, PopulateAccess } from './base';
+import { Projection, Populate, PopulateAccess, Task } from './base';
 
 export interface PublicCreateArgs {
   select?: Projection;
   populate?: Populate[] | string;
-  process?: any;
+  tasks?: Task | Task[];
 }
 
-export interface CreateArgs extends Omit<PublicCreateArgs, 'select' | 'process'> {}
+export interface CreateArgs extends Omit<PublicCreateArgs, 'select' | 'tasks'> {}
 
 export interface PublicCreateOptions {
   skim?: boolean;

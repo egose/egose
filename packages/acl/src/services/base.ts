@@ -37,6 +37,7 @@ import {
   BaseFilterAccess,
   ServiceResult,
   SubQueryEntry,
+  Task,
 } from '../interfaces';
 
 export class Base {
@@ -105,8 +106,8 @@ export class Base {
     return this.req.macl.prepare(this.modelName, allowedData, access, context);
   }
 
-  public process(docObject: any, pipeline): any {
-    return this.req.macl.process(this.modelName, docObject, pipeline);
+  public runTasks(docObject: any, tasks: Task | Task[]): any {
+    return this.req.macl.runTasks(this.modelName, docObject, tasks);
   }
 
   public transform(doc: any, access: TransformAccess, context?: MiddlewareContext): Promise<any> {

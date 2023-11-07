@@ -10,7 +10,7 @@ import { setCore } from '../core';
 import { setModelOptions, setModelOption, getModelOptions } from '../options';
 import { processUrl } from '../lib';
 import { handleResultError } from '../helpers';
-import { ModelRouterOptions, ExtendedModelRouterOptions, Request } from '../interfaces';
+import { ModelRouterOptions, ExtendedModelRouterOptions, Request, Task } from '../interfaces';
 import { logger } from '../logger';
 
 const clientErrors = JsonRouter.clientErrors;
@@ -121,7 +121,7 @@ export class ModelRouter {
         sort,
         populate,
         include,
-        process,
+        tasks,
         skip,
         limit,
         page,
@@ -134,7 +134,7 @@ export class ModelRouter {
 
       const result = await svc._list(
         filter ?? query,
-        { select, sort, populate, include, process, skip, limit, page, pageSize },
+        { select, sort, populate, include, tasks, skip, limit, page, pageSize },
         {
           skim,
           includePermissions,
@@ -184,13 +184,13 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { include_permissions } = req.query;
-      const { data, select, populate, process, options = {} } = req.body;
+      const { data, select, populate, tasks, options = {} } = req.body;
       const { includePermissions, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
       const result = await svc._create(
         data,
-        { select, populate, process },
+        { select, populate, tasks },
         { includePermissions: includePermissions ?? parseBooleanString(include_permissions), populateAccess },
       );
 
@@ -276,7 +276,7 @@ export class ModelRouter {
       const allowed = await req.macl.isAllowed(this.modelName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      let { filter, select, populate, include, process, options = {} } = req.body;
+      let { filter, select, populate, include, tasks, options = {} } = req.body;
       const { skim, includePermissions, tryList, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
@@ -286,7 +286,7 @@ export class ModelRouter {
           select,
           populate,
           include,
-          process,
+          tasks,
         },
         { skim, includePermissions, tryList, populateAccess },
       );
@@ -307,7 +307,7 @@ export class ModelRouter {
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
         const id = req.params[this.options.idParam];
-        let { select, populate, include, process, options = {} } = req.body;
+        let { select, populate, include, tasks, options = {} } = req.body;
         const { skim, includePermissions, tryList, populateAccess } = options;
 
         const svc = req.macl.getPublicService(this.modelName);
@@ -317,7 +317,7 @@ export class ModelRouter {
             select,
             populate,
             include,
-            process,
+            tasks,
           },
           { skim, includePermissions, tryList, populateAccess },
         );
@@ -358,14 +358,14 @@ export class ModelRouter {
 
         const id = req.params[this.options.idParam];
         const { returning_all } = req.query;
-        const { data, select, populate, process, options = {} } = req.body;
+        const { data, select, populate, tasks, options = {} } = req.body;
         const { returningAll, includePermissions, populateAccess } = options;
 
         const svc = req.macl.getPublicService(this.modelName);
         const result = await svc._update(
           id,
           data,
-          { select, populate, process },
+          { select, populate, tasks },
           { returningAll: returningAll ?? parseBooleanString(returning_all), includePermissions, populateAccess },
         );
 

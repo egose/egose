@@ -93,7 +93,7 @@ describe('Read-Query User', () => {
       .set('user', 'john')
       .send({
         populate: { path: 'orgs' },
-        process: { type: 'COPY_AND_DEPOPULATE', operations: [{ src: 'orgs', dest: '_orgs' }] },
+        tasks: { type: 'COPY_AND_DEPOPULATE', args: [{ src: 'orgs', dest: '_orgs' }] },
       })
       .expect('Content-Type', /json/)
       .expect(200);

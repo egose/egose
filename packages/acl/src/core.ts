@@ -37,6 +37,7 @@ import {
   ValidateAccess,
   PrepareAccess,
   TransformAccess,
+  Task,
 } from './interfaces';
 import Permission, { Permissions } from './permission';
 import { Service, PublicService, Base } from './services';
@@ -368,16 +369,16 @@ export class Core {
     return this.callMiddleware(decorateAll, docs, permissions, {});
   }
 
-  process(modelName: string, docObject: any, pipeline) {
-    const pipelines = compact(castArray(pipeline));
-    if (pipelines.length === 0) return docObject;
+  runTasks(modelName: string, docObject: any, task: Task | Task[]) {
+    const tasks = compact(castArray(task));
+    if (tasks.length === 0) return docObject;
 
-    forEach(pipelines, (pipeline) => {
-      const { type, operations, options } = pipeline;
+    forEach(tasks, (task) => {
+      const { type, args, options } = task;
 
       switch (type) {
         case 'COPY_AND_DEPOPULATE':
-          docObject = copyAndDepopulate(docObject, operations, options);
+          docObject = copyAndDepopulate(docObject, args, options);
           break;
       }
     });

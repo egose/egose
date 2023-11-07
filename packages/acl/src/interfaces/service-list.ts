@@ -1,4 +1,4 @@
-import { Include, Projection, Sort, Populate, PopulateAccess } from './base';
+import { Include, Projection, Sort, Populate, PopulateAccess, Task } from './base';
 
 export interface PublicListArgs {
   select?: Projection;
@@ -9,7 +9,7 @@ export interface PublicListArgs {
   limit?: string | number;
   page?: string | number;
   pageSize?: string | number;
-  process?: any;
+  tasks?: Task | Task[];
 }
 
 export interface PublicListOptions {

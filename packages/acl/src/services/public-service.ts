@@ -28,6 +28,7 @@ import {
   Request,
   BaseFilterAccess,
   ServiceResult,
+  Task,
 } from '../interfaces';
 
 export class PublicService extends Service {
@@ -46,7 +47,7 @@ export class PublicService extends Service {
       limit = this.defaults.publicListArgs?.limit,
       page = this.defaults.publicListArgs?.page,
       pageSize = this.defaults.publicListArgs?.pageSize,
-      process = this.defaults.publicListArgs?.process ?? [],
+      tasks = this.defaults.publicListArgs?.tasks ?? [],
     }: PublicListArgs = {},
     {
       skim = this.defaults.publicListOptions?.skim ?? true,
@@ -72,7 +73,7 @@ export class PublicService extends Service {
 
     let docs = result.data;
     docs = await this.decorateAll(docs, 'list');
-    docs = docs.map((row) => this.process(row, process));
+    docs = docs.map((row) => this.runTasks(row, tasks));
 
     result.data = docs;
     return result;
@@ -83,7 +84,7 @@ export class PublicService extends Service {
     {
       select = this.defaults.publicCreateArgs?.select,
       populate = this.defaults.publicCreateArgs?.populate,
-      process = this.defaults.publicCreateArgs?.process ?? [],
+      tasks = this.defaults.publicCreateArgs?.tasks ?? [],
     }: PublicCreateArgs = {},
     {
       skim = this.defaults.publicCreateOptions?.skim ?? false,
@@ -98,7 +99,7 @@ export class PublicService extends Service {
       async (doc, context: MiddlewareContext) => {
         doc = toObject(doc);
         doc = await this.decorate(doc, 'create', context);
-        doc = this.process(doc, process);
+        doc = this.runTasks(doc, tasks);
 
         if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFieldsExt]);
         return doc;
@@ -118,7 +119,7 @@ export class PublicService extends Service {
       select = this.defaults.publicReadArgs?.select,
       populate = this.defaults.publicReadArgs?.populate,
       include = this.defaults.publicReadArgs?.include,
-      process = this.defaults.publicReadArgs?.process ?? [],
+      tasks = this.defaults.publicReadArgs?.tasks ?? [],
     }: PublicReadArgs = {},
     {
       skim = this.defaults.publicReadOptions?.skim ?? false,
@@ -163,7 +164,7 @@ export class PublicService extends Service {
 
     let doc = toObject(result.data);
     doc = await this.decorate(doc, access);
-    doc = this.process(doc, process);
+    doc = this.runTasks(doc, tasks);
 
     result.data = doc;
     return result;
@@ -175,7 +176,7 @@ export class PublicService extends Service {
       select = this.defaults.publicReadArgs?.select,
       populate = this.defaults.publicReadArgs?.populate,
       include = this.defaults.publicReadArgs?.include,
-      process = this.defaults.publicReadArgs?.process ?? [],
+      tasks = this.defaults.publicReadArgs?.tasks ?? [],
     }: PublicReadArgs = {},
     {
       skim = this.defaults.publicReadOptions?.skim ?? false,
@@ -219,7 +220,7 @@ export class PublicService extends Service {
 
     let doc = toObject(result.data);
     doc = await this.decorate(doc, access);
-    doc = this.process(doc, process);
+    doc = this.runTasks(doc, tasks);
 
     result.data = doc;
     return result;
@@ -231,7 +232,7 @@ export class PublicService extends Service {
     {
       select = this.defaults.publicUpdateArgs?.select,
       populate = this.defaults.publicUpdateArgs?.populate,
-      process = this.defaults.publicUpdateArgs?.process ?? [],
+      tasks = this.defaults.publicUpdateArgs?.tasks ?? [],
     }: PublicUpdateArgs = {},
     {
       skim = this.defaults.publicUpdateOptions?.skim ?? false,
@@ -248,7 +249,7 @@ export class PublicService extends Service {
       async (doc, context: MiddlewareContext) => {
         doc = toObject(doc);
         doc = await this.decorate(doc, 'update', context);
-        doc = this.process(doc, process);
+        doc = this.runTasks(doc, tasks);
 
         if (select) doc = pick(doc, [...normalizeSelect(select), ...this.baseFieldsExt]);
         else if (!returningAll) doc = pick(doc, [...Object.keys(data), '_id']);
