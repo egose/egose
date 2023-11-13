@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import sift from 'sift';
 import isPlainObject from 'lodash/isPlainObject';
 import set from 'lodash/set';
 import pick from 'lodash/pick';
@@ -58,20 +57,6 @@ export async function populateDoc(doc: Document, target) {
   // for backward compatibility, utilize the 'execPopulate' method to populate the target fields.
   return 'execPopulate' in p && (p as any).execPopulate();
 }
-
-export const filterCollection = (collection, predicate) => {
-  return filter(collection, sift(predicate));
-};
-
-export const findElement = (collection, predicate) => {
-  return find(collection, sift(predicate));
-};
-
-type DocId = string | Schema.Types.ObjectId;
-
-export const findById = (docs: { _id: DocId }[], id: DocId) => {
-  return docs.find(({ _id }) => String(_id) === String(id));
-};
 
 export const genSubPopulate = (sub: string, popul: any) => {
   if (!popul) return [];

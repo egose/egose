@@ -23,7 +23,8 @@ import {
   normalizeSelect,
   populateDoc,
   filterCollection,
-  findById,
+  findElement,
+  findElementById,
   toObject,
   genSubPopulate,
 } from '../helpers';
@@ -496,6 +497,8 @@ export class Service extends Base {
       this.genSelect('list', fields, false, [sub, 'sub']),
     ]);
 
+    if (subFilter === false) return { success: false, code: Codes.Forbidden, data: [] };
+
     result = filterCollection(result, subFilter);
     if (subSelect) result = result.map((v) => pick(toObject(v), subSelect.concat('_id')));
 
@@ -510,12 +513,13 @@ export class Service extends Base {
     let result = get(parentDoc, sub);
 
     const [subFilter, subSelect] = await Promise.all([
-      this.genFilter(`subs.${sub}.read` as any),
+      this.genFilter(`subs.${sub}.read` as any, { _id: subId }),
       this.genSelect('read', fields, false, [sub, 'sub']),
     ]);
 
-    result = filterCollection(result, subFilter);
-    result = findById(result, subId);
+    if (subFilter === false) return { success: false, code: Codes.Forbidden, data: null };
+
+    result = findElement(result, subFilter);
     if (!result) return { success: false, code: Codes.NotFound, data: null };
 
     if (subSelect) result = pick(toObject(result), subSelect.concat(['_id']));
@@ -528,13 +532,14 @@ export class Service extends Base {
     let result = get(parentDoc, sub);
 
     const [subFilter, subReadSelect, subUpdateSelect] = await Promise.all([
-      this.genFilter(`subs.${sub}.update`),
+      this.genFilter(`subs.${sub}.update`, { _id: subId }),
       this.genSelect('read', null, false, [sub, 'sub']),
       this.genSelect('update', null, false, [sub, 'sub']),
     ]);
 
-    result = filterCollection(result, subFilter);
-    result = findById(result, subId);
+    if (subFilter === false) return { success: false, code: Codes.Forbidden, data: null };
+
+    result = findElement(result, subFilter);
     if (!result) return { success: false, code: Codes.NotFound, data: null };
 
     const allowedData = pick(data, subUpdateSelect);
@@ -570,10 +575,10 @@ export class Service extends Base {
     if (!parentDoc) return { success: false, code: Codes.NotFound, data: null };
     let result = get(parentDoc, sub);
 
-    const subFilter = await this.genFilter(`subs.${sub}.delete` as any);
+    const subFilter = await this.genFilter(`subs.${sub}.delete` as any, { _id: subId });
+    if (subFilter === false) return { success: false, code: Codes.Forbidden, data: null };
 
-    result = filterCollection(result, subFilter);
-    result = findById(result, subId);
+    result = findElement(result, subFilter);
     if (!result) return { success: false, code: Codes.NotFound, data: null };
 
     // starting from version 7.x, the 'deleteOne' method replaces the 'remove' method for subdocuments.

@@ -1,4 +1,5 @@
 // @ts-nocheck
+export * from './collection';
 export * from './document';
 export * from './errors';
 export * from './query';
