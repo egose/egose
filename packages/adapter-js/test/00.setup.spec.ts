@@ -32,9 +32,17 @@ export interface Org {
   [key: string]: any;
 }
 
+export interface Pet {
+  name?: string;
+  age?: number;
+  sex?: string;
+  [key: string]: any;
+}
+
 export const services = {
   userService: adapter.createModelService<User>({ modelName: 'User', basePath: 'users' }),
   orgService: adapter.createModelService<Org>({ modelName: 'Org', basePath: 'orgs', queryPath: '_extra' }),
+  petService: adapter.createDataService<Pet>({ dataName: 'Pet', basePath: 'pets' }),
 };
 
 before(async function () {

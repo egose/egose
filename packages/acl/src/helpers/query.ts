@@ -34,6 +34,16 @@ export function genPagination(
   return { skip: _skip, limit: _limit };
 }
 
+export function parseSortString(sortString): { sortKey: string; sortOrder: 'asc' | 'desc' } {
+  if (!sortString) return { sortKey: '', sortOrder: 'asc' };
+
+  if (sortString.startsWith('-')) {
+    return { sortKey: sortString.substring(1), sortOrder: 'desc' };
+  } else {
+    return { sortKey: sortString, sortOrder: 'asc' };
+  }
+}
+
 export const normalizeSelect = function normalizeSelect(select: Projection): string[] {
   if (Array.isArray(select)) return flattenDeep(select.map(normalizeSelect));
   if (isPlainObject(select)) {

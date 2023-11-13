@@ -101,3 +101,51 @@ export interface Defaults {
   updateAdvancedArgs?: UpdateAdvancedArgs;
   updateAdvancedOptions?: UpdateAdvancedOptions;
 }
+
+export interface DataListArgs {
+  skip?: number;
+  limit?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface DataListOptions {
+  includePermissions?: boolean;
+  includeCount?: boolean;
+}
+
+export interface DataListAdvancedArgs {
+  select?: Projection;
+  sort?: Sort;
+  skip?: string | number;
+  limit?: string | number;
+  page?: string | number;
+  pageSize?: string | number;
+}
+
+export interface DataListAdvancedOptions {
+  includePermissions?: boolean;
+  includeCount?: boolean;
+}
+
+export interface DataReadOptions {
+  includePermissions?: boolean;
+}
+
+export interface DataReadAdvancedArgs {
+  select?: Projection;
+}
+
+export interface DataReadAdvancedOptions {
+  includePermissions?: boolean;
+}
+
+export interface DataDefaults {
+  listArgs?: DataListArgs;
+  listOptions?: DataListOptions;
+  listAdvancedArgs?: DataListAdvancedArgs;
+  listAdvancedOptions?: DataListAdvancedOptions;
+  readOptions?: DataReadOptions;
+  readAdvancedArgs?: DataReadAdvancedArgs;
+  readAdvancedOptions?: DataReadAdvancedOptions;
+}

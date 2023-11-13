@@ -7,3 +7,4 @@ export * from './service-read';
 export * from './service-update';
 export * from './service-exists';
 export * from './service';
+export * from './data';

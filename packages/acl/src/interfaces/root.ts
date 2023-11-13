@@ -118,6 +118,22 @@ export interface ModelRouterOptions extends DefaultModelRouterOptions {
   defaults?: Defaults;
 }
 
+export interface DataRouterOptions {
+  data?: any[];
+  listHardLimit?: number;
+  idParam?: string;
+  identifier?: string | Function;
+  parentPath?: string;
+  queryPath?: string;
+  routeGuard?: Validation | Access;
+  dataName?: string;
+  basePath?: string;
+  permissionSchema?: PermissionSchema;
+  baseFilter?: any;
+  decorate?: any;
+  decorateAll?: any;
+}
+
 export interface ExtendedModelRouterOptions extends ModelRouterOptions, ExtendedDefaultModelRouterOptions {
   'mandatoryFields.default'?: string[];
   'mandatoryFields.list'?: string[];

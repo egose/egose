@@ -1,9 +1,9 @@
 import axios, { CreateAxiosDefaults, mergeConfig } from 'axios';
 import isEmpty from 'lodash/isEmpty';
-import { ModelService } from './service';
+import { ModelService, DataService } from './services';
 import { Model } from './model';
 import { ModelPromiseMeta, ResponseCallback } from './types';
-import { Defaults } from './interface';
+import { Defaults, DataDefaults } from './interface';
 import castArray from 'lodash/castArray';
 
 const defaultAxiosConfig = Object.freeze({
@@ -52,6 +52,35 @@ export function createAdapter(
           basePath,
           queryPath,
           mutationPath,
+          onSuccess: onSuccess ?? onSuccessRoot,
+          onFailure: onFailure ?? onFailureRoot,
+        },
+        defaults,
+      );
+    },
+    createDataService: <T>(
+      {
+        dataName,
+        basePath,
+        queryPath = '__query',
+        onSuccess,
+        onFailure,
+      }: {
+        dataName: string;
+        basePath: string;
+        queryPath?: string;
+        mutationPath?: string;
+        onSuccess?: ResponseCallback;
+        onFailure?: ResponseCallback;
+      },
+      defaults?: DataDefaults,
+    ) => {
+      return new DataService<T>(
+        {
+          axios: instance,
+          dataName,
+          basePath,
+          queryPath,
           onSuccess: onSuccess ?? onSuccessRoot,
           onFailure: onFailure ?? onFailureRoot,
         },

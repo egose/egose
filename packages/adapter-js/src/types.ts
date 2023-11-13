@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
 import { Model } from './model';
-import { ModelService } from './service';
+import { ModelService, DataService } from './services';
 import { sqOptions } from './interface';
 import { _FilterQuery } from './mongoose/types';
 
@@ -69,6 +69,25 @@ export interface ModelPromiseMeta {
   };
   __requestConfig?: AxiosRequestConfig;
   __service?: ModelService<any>;
+}
+
+export type DataResponse<T> = Response<T, T>;
+export type ArrayDataResponse<T> = Response<T[], T[]>;
+export type ListDataResponse<T> = ArrayDataResponse<T> & { totalCount: number };
+
+export interface DataPromiseMeta {
+  __op: string;
+  __query: {
+    name: string;
+    op: string;
+    id?: string;
+    filter?: any;
+    data?: any;
+    args?: any;
+    options?: any;
+  };
+  __requestConfig?: AxiosRequestConfig;
+  __service?: DataService<any>;
 }
 
 export const wrapLazyPromise = <T, M = undefined>(promiseFn: () => Promise<T>, meta?: M): M & Promise<T> => {

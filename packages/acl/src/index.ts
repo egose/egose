@@ -20,7 +20,8 @@ import {
   getDefaultModelOptions,
   getDefaultModelOption,
 } from './options';
-import { GlobalOptions, RootRouterOptions, ModelRouterOptions } from './interfaces';
+import { GlobalOptions, RootRouterOptions, ModelRouterOptions, DataRouterOptions } from './interfaces';
+import { DataRouter } from './routers/data-router';
 export {
   RootRouter,
   ModelRouter,
@@ -51,6 +52,10 @@ type CreateRouter = {
   (options: RootRouterOptions): RootRouter;
 };
 
+type CreateDataRouter = {
+  (dataName: string, options: DataRouterOptions): DataRouter;
+};
+
 type EgoseSet = {
   <K extends keyof GlobalOptions>(key: K, value: GlobalOptions[K]): void;
   (options: { [K in keyof GlobalOptions]: GlobalOptions[K] }): void;
@@ -58,6 +63,7 @@ type EgoseSet = {
 
 interface Egose {
   createRouter: CreateRouter;
+  createDataRouter: CreateDataRouter;
   set: EgoseSet;
   setGlobalOptions: typeof setGlobalOptions;
   setGlobalOption: typeof setGlobalOption;
@@ -75,6 +81,7 @@ interface Egose {
   getDefaultModelOption: typeof getDefaultModelOption;
   RootRouter: typeof RootRouter;
   ModelRouter: typeof ModelRouter;
+  DataRouter: typeof DataRouter;
 }
 
 const egose = middleware as typeof middleware & Egose;
@@ -84,6 +91,10 @@ egose.createRouter = function (modelName: string | RootRouterOptions, options: M
     ? new RootRouter(modelName as RootRouterOptions)
     : new ModelRouter(modelName as string, options);
 } as CreateRouter;
+
+egose.createDataRouter = function (dataName: string, options: DataRouterOptions) {
+  return new DataRouter(dataName, options);
+};
 
 egose.set = function <K extends keyof GlobalOptions>(keyOrOptions: K | GlobalOptions, value?: unknown) {
   if (arguments.length === 2 && isString(keyOrOptions)) {
@@ -109,5 +120,6 @@ egose.getDefaultModelOptions = getDefaultModelOptions;
 egose.getDefaultModelOption = getDefaultModelOption;
 egose.RootRouter = RootRouter;
 egose.ModelRouter = ModelRouter;
+egose.DataRouter = DataRouter;
 
 export default egose;

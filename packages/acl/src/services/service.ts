@@ -22,7 +22,7 @@ import {
   genPagination,
   normalizeSelect,
   populateDoc,
-  filterChildren,
+  filterCollection,
   findById,
   toObject,
   genSubPopulate,
@@ -496,7 +496,7 @@ export class Service extends Base {
       this.genSelect('list', fields, false, [sub, 'sub']),
     ]);
 
-    result = filterChildren(result, subFilter);
+    result = filterCollection(result, subFilter);
     if (subSelect) result = result.map((v) => pick(toObject(v), subSelect.concat('_id')));
 
     return { success: true, code: Codes.Success, data: result };
@@ -514,7 +514,7 @@ export class Service extends Base {
       this.genSelect('read', fields, false, [sub, 'sub']),
     ]);
 
-    result = filterChildren(result, subFilter);
+    result = filterCollection(result, subFilter);
     result = findById(result, subId);
     if (!result) return { success: false, code: Codes.NotFound, data: null };
 
@@ -533,7 +533,7 @@ export class Service extends Base {
       this.genSelect('update', null, false, [sub, 'sub']),
     ]);
 
-    result = filterChildren(result, subFilter);
+    result = filterCollection(result, subFilter);
     result = findById(result, subId);
     if (!result) return { success: false, code: Codes.NotFound, data: null };
 
@@ -572,7 +572,7 @@ export class Service extends Base {
 
     const subFilter = await this.genFilter(`subs.${sub}.delete` as any);
 
-    result = filterChildren(result, subFilter);
+    result = filterCollection(result, subFilter);
     result = findById(result, subId);
     if (!result) return { success: false, code: Codes.NotFound, data: null };
 
