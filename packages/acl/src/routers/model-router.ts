@@ -43,7 +43,7 @@ export class ModelRouter {
     this.options = getModelOptions(modelName);
     this.fullBasePath = processUrl(this.options.parentPath + this.options.basePath);
     this.modelName = modelName;
-    this.router = new JsonRouter();
+    this.router = new JsonRouter(this.options.basePath, setCore);
     this.model = new Model(modelName);
 
     this.setCollectionRoutes();
@@ -68,7 +68,7 @@ export class ModelRouter {
     //////////
     // LIST //
     //////////
-    this.router.get(`${this.options.basePath}`, setCore, async (req: Request) => {
+    this.router.get('', async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -109,7 +109,7 @@ export class ModelRouter {
     /////////////////////
     // LIST - Advanced //
     /////////////////////
-    this.router.post(`${this.options.basePath}/${this.options.queryPath}`, setCore, async (req: Request) => {
+    this.router.post(`/${this.options.queryPath}`, async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -162,7 +162,7 @@ export class ModelRouter {
     ////////////
     // CREATE //
     ////////////
-    this.router.post(`${this.options.basePath}`, setCore, async (req: Request, res) => {
+    this.router.post('', async (req: Request, res) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'create');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -179,7 +179,7 @@ export class ModelRouter {
     ///////////////////////
     // CREATE - Advanced //
     ///////////////////////
-    this.router.post(`${this.options.basePath}/${this.options.mutationPath}`, setCore, async (req: Request, res) => {
+    this.router.post(`/${this.options.mutationPath}`, async (req: Request, res) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'create');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -202,7 +202,7 @@ export class ModelRouter {
     /////////////////
     // NEW - EMPTY //
     /////////////////
-    this.router.get(`${this.options.basePath}/new`, setCore, async (req: Request) => {
+    this.router.get('/new', async (req: Request) => {
       const svc = req.macl.getPublicService(this.modelName);
       const result = await svc._new();
 
@@ -219,7 +219,7 @@ export class ModelRouter {
     ///////////
     // COUNT //
     ///////////
-    this.router.get(`${this.options.basePath}/count`, setCore, async (req: Request) => {
+    this.router.get('/count', async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'count');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -231,7 +231,7 @@ export class ModelRouter {
       return result.data;
     });
 
-    this.router.post(`${this.options.basePath}/count`, setCore, async (req: Request) => {
+    this.router.post('/count', async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'count');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -248,7 +248,7 @@ export class ModelRouter {
     //////////
     // READ //
     //////////
-    this.router.get(`${this.options.basePath}/:${this.options.idParam}`, setCore, async (req: Request) => {
+    this.router.get(`/:${this.options.idParam}`, async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -272,7 +272,7 @@ export class ModelRouter {
     //////////////////////////////
     // READ - Advanced - Filter //
     //////////////////////////////
-    this.router.post(`${this.options.basePath}/${this.options.queryPath}/__filter`, setCore, async (req: Request) => {
+    this.router.post(`/${this.options.queryPath}/__filter`, async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -299,39 +299,35 @@ export class ModelRouter {
     /////////////////////
     // READ - Advanced //
     /////////////////////
-    this.router.post(
-      `${this.options.basePath}/${this.options.queryPath}/:${this.options.idParam}`,
-      setCore,
-      async (req: Request) => {
-        const allowed = await req.macl.isAllowed(this.modelName, 'read');
-        if (!allowed) throw new clientErrors.UnauthorizedError();
+    this.router.post(`/${this.options.queryPath}/:${this.options.idParam}`, async (req: Request) => {
+      const allowed = await req.macl.isAllowed(this.modelName, 'read');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
 
-        const id = req.params[this.options.idParam];
-        let { select, populate, include, tasks, options = {} } = req.body;
-        const { skim, includePermissions, tryList, populateAccess } = options;
+      const id = req.params[this.options.idParam];
+      let { select, populate, include, tasks, options = {} } = req.body;
+      const { skim, includePermissions, tryList, populateAccess } = options;
 
-        const svc = req.macl.getPublicService(this.modelName);
-        const result = await svc._read(
-          id,
-          {
-            select,
-            populate,
-            include,
-            tasks,
-          },
-          { skim, includePermissions, tryList, populateAccess },
-        );
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._read(
+        id,
+        {
+          select,
+          populate,
+          include,
+          tasks,
+        },
+        { skim, includePermissions, tryList, populateAccess },
+      );
 
-        handleResultError(result);
+      handleResultError(result);
 
-        return result.data;
-      },
-    );
+      return result.data;
+    });
 
     ////////////
     // UPDATE //
     ////////////
-    this.router.patch(`${this.options.basePath}/:${this.options.idParam}`, setCore, async (req: Request) => {
+    this.router.patch(`/:${this.options.idParam}`, async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'update');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -349,36 +345,32 @@ export class ModelRouter {
     ///////////////////////
     // UPDATE - Advanced //
     ///////////////////////
-    this.router.patch(
-      `${this.options.basePath}/${this.options.mutationPath}/:${this.options.idParam}`,
-      setCore,
-      async (req: Request) => {
-        const allowed = await req.macl.isAllowed(this.modelName, 'update');
-        if (!allowed) throw new clientErrors.UnauthorizedError();
+    this.router.patch(`/${this.options.mutationPath}/:${this.options.idParam}`, async (req: Request) => {
+      const allowed = await req.macl.isAllowed(this.modelName, 'update');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
 
-        const id = req.params[this.options.idParam];
-        const { returning_all } = req.query;
-        const { data, select, populate, tasks, options = {} } = req.body;
-        const { returningAll, includePermissions, populateAccess } = options;
+      const id = req.params[this.options.idParam];
+      const { returning_all } = req.query;
+      const { data, select, populate, tasks, options = {} } = req.body;
+      const { returningAll, includePermissions, populateAccess } = options;
 
-        const svc = req.macl.getPublicService(this.modelName);
-        const result = await svc._update(
-          id,
-          data,
-          { select, populate, tasks },
-          { returningAll: returningAll ?? parseBooleanString(returning_all), includePermissions, populateAccess },
-        );
+      const svc = req.macl.getPublicService(this.modelName);
+      const result = await svc._update(
+        id,
+        data,
+        { select, populate, tasks },
+        { returningAll: returningAll ?? parseBooleanString(returning_all), includePermissions, populateAccess },
+      );
 
-        handleResultError(result);
+      handleResultError(result);
 
-        return result.data;
-      },
-    );
+      return result.data;
+    });
 
     ////////////
     // DELETE //
     ////////////
-    this.router.delete(`${this.options.basePath}/:${this.options.idParam}`, setCore, async (req: Request) => {
+    this.router.delete(`/:${this.options.idParam}`, async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'delete');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -394,7 +386,7 @@ export class ModelRouter {
     //////////////
     // DISTINCT //
     //////////////
-    this.router.get(`${this.options.basePath}/distinct/:field`, setCore, async (req: Request) => {
+    this.router.get('/distinct/:field', async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'distinct');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -407,7 +399,7 @@ export class ModelRouter {
       return result.data;
     });
 
-    this.router.post(`${this.options.basePath}/distinct/:field`, setCore, async (req: Request) => {
+    this.router.post('/distinct/:field', async (req: Request) => {
       const allowed = await req.macl.isAllowed(this.modelName, 'distinct');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -436,7 +428,7 @@ export class ModelRouter {
       //////////
       // LIST //
       //////////
-      this.router.get(`${this.options.basePath}/:${this.options.idParam}/${sub}`, setCore, async (req: Request) => {
+      this.router.get(`/:${this.options.idParam}/${sub}`, async (req: Request) => {
         const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.list`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -451,86 +443,70 @@ export class ModelRouter {
       /////////////////////
       // LIST - Advanced //
       /////////////////////
-      this.router.post(
-        `${this.options.basePath}/:${this.options.idParam}/${sub}/${this.options.queryPath}`,
-        setCore,
-        async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.list`);
-          if (!allowed) throw new clientErrors.UnauthorizedError();
+      this.router.post(`/:${this.options.idParam}/${sub}/${this.options.queryPath}`, async (req: Request) => {
+        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.list`);
+        if (!allowed) throw new clientErrors.UnauthorizedError();
 
-          const id = req.params[this.options.idParam];
-          const svc = req.macl.getPublicService(this.modelName);
-          const result = await svc.listSub(id, sub, req.body);
+        const id = req.params[this.options.idParam];
+        const svc = req.macl.getPublicService(this.modelName);
+        const result = await svc.listSub(id, sub, req.body);
 
-          handleResultError(result);
-          return result.data;
-        },
-      );
+        handleResultError(result);
+        return result.data;
+      });
 
       //////////
       // READ //
       //////////
-      this.router.get(
-        `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
-        setCore,
-        async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.read`);
-          if (!allowed) throw new clientErrors.UnauthorizedError();
+      this.router.get(`/:${this.options.idParam}/${sub}/:subId`, async (req: Request) => {
+        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.read`);
+        if (!allowed) throw new clientErrors.UnauthorizedError();
 
-          const id = req.params[this.options.idParam];
-          const { subId } = req.params;
-          const svc = req.macl.getPublicService(this.modelName);
-          const result = await svc.readSub(id, sub, subId);
+        const id = req.params[this.options.idParam];
+        const { subId } = req.params;
+        const svc = req.macl.getPublicService(this.modelName);
+        const result = await svc.readSub(id, sub, subId);
 
-          handleResultError(result);
-          return result.data;
-        },
-      );
+        handleResultError(result);
+        return result.data;
+      });
 
       /////////////////////
       // READ - Advanced //
       /////////////////////
-      this.router.post(
-        `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId/${this.options.queryPath}`,
-        setCore,
-        async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.read`);
-          if (!allowed) throw new clientErrors.UnauthorizedError();
+      this.router.post(`/:${this.options.idParam}/${sub}/:subId/${this.options.queryPath}`, async (req: Request) => {
+        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.read`);
+        if (!allowed) throw new clientErrors.UnauthorizedError();
 
-          const id = req.params[this.options.idParam];
-          const { subId } = req.params;
-          const svc = req.macl.getPublicService(this.modelName);
-          const result = await svc.readSub(id, sub, subId, req.body);
+        const id = req.params[this.options.idParam];
+        const { subId } = req.params;
+        const svc = req.macl.getPublicService(this.modelName);
+        const result = await svc.readSub(id, sub, subId, req.body);
 
-          handleResultError(result);
-          return result.data;
-        },
-      );
+        handleResultError(result);
+        return result.data;
+      });
 
       ////////////
       // UPDATE //
       ////////////
-      this.router.patch(
-        `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
-        setCore,
-        async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.update`);
-          if (!allowed) throw new clientErrors.UnauthorizedError();
+      this.router.patch(`/:${this.options.idParam}/${sub}/:subId`, async (req: Request) => {
+        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.update`);
+        if (!allowed) throw new clientErrors.UnauthorizedError();
 
-          const id = req.params[this.options.idParam];
-          const { subId } = req.params;
-          const svc = req.macl.getPublicService(this.modelName);
-          const result = await svc.updateSub(id, sub, subId, req.body);
+        const id = req.params[this.options.idParam];
+        const { subId } = req.params;
+        const svc = req.macl.getPublicService(this.modelName);
+        const result = await svc.updateSub(id, sub, subId, req.body);
 
-          handleResultError(result);
-          return result.data;
-        },
-      );
+        handleResultError(result);
+        return result.data;
+      });
 
       ////////////
       // CREATE //
       ////////////
-      this.router.post(`${this.options.basePath}/:${this.options.idParam}/${sub}`, setCore, async (req: Request) => {
+      this.router.post(`/:${this.options.idParam}/${sub}`, async (req: Request) => {
         const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.create`);
         if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -546,22 +522,18 @@ export class ModelRouter {
       ////////////
       // DELETE //
       ////////////
-      this.router.delete(
-        `${this.options.basePath}/:${this.options.idParam}/${sub}/:subId`,
-        setCore,
-        async (req: Request) => {
-          const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.delete`);
-          if (!allowed) throw new clientErrors.UnauthorizedError();
+      this.router.delete(`/:${this.options.idParam}/${sub}/:subId`, async (req: Request) => {
+        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.delete`);
+        if (!allowed) throw new clientErrors.UnauthorizedError();
 
-          const id = req.params[this.options.idParam];
-          const { subId } = req.params;
-          const svc = req.macl.getPublicService(this.modelName);
-          const result = await svc.deleteSub(id, sub, subId);
+        const id = req.params[this.options.idParam];
+        const { subId } = req.params;
+        const svc = req.macl.getPublicService(this.modelName);
+        const result = await svc.deleteSub(id, sub, subId);
 
-          handleResultError(result);
-          return result.data;
-        },
-      );
+        handleResultError(result);
+        return result.data;
+      });
     }
   }
 

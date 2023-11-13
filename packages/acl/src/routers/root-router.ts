@@ -27,10 +27,9 @@ export class RootRouter {
   constructor(options: RootRouterOptions = { basePath: '', routeGuard: true }) {
     const { basePath, routeGuard } = options;
 
-    this.router = new JsonRouter();
     this.basename = basePath || '';
     this.routeGuard = routeGuard;
-
+    this.router = new JsonRouter(this.basename, setCore);
     this.setRoutes();
   }
 
@@ -41,7 +40,7 @@ export class RootRouter {
   }
 
   private setRoutes() {
-    this.router.post(`${this.basename}`, setCore, async (req: Request) => {
+    this.router.post('', async (req: Request) => {
       const allowed = await req.macl.canActivate(this.routeGuard);
       if (!allowed) throw new clientErrors.UnauthorizedError();
 

@@ -41,7 +41,7 @@ export class DataRouter {
     this.options = getDataOptions(dataName);
     this.fullBasePath = processUrl(this.options.parentPath + this.options.basePath);
     this.dataName = dataName;
-    this.router = new JsonRouter();
+    this.router = new JsonRouter(this.options.basePath, setDataCore);
 
     this.setCollectionRoutes();
     this.setDocumentRoutes();
@@ -54,7 +54,7 @@ export class DataRouter {
     //////////
     // LIST //
     //////////
-    this.router.get(`${this.options.basePath}`, setDataCore, async (req: Request) => {
+    this.router.get('', async (req: Request) => {
       const allowed = await req.dacl.isAllowed(this.dataName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -92,7 +92,7 @@ export class DataRouter {
     /////////////////////
     // LIST - Advanced //
     /////////////////////
-    this.router.post(`${this.options.basePath}/${this.options.queryPath}`, setDataCore, async (req: Request) => {
+    this.router.post(`/${this.options.queryPath}`, async (req: Request) => {
       const allowed = await req.dacl.isAllowed(this.dataName, 'list');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -127,7 +127,7 @@ export class DataRouter {
     //////////
     // READ //
     //////////
-    this.router.get(`${this.options.basePath}/:${this.options.idParam}`, setDataCore, async (req: Request) => {
+    this.router.get(`/:${this.options.idParam}`, async (req: Request) => {
       const allowed = await req.dacl.isAllowed(this.dataName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
@@ -143,45 +143,37 @@ export class DataRouter {
     //////////////////////////////
     // READ - Advanced - Filter //
     //////////////////////////////
-    this.router.post(
-      `${this.options.basePath}/${this.options.queryPath}/__filter`,
-      setDataCore,
-      async (req: Request) => {
-        const allowed = await req.dacl.isAllowed(this.dataName, 'read');
-        if (!allowed) throw new clientErrors.UnauthorizedError();
+    this.router.post(`/${this.options.queryPath}/__filter`, async (req: Request) => {
+      const allowed = await req.dacl.isAllowed(this.dataName, 'read');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
 
-        let { filter, select, options = {} } = req.body;
+      let { filter, select, options = {} } = req.body;
 
-        const svc = req.dacl.getService(this.dataName);
-        const result = await svc.findOne(filter, { select }, {});
+      const svc = req.dacl.getService(this.dataName);
+      const result = await svc.findOne(filter, { select }, {});
 
-        handleResultError(result);
+      handleResultError(result);
 
-        return result.data;
-      },
-    );
+      return result.data;
+    });
 
     /////////////////////
     // READ - Advanced //
     /////////////////////
-    this.router.post(
-      `${this.options.basePath}/${this.options.queryPath}/:${this.options.idParam}`,
-      setDataCore,
-      async (req: Request) => {
-        const allowed = await req.dacl.isAllowed(this.dataName, 'read');
-        if (!allowed) throw new clientErrors.UnauthorizedError();
+    this.router.post(`/${this.options.queryPath}/:${this.options.idParam}`, async (req: Request) => {
+      const allowed = await req.dacl.isAllowed(this.dataName, 'read');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
 
-        const id = req.params[this.options.idParam];
-        let { select, options = {} } = req.body;
+      const id = req.params[this.options.idParam];
+      let { select, options = {} } = req.body;
 
-        const svc = req.dacl.getService(this.dataName);
-        const result = await svc.findById(id, { select }, {});
+      const svc = req.dacl.getService(this.dataName);
+      const result = await svc.findById(id, { select }, {});
 
-        handleResultError(result);
+      handleResultError(result);
 
-        return result.data;
-      },
-    );
+      return result.data;
+    });
   }
 
   set<K extends keyof DataRouterOptions>(keyOrOptions: K | DataRouterOptions, value?: unknown) {

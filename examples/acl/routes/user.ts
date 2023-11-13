@@ -111,7 +111,7 @@ userRouter
   });
 
 userRouter.router.get(
-  '/users/custom/query',
+  '/custom/query',
   guard({ modelName: 'User', id: { type: 'query', key: 'userid' }, condition: 'edit.role' }),
   () => {
     return true;
@@ -119,7 +119,7 @@ userRouter.router.get(
 );
 
 userRouter.router.get(
-  '/users/custom/:userid',
+  '/custom/:userid',
   guard({ modelName: 'User', id: { type: 'param', key: 'userid' }, condition: 'edit.role' }),
   () => {
     return true;
