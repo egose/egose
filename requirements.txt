@@ -1,5 +1,5 @@
 pre-commit==3.5.0
 mkdocs-material==9.4.8
-pymdown-extensions==10.3.1
+pymdown-extensions==10.4
 pygments==2.16.1
 setuptools==68.2.2
