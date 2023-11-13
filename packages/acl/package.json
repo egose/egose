@@ -31,7 +31,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "express-json-router": "0.6.6",
+    "express-json-router": "0.7.0",
     "lodash": "^4.17.21",
     "mongoose-schema-jsonschema": "^2.0.2",
     "sift": "^17.0.1",
