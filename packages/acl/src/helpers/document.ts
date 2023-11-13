@@ -58,30 +58,6 @@ export async function populateDoc(doc: Document, target) {
   return 'execPopulate' in p && (p as any).execPopulate();
 }
 
-export const filterCollection = (collection, predicate) => {
-  if (isPlainObject(predicate))
-    return predicate.$and
-      ? filter(collection, (element) => predicate.$and.every((pre) => isMatch(pick(element, keys(pre)), pre)))
-      : filter(collection, predicate);
-
-  return [];
-};
-
-export const findElement = (collection, predicate) => {
-  if (isPlainObject(predicate))
-    return predicate.$and
-      ? find(collection, (value) => predicate.$and.every((pre) => isMatch(pick(value, keys(pre)), pre)))
-      : find(collection, predicate);
-
-  return null;
-};
-
-type DocId = string | Schema.Types.ObjectId;
-
-export const findById = (docs: { _id: DocId }[], id: DocId) => {
-  return docs.find(({ _id }) => String(_id) === String(id));
-};
-
 export const genSubPopulate = (sub: string, popul: any) => {
   if (!popul) return [];
 

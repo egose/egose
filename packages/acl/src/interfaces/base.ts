@@ -15,7 +15,7 @@ export type SortOrder = -1 | 1 | 'asc' | 'ascending' | 'desc' | 'descending';
 
 export type Sort = string | { [key: string]: SortOrder } | [string, SortOrder][] | undefined | null;
 
-export type Filter = boolean | FilterQuery<any>;
+export type Filter = false | FilterQuery<any>;
 
 export interface Include {
   model: string;
