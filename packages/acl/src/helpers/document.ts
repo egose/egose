@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import sift from 'sift';
 import isPlainObject from 'lodash/isPlainObject';
 import set from 'lodash/set';
 import pick from 'lodash/pick';
@@ -59,21 +60,11 @@ export async function populateDoc(doc: Document, target) {
 }
 
 export const filterCollection = (collection, predicate) => {
-  if (isPlainObject(predicate))
-    return predicate.$and
-      ? filter(collection, (element) => predicate.$and.every((pre) => isMatch(pick(element, keys(pre)), pre)))
-      : filter(collection, predicate);
-
-  return [];
+  return filter(collection, sift(predicate));
 };
 
 export const findElement = (collection, predicate) => {
-  if (isPlainObject(predicate))
-    return predicate.$and
-      ? find(collection, (value) => predicate.$and.every((pre) => isMatch(pick(value, keys(pre)), pre)))
-      : find(collection, predicate);
-
-  return null;
+  return find(collection, sift(predicate));
 };
 
 type DocId = string | Schema.Types.ObjectId;
