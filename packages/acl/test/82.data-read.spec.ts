@@ -2,7 +2,7 @@ import request from 'supertest';
 import { expect } from 'chai';
 import 'mocha';
 
-import { app } from './00.setup.spec';
+import { app } from '../../_common/test/00.setup.spec';
 
 describe('Data Read Routes', () => {
   it('should return the target pet', async () => {
