@@ -4,7 +4,7 @@ import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import { AxiosRequestConfig } from 'axios';
 import { Document } from './types';
-import { ModelService } from './service';
+import { ModelService } from './services';
 
 export class Model<T extends Document> {
   private _data!: T;

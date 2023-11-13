@@ -2,8 +2,10 @@ import { Document, Schema } from 'mongoose';
 import isPlainObject from 'lodash/isPlainObject';
 import set from 'lodash/set';
 import pick from 'lodash/pick';
+import keys from 'lodash/keys';
 import isArray from 'lodash/isArray';
 import filter from 'lodash/filter';
+import find from 'lodash/find';
 import isMatch from 'lodash/isMatch';
 import isString from 'lodash/isString';
 import { isDocument, isPromise } from '../lib';
@@ -56,11 +58,22 @@ export async function populateDoc(doc: Document, target) {
   return 'execPopulate' in p && (p as any).execPopulate();
 }
 
-export const filterChildren = (children, obj) => {
-  if (isPlainObject(obj))
-    return obj.$and ? filter(children, (v) => obj.$and.every((q) => isMatch(v, q))) : filter(children, obj);
+export const filterCollection = (collection, predicate) => {
+  if (isPlainObject(predicate))
+    return predicate.$and
+      ? filter(collection, (element) => predicate.$and.every((pre) => isMatch(pick(element, keys(pre)), pre)))
+      : filter(collection, predicate);
 
-  return children;
+  return [];
+};
+
+export const findElement = (collection, predicate) => {
+  if (isPlainObject(predicate))
+    return predicate.$and
+      ? find(collection, (value) => predicate.$and.every((pre) => isMatch(pick(value, keys(pre)), pre)))
+      : find(collection, predicate);
+
+  return null;
 };
 
 type DocId = string | Schema.Types.ObjectId;

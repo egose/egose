@@ -15,7 +15,7 @@ import {
   wrapLazyPromise,
   ModelPromiseMeta,
   ResponseCallback,
-} from './types';
+} from '../types';
 
 import {
   ListArgs,
@@ -32,10 +32,11 @@ import {
   UpdateAdvancedArgs,
   UpdateAdvancedOptions,
   Defaults,
-} from './interface';
+} from '../interface';
 
-import { Model } from './model';
-import { replaceSubQuery } from './helpers';
+import { Model } from '../model';
+import { Service } from './service';
+import { replaceSubQuery } from '../helpers';
 
 const setIfNotFound = (obj: object, key: string, value: any) => {
   if (!get(obj, key)) set(obj, key, value);
@@ -51,10 +52,8 @@ interface Props {
   onFailure: ResponseCallback;
 }
 
-export class ModelService<T extends Document> {
-  private _axios!: AxiosInstance;
+export class ModelService<T extends Document> extends Service<T> {
   private _modelName!: string;
-  private _basePath!: string;
   private _queryPath!: string;
   private _mutationPath!: string;
   private _handleCallbacks!: <T extends { success: boolean }>(res: T) => T;
@@ -64,9 +63,9 @@ export class ModelService<T extends Document> {
     { axios, modelName, basePath, queryPath, mutationPath, onSuccess, onFailure }: Props,
     defaults?: Defaults,
   ) {
-    this._axios = axios;
+    super(axios, basePath);
+
     this._modelName = modelName;
-    this._basePath = basePath;
     this._queryPath = queryPath;
     this._mutationPath = mutationPath;
     this._defaults = defaults ?? {};
@@ -1095,39 +1094,5 @@ export class ModelService<T extends Document> {
         return this.readAdvanced(id, args, options, axiosRequestConfig);
       },
     };
-  }
-
-  private handleSuccess(res: AxiosResponse<any, any>, extra = {}) {
-    return { success: true, raw: res.data, status: res.status, headers: res.headers, ...extra } as Response<any, any>;
-  }
-
-  // See https://axios-http.com/docs/handling_errors
-  private handleError<T>(error) {
-    const result: any = {
-      success: false,
-      raw: null,
-      data: null,
-      message: null,
-      status: null,
-      headers: null,
-    };
-
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      result.status = error.response.status;
-      result.headers = error.response.headers;
-      result.message = error.response.data.message ?? error.response.data;
-    } else if (error.request) {
-      // The request was made but no response was received
-      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-      // http.ClientRequest in node.js
-      result.message = 'The server is not responding';
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      result.message = error.message;
-    }
-
-    return result as T;
   }
 }

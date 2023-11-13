@@ -1,6 +1,7 @@
 import express from 'express';
 import { FilterQuery } from 'mongoose';
 import { Core } from '../core';
+import { DataCore } from '../core-data';
 
 export type Validation = boolean | string | string[] | Function;
 
@@ -94,6 +95,7 @@ export interface Request extends express.Request {
     string
   >;
   macl: Core;
+  dacl: DataCore;
 }
 
 export interface ServiceResult {

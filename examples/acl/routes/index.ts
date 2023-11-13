@@ -7,6 +7,7 @@ import auth from './auth';
 import { NODE_ENV } from '../config';
 import userRoutes from './user';
 import orgRoutes from './org';
+import petDataRoutes from './pet-data';
 
 const setRoutes = async () => {
   const rootRouter = egose.createRouter({
@@ -17,6 +18,7 @@ const setRoutes = async () => {
   router.use('/auth', auth);
   router.use('/', userRoutes.routes);
   router.use('/', orgRoutes.routes);
+  router.use('/', petDataRoutes.routes);
   router.use('/', rootRouter.routes);
 
   const swagger = createOpenAPI([userRoutes, orgRoutes], { baseUrl: 'http://localhost:3000' });
