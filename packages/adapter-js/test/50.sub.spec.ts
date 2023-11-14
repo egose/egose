@@ -99,7 +99,7 @@ describe('Sub-Document User', () => {
   });
 
   it('should return updated fields for multiple status history', async () => {
-    let lucy2 = await mongoose.model('User').findOne({ name: 'lucy2' }).select('statusHistory');
+    let lucy2: any = await mongoose.model('User').findOne({ name: 'lucy2' }).select('statusHistory');
 
     const updates = lucy2.statusHistory.map((status) => {
       return {
