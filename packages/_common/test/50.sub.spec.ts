@@ -92,6 +92,37 @@ describe('Sub-Document User', () => {
     expect(firstStatus.approved).to.equal(oldApproved);
   });
 
+  it('should return updated fields for multiple status history', async () => {
+    let lucy2: any = await mongoose.model('User').findOne({ name: 'lucy2' }).select('statusHistory');
+
+    const updates = lucy2.statusHistory.map((status) => {
+      return {
+        original: status,
+        new: {
+          _id: status._id,
+          name: status.name + '2',
+          approved: !status.approved,
+        },
+      };
+    });
+
+    const response = await request(app)
+      .patch(`/api/users/lucy2/statusHistory`)
+      .set('user', 'admin')
+      .send(updates.map((v) => v.new))
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body.length).to.equal(updates.length);
+
+    for (let x = 0; x < response.body.length; x++) {
+      const item = response.body[x];
+      expect(item._id).to.equal(String(updates[x].new._id));
+      expect(item.name).to.equal(updates[x].new.name);
+      expect(item.approved).to.equal(updates[x].original.approved);
+    }
+  });
+
   it('should add a new status through status history create route', async () => {
     const lucy2: any = await mongoose.model('User').findOne({ name: 'lucy2' }).select('statusHistory');
     const count = lucy2.statusHistory.length;

@@ -1021,6 +1021,41 @@ export class ModelService<T extends Document> extends Service<T> {
 
             return result;
           },
+          bulkUpdate: (data: object[], options?: {}, axiosRequestConfig?: AxiosRequestConfig) => {
+            const {} = options ?? {};
+            const reqConfig = axiosRequestConfig ?? {};
+
+            const result: ModelPromiseMeta & Promise<ListModelResponse<S>> = wrapLazyPromise<
+              ListModelResponse<S>,
+              ModelPromiseMeta
+            >(
+              () =>
+                this._axios
+                  .patch(`${this._basePath}/${id}/${sub}`, data, mergeConfig(reqConfig, { params: {} }))
+                  .then(this.handleSuccess)
+                  .then((result: ListModelResponse<S>) => {
+                    result.data = [];
+                    return result;
+                  })
+                  .catch(this.handleError<ListModelResponse<S>>)
+                  .then(this._handleCallbacks<ListModelResponse<S>>),
+              {
+                __op: 'bulkUpdateSub',
+                __query: {
+                  model: this._modelName,
+                  op: 'bulkUpdatesub',
+                  id,
+                  sub,
+                  data,
+                  options: {},
+                },
+                __requestConfig: reqConfig,
+                __service: this,
+              },
+            );
+
+            return result;
+          },
           create: (data: object, axiosRequestConfig?: AxiosRequestConfig) => {
             const reqConfig = axiosRequestConfig ?? {};
 

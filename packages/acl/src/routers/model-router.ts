@@ -455,6 +455,21 @@ export class ModelRouter {
         return result.data;
       });
 
+      /////////////////
+      // BULK UPDATE //
+      /////////////////
+      this.router.patch(`/:${this.options.idParam}/${sub}`, async (req: Request) => {
+        const allowed = await req.macl.isAllowed(this.modelName, `subs.${sub}.update`);
+        if (!allowed) throw new clientErrors.UnauthorizedError();
+
+        const id = req.params[this.options.idParam];
+        const svc = req.macl.getPublicService(this.modelName);
+        const result = await svc.bulkUpdateSub(id, sub, req.body);
+
+        handleResultError(result);
+        return result.data;
+      });
+
       //////////
       // READ //
       //////////

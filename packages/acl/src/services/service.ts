@@ -550,6 +550,35 @@ export class Service extends Base {
     return { success: true, code: Codes.Success, data: result };
   }
 
+  public async bulkUpdateSub(id, sub, data): Promise<ServiceResult> {
+    const parentDoc = await this.getParentDoc(id, sub, null, { access: 'update' });
+    if (!parentDoc) return { success: false, code: Codes.NotFound, data: null };
+    let result = get(parentDoc, sub);
+
+    data = castArray(data);
+
+    const [subFilter, subReadSelect, subUpdateSelect] = await Promise.all([
+      this.genFilter(`subs.${sub}.update`, { _id: { $in: data.map((v) => v._id) } }),
+      this.genSelect('read', null, false, [sub, 'sub']),
+      this.genSelect('update', null, false, [sub, 'sub']),
+    ]);
+
+    if (subFilter === false) return { success: false, code: Codes.Forbidden, data: null };
+
+    result = filterCollection(result, subFilter);
+    forEach(result, (subdoc) => {
+      const tdata = findElementById(data, subdoc._id);
+      if (!tdata) return;
+
+      const allowedData = pick(tdata, subUpdateSelect);
+      Object.assign(subdoc, allowedData);
+    });
+
+    await parentDoc.save();
+    if (subReadSelect) result = result.map((v) => pick(toObject(v), subReadSelect.concat(['_id'])));
+    return { success: true, code: Codes.Success, data: result };
+  }
+
   public async createSub(id, sub, data, options?: { addFirst: boolean }): Promise<ServiceResult> {
     const { addFirst } = options ?? {};
 
