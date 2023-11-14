@@ -44,7 +44,7 @@ export function parseSortString(sortString): { sortKey: string; sortOrder: 'asc'
   }
 }
 
-export const normalizeSelect = function normalizeSelect(select: Projection): string[] {
+export function normalizeSelect(select: Projection): string[] {
   if (Array.isArray(select)) return flattenDeep(select.map(normalizeSelect));
   if (isPlainObject(select)) {
     return reduce(
@@ -59,4 +59,29 @@ export const normalizeSelect = function normalizeSelect(select: Projection): str
   }
   if (isString(select)) return select.split(' ').map((v) => v.trim());
   return [];
-};
+}
+
+export function parseAccess(access: string) {
+  const parts = access.split('.');
+  if (parts.length === 1) {
+    return {
+      isSub: false,
+      sub: '',
+      access: parts[0],
+    };
+  }
+
+  if (parts.length === 3 && parts[0] === 'subs') {
+    return {
+      isSub: true,
+      sub: parts[1],
+      access: parts[2],
+    };
+  }
+
+  return {
+    isSub: false,
+    sub: '',
+    access,
+  };
+}
