@@ -1,4 +1,4 @@
-import axios, { CreateAxiosDefaults, mergeConfig } from 'axios';
+import axios, { CreateAxiosDefaults, mergeConfig, AxiosRequestConfig } from 'axios';
 import isEmpty from 'lodash/isEmpty';
 import { ModelService, DataService } from './services';
 import { Model } from './model';
@@ -86,6 +86,26 @@ export function createAdapter(
         },
         defaults,
       );
+    },
+    wrapGet: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
+      return (axiosRequestConfig?: AxiosRequestConfig) =>
+        instance.get<T>(url, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    },
+    wrapPost: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
+      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
+        instance.post<T>(url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    },
+    wrapPut: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
+      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
+        instance.put<T>(url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    },
+    wrapPatch: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
+      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
+        instance.patch<T>(url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    },
+    wrapDelete: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
+      return (axiosRequestConfig?: AxiosRequestConfig) =>
+        instance.delete<T>(url, axiosRequestConfig ?? defaultAxiosRequestConfig);
     },
     group: async <T extends (ModelPromiseMeta & Promise<unknown>)[]>(
       ...proms: T

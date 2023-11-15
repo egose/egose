@@ -45,6 +45,11 @@ export const services = {
   petService: adapter.createDataService<Pet>({ dataName: 'Pet', basePath: 'pets' }),
 };
 
+export const endpoints = {
+  apple: adapter.wrapGet('/apple'),
+  chairman: services.orgService.wrapPost<{ name: string; flag: string }>('/chairman'),
+};
+
 before(async function () {
   console.log('setup tests');
   const expressApp = await initExpresss({ databaseUrl: DATABASE_URL });

@@ -44,6 +44,8 @@ orgRouter
     count: true,
   });
 
+orgRouter.router.post('/chairman', (req) => ({ name: 'chairman', flag: req.body.flag }));
+
 egose.setModelOption('Location', 'permissionSchema', { name: { list: true, read: true, create: true } });
 
 export default orgRouter;
