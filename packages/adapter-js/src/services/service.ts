@@ -1,6 +1,9 @@
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
 import { Response } from '../types';
 
+const removeTrailingSlash = (inputString) => inputString.replace(/\/$/, '');
+const removeLeadingSlash = (inputString) => inputString.replace(/^\/+/g, '');
+
 export class Service<T> {
   protected _axios!: AxiosInstance;
   protected _basePath!: string;
@@ -42,5 +45,35 @@ export class Service<T> {
     }
 
     return result as T;
+  }
+
+  wrapGet<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+    const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
+    return (axiosRequestConfig?: AxiosRequestConfig) =>
+      this._axios.get<T>(_url, axiosRequestConfig ?? defaultAxiosRequestConfig);
+  }
+
+  wrapPost<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+    const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
+    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
+      this._axios.post<T>(_url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+  }
+
+  wrapPut<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+    const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
+    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
+      this._axios.put<T>(_url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+  }
+
+  wrapPatch<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+    const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
+    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
+      this._axios.patch<T>(_url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+  }
+
+  wrapDelete<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+    const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
+    return (axiosRequestConfig?: AxiosRequestConfig) =>
+      this._axios.delete<T>(_url, axiosRequestConfig ?? defaultAxiosRequestConfig);
   }
 }
