@@ -24,6 +24,7 @@ import {
   DataReadAdvancedOptions,
   DataDefaults,
 } from '../interface';
+import { CustomHeaders } from '../enums';
 
 import { Service } from './service';
 import { replaceSubQuery } from '../helpers';
@@ -31,6 +32,11 @@ import { replaceSubQuery } from '../helpers';
 const setIfNotFound = (obj: object, key: string, value: any) => {
   if (!get(obj, key)) set(obj, key, value);
 };
+
+interface ListData<T> {
+  count: number;
+  rows: T[];
+}
 
 interface Props {
   axios: AxiosInstance;
@@ -85,6 +91,7 @@ export class DataService<T> extends Service<T> {
     const {
       includePermissions = this._defaults.listOptions.includePermissions ?? false,
       includeCount = this._defaults.listOptions.includeCount ?? false,
+      includeExtraHeaders = this._defaults.listOptions.includeExtraHeaders ?? false,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
@@ -105,17 +112,13 @@ export class DataService<T> extends Service<T> {
                 page_size: pageSize,
                 include_permissions: includePermissions,
                 include_count: includeCount,
-                include_extra_headers: 'true',
+                include_extra_headers: includeExtraHeaders,
               },
             }),
           )
           .then(this.handleSuccess)
           .then((result: ListDataResponse<T>) => {
-            const totalCount = get(result, 'headers.egose-total-count', 0);
-            result.totalCount = Number(totalCount);
-
-            result.data = result.raw;
-            return result;
+            return this.processListResult(result, { includeCount, includeExtraHeaders });
           })
           .catch(this.handleError<ListDataResponse<T>>)
           .then(this._handleCallbacks<ListDataResponse<T>>),
@@ -129,7 +132,7 @@ export class DataService<T> extends Service<T> {
           options: {
             includePermissions,
             includeCount,
-            includeExtraHeaders: false,
+            includeExtraHeaders,
           },
         },
         __requestConfig: reqConfig,
@@ -158,6 +161,7 @@ export class DataService<T> extends Service<T> {
     const {
       includePermissions = this._defaults.listAdvancedOptions.includePermissions ?? false,
       includeCount = this._defaults.listAdvancedOptions.includeCount ?? false,
+      includeExtraHeaders = this._defaults.listAdvancedOptions.includeExtraHeaders ?? false,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
@@ -181,18 +185,14 @@ export class DataService<T> extends Service<T> {
               options: {
                 includePermissions,
                 includeCount,
-                includeExtraHeaders: true,
+                includeExtraHeaders,
               },
             },
             reqConfig,
           )
           .then(this.handleSuccess)
           .then((result: ListDataResponse<T>) => {
-            const totalCount = get(result, 'headers.egose-total-count', 0);
-            result.totalCount = Number(totalCount);
-
-            result.data = result.raw;
-            return result;
+            return this.processListResult(result, { includeCount, includeExtraHeaders });
           })
           .catch(this.handleError<ListDataResponse<T>>)
           .then(this._handleCallbacks<ListDataResponse<T>>),
@@ -206,7 +206,7 @@ export class DataService<T> extends Service<T> {
           options: {
             includePermissions,
             includeCount,
-            includeExtraHeaders: false,
+            includeExtraHeaders,
           },
         },
         __requestConfig: reqConfig,
@@ -359,6 +359,21 @@ export class DataService<T> extends Service<T> {
       },
     );
 
+    return result;
+  }
+
+  private processListResult<T>(result: ListDataResponse<T>, { includeCount, includeExtraHeaders }) {
+    if (includeCount) {
+      if (includeExtraHeaders) {
+        const totalCount = get(result, `headers.${CustomHeaders.TotalCount}`, 0);
+        result.totalCount = Number(totalCount);
+      } else {
+        result.totalCount = (result.raw as never as ListData<T>).count;
+        result.raw = (result.raw as never as ListData<T>).rows;
+      }
+    }
+
+    result.data = result.raw;
     return result;
   }
 }

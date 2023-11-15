@@ -45,10 +45,28 @@ describe('List Users', () => {
     expect(response.data[0]._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
   });
 
-  it('should include document count with documents', async () => {
+  it('should include total count', async () => {
     const userCount = await mongoose.model('User').countDocuments();
 
     const response = await services.userService.list(null, { includeCount: true }, { headers: { user: 'admin' } });
+
+    expect(response.status).to.equal(200);
+    expect(response.success).to.equal(true);
+    expect(response.totalCount).to.equal(userCount);
+    expect(response.data.length).to.equal(userCount);
+    expect(response.data[0].name).exist;
+    expect(response.data[0].role).exist;
+    expect(response.data[0]._permissions).to.deep.equal({ _view: { $: '_' }, _edit: { $: '_' } });
+  });
+
+  it('should include total count via headers', async () => {
+    const userCount = await mongoose.model('User').countDocuments();
+
+    const response = await services.userService.list(
+      null,
+      { includeCount: true, includeExtraHeaders: true },
+      { headers: { user: 'admin' } },
+    );
 
     expect(response.status).to.equal(200);
     expect(response.success).to.equal(true);

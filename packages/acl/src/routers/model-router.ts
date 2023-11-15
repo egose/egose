@@ -11,6 +11,7 @@ import { setModelOptions, setModelOption, getModelOptions } from '../options';
 import { processUrl } from '../lib';
 import { handleResultError } from '../helpers';
 import { ModelRouterOptions, ExtendedModelRouterOptions, Request, Task } from '../interfaces';
+import { CustomHeaders } from '../enums';
 import { logger } from '../logger';
 
 const clientErrors = JsonRouter.clientErrors;
@@ -96,7 +97,7 @@ export class ModelRouter {
 
       if (includeCount) {
         if (includeExtraHeaders) {
-          req.res.setHeader('egose-total-count', totalCount);
+          req.res.setHeader(CustomHeaders.TotalCount, totalCount);
           return data;
         }
 
@@ -149,7 +150,7 @@ export class ModelRouter {
 
       if (includeCount) {
         if (includeExtraHeaders) {
-          req.res.setHeader('egose-total-count', totalCount);
+          req.res.setHeader(CustomHeaders.TotalCount, totalCount);
           return data;
         }
 

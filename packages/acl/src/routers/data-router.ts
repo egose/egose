@@ -10,6 +10,7 @@ import { setDataOption, setDataOptions, getDataOption, getDataOptions, getDataNa
 import { processUrl } from '../lib';
 import { handleResultError } from '../helpers';
 import { DataRouterOptions, Request } from '../interfaces';
+import { CustomHeaders } from '../enums';
 import { logger } from '../logger';
 
 const clientErrors = JsonRouter.clientErrors;
@@ -79,7 +80,7 @@ export class DataRouter {
 
       if (includeCount) {
         if (includeExtraHeaders) {
-          req.res.setHeader('egose-total-count', totalCount);
+          req.res.setHeader(CustomHeaders.TotalCount, totalCount);
           return data;
         }
 
@@ -109,7 +110,7 @@ export class DataRouter {
 
       if (includeCount) {
         if (includeExtraHeaders) {
-          req.res.setHeader('egose-total-count', totalCount);
+          req.res.setHeader(CustomHeaders.TotalCount, totalCount);
           return data;
         }
 

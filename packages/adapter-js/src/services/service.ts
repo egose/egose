@@ -14,6 +14,7 @@ export class Service<T> {
   }
 
   protected handleSuccess(res: AxiosResponse<any, any>, extra = {}) {
+    // console.table(res.headers);
     return { success: true, raw: res.data, status: res.status, headers: res.headers, ...extra } as Response<any, any>;
   }
 
