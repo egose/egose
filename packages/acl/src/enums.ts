@@ -16,3 +16,7 @@ export enum Codes {
   Forbidden = 'forbidden',
   NotFound = 'not_found',
 }
+
+export enum CustomHeaders {
+  TotalCount = 'egose-total-count',
+}

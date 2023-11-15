@@ -33,6 +33,7 @@ import {
   UpdateAdvancedOptions,
   Defaults,
 } from '../interface';
+import { CustomHeaders } from '../enums';
 
 import { Model } from '../model';
 import { Service } from './service';
@@ -41,6 +42,11 @@ import { replaceSubQuery } from '../helpers';
 const setIfNotFound = (obj: object, key: string, value: any) => {
   if (!get(obj, key)) set(obj, key, value);
 };
+
+interface ListData<T> {
+  count: number;
+  rows: T[];
+}
 
 interface Props {
   axios: AxiosInstance;
@@ -108,6 +114,7 @@ export class ModelService<T extends Document> extends Service<T> {
       skim = this._defaults.listOptions.skim ?? true,
       includePermissions = this._defaults.listOptions.includePermissions ?? false,
       includeCount = this._defaults.listOptions.includeCount ?? false,
+      includeExtraHeaders = this._defaults.listOptions.includeExtraHeaders ?? false,
       sq,
     } = options ?? {};
 
@@ -130,17 +137,13 @@ export class ModelService<T extends Document> extends Service<T> {
                 skim,
                 include_permissions: includePermissions,
                 include_count: includeCount,
-                include_extra_headers: 'true',
+                include_extra_headers: includeExtraHeaders,
               },
             }),
           )
           .then(this.handleSuccess)
           .then((result: ListModelResponse<T>) => {
-            const totalCount = get(result, 'headers.egose-total-count', 0);
-            result.totalCount = Number(totalCount);
-
-            result.data = result.success ? result.raw.map((item) => Model.create<T>(item, this)) : [];
-            return result;
+            return this.processListResult(this, result, { includeCount, includeExtraHeaders });
           })
           .catch(this.handleError<ListModelResponse<T>>)
           .then(this._handleCallbacks<ListModelResponse<T>>),
@@ -155,7 +158,7 @@ export class ModelService<T extends Document> extends Service<T> {
             skim,
             includePermissions,
             includeCount,
-            includeExtraHeaders: false,
+            includeExtraHeaders,
           },
           sqOptions: sq,
         },
@@ -188,6 +191,7 @@ export class ModelService<T extends Document> extends Service<T> {
       skim = this._defaults.listAdvancedOptions.skim ?? true,
       includePermissions = this._defaults.listAdvancedOptions.includePermissions ?? false,
       includeCount = this._defaults.listAdvancedOptions.includeCount ?? false,
+      includeExtraHeaders = this._defaults.listAdvancedOptions.includeExtraHeaders ?? false,
       populateAccess = this._defaults.listAdvancedOptions.populateAccess,
       sq,
     } = options ?? {};
@@ -216,7 +220,7 @@ export class ModelService<T extends Document> extends Service<T> {
                 skim,
                 includePermissions,
                 includeCount,
-                includeExtraHeaders: true,
+                includeExtraHeaders,
                 populateAccess,
               },
             },
@@ -224,11 +228,7 @@ export class ModelService<T extends Document> extends Service<T> {
           )
           .then(this.handleSuccess)
           .then((result: ListModelResponse<T>) => {
-            const totalCount = get(result, 'headers.egose-total-count', 0);
-            result.totalCount = Number(totalCount);
-
-            result.data = result.success ? result.raw.map((item) => Model.create<T>(item, this)) : [];
-            return result;
+            return this.processListResult(this, result, { includeCount, includeExtraHeaders });
           })
           .catch(this.handleError<ListModelResponse<T>>)
           .then(this._handleCallbacks<ListModelResponse<T>>),
@@ -243,7 +243,7 @@ export class ModelService<T extends Document> extends Service<T> {
             skim,
             includePermissions,
             includeCount,
-            includeExtraHeaders: false,
+            includeExtraHeaders,
             populateAccess,
           },
           sqOptions: sq,
@@ -1129,5 +1129,25 @@ export class ModelService<T extends Document> extends Service<T> {
         return this.readAdvanced(id, args, options, axiosRequestConfig);
       },
     };
+  }
+
+  private processListResult<T>(
+    _this: ModelService<T>,
+    result: ListModelResponse<T>,
+    { includeCount, includeExtraHeaders },
+  ) {
+    if (includeCount) {
+      if (includeExtraHeaders) {
+        const totalCount = get(result, `headers.${CustomHeaders.TotalCount}`, 0);
+        result.totalCount = Number(totalCount);
+      } else {
+        result.totalCount = (result.raw as never as ListData<T>).count;
+        result.raw = (result.raw as never as ListData<T>).rows;
+      }
+    }
+
+    result.data = result.success ? result.raw.map((item) => Model.create<T>(item, _this)) : [];
+
+    return result;
   }
 }

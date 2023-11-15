@@ -16,6 +16,7 @@ export interface ListOptions {
   skim?: boolean;
   includePermissions?: boolean;
   includeCount?: boolean;
+  includeExtraHeaders?: boolean;
   sq?: sqOptions;
 }
 
@@ -34,6 +35,7 @@ export interface ListAdvancedOptions {
   skim?: boolean;
   includePermissions?: boolean;
   includeCount?: boolean;
+  includeExtraHeaders?: boolean;
   populateAccess?: PopulateAccess;
   sq?: sqOptions;
 }
@@ -112,6 +114,7 @@ export interface DataListArgs {
 export interface DataListOptions {
   includePermissions?: boolean;
   includeCount?: boolean;
+  includeExtraHeaders?: boolean;
 }
 
 export interface DataListAdvancedArgs {
@@ -126,6 +129,7 @@ export interface DataListAdvancedArgs {
 export interface DataListAdvancedOptions {
   includePermissions?: boolean;
   includeCount?: boolean;
+  includeExtraHeaders?: boolean;
 }
 
 export interface DataReadOptions {
