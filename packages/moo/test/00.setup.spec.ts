@@ -7,4 +7,6 @@ before(async function () {
   await mongoose.connect(DATABASE_URL);
 });
 
-after(function () {});
+after(async function () {
+  await mongoose.connection.db.dropDatabase();
+});
