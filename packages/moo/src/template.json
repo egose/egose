@@ -1,0 +1,19 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "description": "This example server describes the available API endpoints of the Egose models.",
+    "version": "0.1.0",
+    "title": "Egose API endpoints",
+    "termsOfService": "https://github.com/egose/egose"
+  },
+  "servers": [{ "url": "" }],
+  "tags": [],
+  "paths": {},
+  "components": {
+    "schemas": {}
+  },
+  "externalDocs": {
+    "description": "Please follow the documentation",
+    "url": "https://egose.github.io/egose-acl/api-endpoints/"
+  }
+}
