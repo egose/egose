@@ -13,12 +13,12 @@ please see [Egose documentation](https://egose.github.io/egose-moo/) for more de
 ## Installation
 
 ```sh
-npm install express mongoose @egose/moo
+npm install mongoose @egose/moo
 
 ```
 
 ```sh
-yarn add express mongoose @egose/moo
+yarn add mongoose @egose/moo
 ```
 
 ### [MIT Licensed](LICENSE)
