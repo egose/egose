@@ -1,3 +1,69 @@
+## [0.28.0](https://github.com/egose/egose/compare/v0.27.2...v0.28.0) (2023-11-19)
+
+
+### Features
+
+* **moo:** add uniqueNullableString schema helper ([e5c724e](https://github.com/egose/egose/commit/e5c724e6ca08e1604451ef7dc401686faa17cb5d))
+* **moo:** support 'byId' static method in plugin ([9054d03](https://github.com/egose/egose/commit/9054d03080bb7138cf47cb0a45f68e541cb67980))
+
+## [0.27.2](https://github.com/egose/egose/compare/v0.27.1...v0.27.2) (2023-11-15)
+
+
+### Features
+
+* **adapter-js:** include total count as data by default ([050b34f](https://github.com/egose/egose/commit/050b34f59eea50881302e1350008c8c08b953dde))
+
+## [0.27.1](https://github.com/egose/egose/compare/v0.27.0...v0.27.1) (2023-11-15)
+
+## [0.27.0](https://github.com/egose/egose/compare/v0.26.0...v0.27.0) (2023-11-15)
+
+
+### Features
+
+* **acl:** add sub bulk update endpoint ([433ca1b](https://github.com/egose/egose/commit/433ca1b7e0994954acdbb8d74b62b34cd6752320))
+* **adapter-js:** add sub bulk update service ([6a2bd05](https://github.com/egose/egose/commit/6a2bd0503e7feeb72d974e38a3e75bad0898ba4d))
+* **adapter-js:** add wrap axios endpoints in multiple scopes ([29845a4](https://github.com/egose/egose/commit/29845a4f81da19b6fb5b6ff78de58c2487a4879b))
+
+## [0.26.0](https://github.com/egose/egose/compare/v0.25.0...v0.26.0) (2023-11-13)
+
+
+### Refactors
+
+* **acl:** clean up sub service logic ([cf8f45f](https://github.com/egose/egose/commit/cf8f45fcc5beb654b391c78a2d1792d917a509e0))
+* **acl:** move common router options to dep level ([a97a690](https://github.com/egose/egose/commit/a97a6906906a74955a6e4ecc7da2778db76e606d))
+* **acl:** use sift for better mongodb-like filter support ([3ba2e86](https://github.com/egose/egose/commit/3ba2e8647b247bfbbb6e7b5624a1fe9197e0b77c))
+
+## [0.25.0](https://github.com/egose/egose/compare/v0.24.0...v0.25.0) (2023-11-13)
+
+
+### Features
+
+* **adapter-js:** add data router ([68e0299](https://github.com/egose/egose/commit/68e029944f9740d90b27fe3b72c4e645cc398c88))
+
+## [0.24.0](https://github.com/egose/egose/compare/v0.23.0...v0.24.0) (2023-11-07)
+
+
+### Features
+
+* **acl:** rename process to tasks ([916b529](https://github.com/egose/egose/commit/916b529f23c1307c676e838a5291cd5194159015))
+
+## [0.23.0](https://github.com/egose/egose/compare/v0.22.2...v0.23.0) (2023-11-06)
+
+
+### Features
+
+* **adapter-js:** add utils ([fcb3d1a](https://github.com/egose/egose/commit/fcb3d1adb7d58ac47bcd474f6a0fda904daad1c6))
+* **adapter-js:** support response callbacks ([1d2bfdb](https://github.com/egose/egose/commit/1d2bfdb1b95aa1af461acda5e0d358029ba4a84d))
+
+## [0.22.2](https://github.com/egose/egose/compare/v0.22.1...v0.22.2) (2023-11-05)
+
+## [0.22.1](https://github.com/egose/egose/compare/v0.22.0...v0.22.1) (2023-11-04)
+
+
+### Bug Fixes
+
+* **acl:** include permissions if requested in list ([f7fa7eb](https://github.com/egose/egose/commit/f7fa7eb13bc28bc6fc34de40e0d32b50f33cd472))
+
 ## [0.22.0](https://github.com/egose/egose/compare/v0.21.2...v0.22.0) (2023-11-04)
 
 
@@ -161,3 +227,4 @@
 * add acl package ([d269a99](https://github.com/egose/egose/commit/d269a9913104a3464b6709a8ff678e8a292e0f63))
 * add deco package ([4551629](https://github.com/egose/egose/commit/45516290bda6d86113274e4bada762d8fb5c4539))
 * add package publish workflow ([1384b90](https://github.com/egose/egose/commit/1384b9056ab41297e3d8b4f96d3dd07a21f7a006))
+
