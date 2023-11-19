@@ -1,0 +1,55 @@
+{
+  "name": "@egose/moo",
+  "version": "0.0.0-PLACEHOLDER",
+  "description": "Mongoose helper tools",
+  "license": "MIT",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/egose/egose"
+  },
+  "homepage": "https://egose.github.io/egose-moo",
+  "keywords": [
+    "mongoose"
+  ],
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc -d",
+    "bundle": "tsup",
+    "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint",
+    "test": "mocha --exit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "mongoose": ">=5.2.0"
+  },
+  "tsup": {
+    "target": "node18",
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "dts": true,
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "minify": false
+  },
+  "mocha": {
+    "require": [
+      "ts-node/register",
+      "tsconfig-paths/register"
+    ],
+    "spec": [
+      "test/**/*.spec.ts"
+    ]
+  }
+}
