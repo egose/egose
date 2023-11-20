@@ -38,6 +38,7 @@ import { CustomHeaders } from '../enums';
 import { Model } from '../model';
 import { Service } from './service';
 import { replaceSubQuery } from '../helpers';
+import { CACHE_HEADER } from '../constants';
 
 const setIfNotFound = (obj: object, key: string, value: any) => {
   if (!get(obj, key)) set(obj, key, value);
@@ -115,10 +116,12 @@ export class ModelService<T extends Document> extends Service<T> {
       includePermissions = this._defaults.listOptions.includePermissions ?? false,
       includeCount = this._defaults.listOptions.includeCount ?? false,
       includeExtraHeaders = this._defaults.listOptions.includeExtraHeaders ?? false,
+      ignoreCache = this._defaults.listOptions.ignoreCache ?? false,
       sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
       ListModelResponse<T>,
@@ -193,10 +196,12 @@ export class ModelService<T extends Document> extends Service<T> {
       includeCount = this._defaults.listAdvancedOptions.includeCount ?? false,
       includeExtraHeaders = this._defaults.listAdvancedOptions.includeExtraHeaders ?? false,
       populateAccess = this._defaults.listAdvancedOptions.populateAccess,
+      ignoreCache = this._defaults.listAdvancedOptions.ignoreCache ?? false,
       sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
       ListModelResponse<T>,
@@ -260,10 +265,12 @@ export class ModelService<T extends Document> extends Service<T> {
     const {
       includePermissions = this._defaults.readOptions.includePermissions ?? true,
       tryList = this._defaults.readOptions.tryList ?? true,
+      ignoreCache = this._defaults.readOptions.ignoreCache ?? false,
       sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
@@ -321,10 +328,12 @@ export class ModelService<T extends Document> extends Service<T> {
       includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
       tryList = this._defaults.readAdvancedOptions.tryList ?? true,
       populateAccess = this._defaults.readAdvancedOptions.populateAccess,
+      ignoreCache = this._defaults.readAdvancedOptions.ignoreCache ?? false,
       sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
@@ -388,10 +397,12 @@ export class ModelService<T extends Document> extends Service<T> {
       includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
       tryList = this._defaults.readAdvancedOptions.tryList ?? true,
       populateAccess = this._defaults.readAdvancedOptions.populateAccess,
+      ignoreCache = this._defaults.readAdvancedOptions.ignoreCache ?? false,
       sq,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
@@ -442,6 +453,7 @@ export class ModelService<T extends Document> extends Service<T> {
 
   new(axiosRequestConfig?: AxiosRequestConfig) {
     const reqConfig = axiosRequestConfig ?? {};
+    set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
@@ -473,6 +485,7 @@ export class ModelService<T extends Document> extends Service<T> {
   create(data: object, options?: CreateOptions, axiosRequestConfig?: AxiosRequestConfig) {
     const { includePermissions = this._defaults.createOptions.includePermissions ?? true } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
+    set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
@@ -518,6 +531,7 @@ export class ModelService<T extends Document> extends Service<T> {
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
@@ -557,6 +571,7 @@ export class ModelService<T extends Document> extends Service<T> {
   update(identifier: string, data: object, options?: UpdateOptions, axiosRequestConfig?: AxiosRequestConfig) {
     const { returningAll = this._defaults.updateOptions.returningAll ?? true } = options ?? {};
     const reqConfig = axiosRequestConfig ?? {};
+    set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
@@ -609,6 +624,7 @@ export class ModelService<T extends Document> extends Service<T> {
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
@@ -654,6 +670,7 @@ export class ModelService<T extends Document> extends Service<T> {
 
   delete(identifier: string, axiosRequestConfig?: AxiosRequestConfig) {
     const reqConfig = axiosRequestConfig ?? {};
+    set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
     const result: ModelPromiseMeta & Promise<Response<string>> = wrapLazyPromise<Response<string>, ModelPromiseMeta>(
       () =>

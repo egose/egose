@@ -1,5 +1,6 @@
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
 import { Response } from '../types';
+import { CACHE_HEADER } from '../constants';
 
 const removeTrailingSlash = (inputString) => inputString.replace(/\/$/, '');
 const removeLeadingSlash = (inputString) => inputString.replace(/^\/+/g, '');
@@ -76,5 +77,12 @@ export class Service<T> {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
     return (axiosRequestConfig?: AxiosRequestConfig) =>
       this._axios.delete<T>(_url, axiosRequestConfig ?? defaultAxiosRequestConfig);
+  }
+
+  updateHeaders(headers, { ignoreCache }) {
+    if (!headers || headers[CACHE_HEADER]) return headers;
+
+    headers[CACHE_HEADER] = ignoreCache ? 'false' : 'true';
+    return headers;
   }
 }

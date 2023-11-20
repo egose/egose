@@ -1,3 +1,10 @@
+## [0.29.0](https://github.com/egose/egose/compare/v0.28.1...v0.29.0) (2023-11-20)
+
+
+### Features
+
+* **adapter-js:** support cache response ([41d6e0c](https://github.com/egose/egose/commit/41d6e0cc99f9ebdbcac1e9f73e2c33ed0382cec3))
+
 ## [0.28.1](https://github.com/egose/egose/compare/v0.28.0...v0.28.1) (2023-11-20)
 
 
