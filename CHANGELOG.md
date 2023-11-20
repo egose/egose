@@ -1,3 +1,15 @@
+## [0.28.1](https://github.com/egose/egose/compare/v0.28.0...v0.28.1) (2023-11-20)
+
+
+### Features
+
+* **moo:** set mongoose as the this object of the plugin func ([35689cc](https://github.com/egose/egose/commit/35689ccb20f30075fc049e5a675946e943ac35f3))
+
+
+### Docs
+
+* **moo:** remove unnecessary dep ([99741ab](https://github.com/egose/egose/commit/99741ab7182a177a864dec9a2ba7676eff59633b))
+
 ## [0.28.0](https://github.com/egose/egose/compare/v0.27.2...v0.28.0) (2023-11-19)
 
 
