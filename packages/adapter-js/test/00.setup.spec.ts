@@ -17,6 +17,7 @@ export let seedDocuments = {
 };
 
 export const adapter = egoseAdapter.createAdapter({ baseURL: 'http://127.0.0.1:3000/api' });
+export const adapterWithCache = egoseAdapter.createAdapter({ baseURL: 'http://127.0.0.1:3000/api' }, { cacheTTL: 100 });
 
 export interface User {
   name?: string;
@@ -43,6 +44,7 @@ export const services = {
   userService: adapter.createModelService<User>({ modelName: 'User', basePath: 'users' }),
   orgService: adapter.createModelService<Org>({ modelName: 'Org', basePath: 'orgs', queryPath: '_extra' }),
   petService: adapter.createDataService<Pet>({ dataName: 'Pet', basePath: 'pets' }),
+  userService2: adapterWithCache.createModelService<User>({ modelName: 'User', basePath: 'users' }),
 };
 
 export const endpoints = {

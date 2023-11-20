@@ -31,6 +31,22 @@ describe('Create Users', () => {
     expect(response.data.public).to.equal(true);
     expect(response.data._createdBy).to.equal('egose');
   });
+
+  it('should create an user `kathy` by admin', async () => {
+    const response = await services.userService.createAdvanced(
+      { name: 'kathy', role: 'user', public: true },
+      { select: { name: 1, role: 1, public: 1, _createdBy: 1 } },
+      null,
+      { headers: { user: 'admin' } },
+    );
+
+    expect(response.status).to.equal(201);
+    expect(response.success).to.equal(true);
+    expect(response.data.name).to.equal('kathy');
+    expect(response.data.role).to.equal('user');
+    expect(response.data.public).to.equal(true);
+    expect(response.data._createdBy).to.equal('egose');
+  });
 });
 
 describe('Create Orgs', () => {

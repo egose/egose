@@ -1,10 +1,11 @@
 import axios, { CreateAxiosDefaults, mergeConfig, AxiosRequestConfig } from 'axios';
 import isEmpty from 'lodash/isEmpty';
+import castArray from 'lodash/castArray';
 import { ModelService, DataService } from './services';
 import { Model } from './model';
 import { ModelPromiseMeta, ResponseCallback } from './types';
 import { Defaults, DataDefaults } from './interface';
-import castArray from 'lodash/castArray';
+import { useCacheInterceptors } from './services/interceptors';
 
 const defaultAxiosConfig = Object.freeze({
   baseURL: '/api',
@@ -19,11 +20,23 @@ const defaultAxiosConfig = Object.freeze({
 
 export function createAdapter(
   axiosConfig?: CreateAxiosDefaults,
-  egoseOptions?: { rootRouterPath?: string; onSuccess?: ResponseCallback; onFailure?: ResponseCallback },
+  egoseOptions?: {
+    rootRouterPath?: string;
+    onSuccess?: ResponseCallback;
+    onFailure?: ResponseCallback;
+    cacheTTL?: number;
+  },
 ) {
   const merged = mergeConfig(defaultAxiosConfig, axiosConfig ?? {});
   const instance = axios.create(merged);
-  const { rootRouterPath = 'macl', onSuccess: onSuccessRoot, onFailure: onFailureRoot } = egoseOptions ?? {};
+  const {
+    rootRouterPath = 'macl',
+    onSuccess: onSuccessRoot,
+    onFailure: onFailureRoot,
+    cacheTTL = 0,
+  } = egoseOptions ?? {};
+
+  if (cacheTTL > 0) useCacheInterceptors(instance, cacheTTL);
 
   return Object.freeze({
     axios: instance,
