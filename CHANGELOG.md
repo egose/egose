@@ -1,3 +1,5 @@
+## [0.29.1](https://github.com/egose/egose/compare/v0.29.0...v0.29.1) (2023-11-21)
+
 ## [0.29.0](https://github.com/egose/egose/compare/v0.28.1...v0.29.0) (2023-11-20)
 
 

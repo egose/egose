@@ -140,14 +140,17 @@ export interface DataListAdvancedOptions {
 
 export interface DataReadOptions {
   includePermissions?: boolean;
+  ignoreCache?: boolean;
 }
 
 export interface DataReadAdvancedArgs {
   select?: Projection;
+  ignoreCache?: boolean;
 }
 
 export interface DataReadAdvancedOptions {
   includePermissions?: boolean;
+  ignoreCache?: boolean;
 }
 
 export interface DataDefaults {
