@@ -92,9 +92,11 @@ export class DataService<T> extends Service<T> {
       includePermissions = this._defaults.listOptions.includePermissions ?? false,
       includeCount = this._defaults.listOptions.includeCount ?? false,
       includeExtraHeaders = this._defaults.listOptions.includeExtraHeaders ?? false,
+      ignoreCache = this._defaults.listOptions.ignoreCache ?? false,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
       ListDataResponse<T>,
@@ -162,9 +164,11 @@ export class DataService<T> extends Service<T> {
       includePermissions = this._defaults.listAdvancedOptions.includePermissions ?? false,
       includeCount = this._defaults.listAdvancedOptions.includeCount ?? false,
       includeExtraHeaders = this._defaults.listAdvancedOptions.includeExtraHeaders ?? false,
+      ignoreCache = this._defaults.listAdvancedOptions.ignoreCache ?? false,
     } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
       ListDataResponse<T>,
@@ -218,9 +222,13 @@ export class DataService<T> extends Service<T> {
   }
 
   read(identifier: string, options?: DataReadOptions, axiosRequestConfig?: AxiosRequestConfig) {
-    const { includePermissions = this._defaults.readOptions.includePermissions ?? true } = options ?? {};
+    const {
+      includePermissions = this._defaults.readOptions.includePermissions ?? true,
+      ignoreCache = this._defaults.readOptions.ignoreCache ?? false,
+    } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
       () =>
@@ -265,11 +273,15 @@ export class DataService<T> extends Service<T> {
     options?: DataReadAdvancedOptions,
     axiosRequestConfig?: AxiosRequestConfig,
   ) {
-    const { select = this._defaults.readAdvancedArgs.select } = args ?? {};
+    const {
+      select = this._defaults.readAdvancedArgs.select,
+      ignoreCache = this._defaults.readAdvancedArgs.ignoreCache ?? false,
+    } = args ?? {};
 
     const { includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
       () =>
@@ -318,9 +330,13 @@ export class DataService<T> extends Service<T> {
   ) {
     const { select = this._defaults.readAdvancedArgs.select } = args ?? {};
 
-    const { includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true } = options ?? {};
+    const {
+      includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true,
+      ignoreCache = this._defaults.readAdvancedOptions.ignoreCache ?? false,
+    } = options ?? {};
 
     const reqConfig = axiosRequestConfig ?? {};
+    reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
       () =>
