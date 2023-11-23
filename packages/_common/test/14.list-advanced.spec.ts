@@ -391,4 +391,37 @@ describe('List Include', () => {
       ).to.true;
     }
   });
+
+  it(`should include matching user documents' count`, async () => {
+    const response = await request(app)
+      .post('/api/orgs/_extra')
+      .set('user', 'admin')
+      .send({
+        filter: {},
+        include: [
+          {
+            model: 'User',
+            op: 'list',
+            path: 'users',
+            localField: '_id',
+            foreignField: 'orgs',
+          },
+          {
+            model: 'User',
+            op: 'count',
+            path: 'userCount',
+            localField: '_id',
+            foreignField: 'orgs',
+          },
+        ],
+      })
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    expect(response.body.length).greaterThan(0);
+    for (let x = 0; x < response.body.length; x++) {
+      const org = response.body[x];
+      expect(org.users.length).equal(org.userCount);
+    }
+  });
 });

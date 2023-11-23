@@ -18,7 +18,7 @@ export type FilterQuery<T> = _FilterQuery<T>;
 
 export interface Include {
   model: string;
-  op: 'list' | 'read';
+  op: 'list' | 'read' | 'count';
   path: string;
   localField: string;
   foreignField: string;

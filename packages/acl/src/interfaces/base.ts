@@ -19,7 +19,7 @@ export type Filter = false | FilterQuery<any>;
 
 export interface Include {
   model: string;
-  op: 'list' | 'read';
+  op: 'list' | 'read' | 'count';
   path: string;
   filter?: Filter;
   localField: string;

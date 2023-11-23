@@ -156,51 +156,69 @@ export class Base {
     const isSingle = !isArray(docs);
     if (isSingle) docs = [docs];
 
-    const includeLocalValues = {};
-    forEach(docs, (doc, i) => {
-      forEach(includes, ({ localField }, j) => {
-        if (!includeLocalValues[j]) includeLocalValues[j] = [];
-        includeLocalValues[j].push(get(doc, localField));
-      });
-    });
-
     for (let x = 0; x < includes.length; x++) {
-      const {
-        model,
-        op,
-        path,
-        localField,
-        foreignField,
-        filter: additionalFilters,
-        args = {},
-        options = {},
-      } = includes[x];
+      const include = includes[x];
 
-      const svc = this.req.macl.getPublicService(model);
-      if (!svc) continue;
-
-      const filter = { ...(additionalFilters ?? {}), [foreignField]: { $in: flatten(includeLocalValues[x]) } };
-
-      const result = await svc.find(filter, args, {
-        ...options,
-        lean: true,
-        includePermissions: false,
-        includeCount: false,
-      });
-
-      if (!result.success) continue;
-
-      for (let y = 0; y < docs.length; y++) {
-        const doc = docs[y];
-        const localValue = get(doc, localField);
-        const filterFn = (row) =>
-          intersectionBy(castArray(localValue), castArray(get(row, foreignField)), String).length > 0;
-        const matches = result.data.filter(filterFn);
-        setDocValue(doc, path, op === 'list' ? matches : matches[0]);
+      if (include.op === 'count') {
+        docs = await this.includeDocsCount(docs, include);
+      } else {
+        docs = await this.includeDocsList(docs, include);
       }
     }
 
     return isSingle ? docs[0] : docs;
+  }
+
+  private async includeDocsList(docs, include: Include) {
+    const { model, op, path, localField, foreignField, filter: _filters, args = {}, options = {} } = include;
+
+    const svc = this.req.macl.getPublicService(model);
+    if (!svc) return docs;
+
+    const includeLocalValues = [];
+    forEach(docs, (doc, i) => {
+      includeLocalValues.push(get(doc, localField));
+    });
+
+    const filter = { ...(_filters ?? {}), [foreignField]: { $in: flatten(includeLocalValues) } };
+    const result = await svc.find(filter, args, {
+      ...options,
+      lean: true,
+      includePermissions: false,
+      includeCount: false,
+    });
+
+    if (!result.success) return docs;
+
+    for (let y = 0; y < docs.length; y++) {
+      const doc = docs[y];
+      const localValue = get(doc, localField);
+      const filterFn = (row) =>
+        intersectionBy(castArray(localValue), castArray(get(row, foreignField)), String).length > 0;
+      const matches = result.data.filter(filterFn);
+      setDocValue(doc, path, op === 'list' ? matches : matches[0]);
+    }
+
+    return docs;
+  }
+
+  private async includeDocsCount(docs, include: Include) {
+    const { model, path, localField, foreignField, filter: _filters } = include;
+
+    const svc = this.req.macl.getPublicService(model);
+    if (!svc) return docs;
+
+    for (let y = 0; y < docs.length; y++) {
+      const doc = docs[y];
+      const localValue = get(doc, localField);
+      const filter = { ...(_filters ?? {}), [foreignField]: localValue };
+      const result = await svc.count(filter);
+      if (!result.success) continue;
+
+      setDocValue(doc, path, result.data);
+    }
+
+    return docs;
   }
 
   protected async operateQuery(filter) {
