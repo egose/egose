@@ -21,6 +21,7 @@ export interface Include {
   model: string;
   op: 'list' | 'read';
   path: string;
+  filter?: Filter;
   localField: string;
   foreignField: string;
   args?: any;

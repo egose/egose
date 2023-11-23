@@ -22,6 +22,7 @@ export interface Include {
   path: string;
   localField: string;
   foreignField: string;
+  filter?: FilterQuery<any>;
   args?: any;
   options?: any;
 }

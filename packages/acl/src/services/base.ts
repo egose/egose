@@ -165,12 +165,21 @@ export class Base {
     });
 
     for (let x = 0; x < includes.length; x++) {
-      const { model, op, path, localField, foreignField, args = {}, options = {} } = includes[x];
+      const {
+        model,
+        op,
+        path,
+        localField,
+        foreignField,
+        filter: additionalFilters,
+        args = {},
+        options = {},
+      } = includes[x];
 
       const svc = this.req.macl.getPublicService(model);
       if (!svc) continue;
 
-      const filter = { [foreignField]: { $in: flatten(includeLocalValues[x]) } };
+      const filter = { ...(additionalFilters ?? {}), [foreignField]: { $in: flatten(includeLocalValues[x]) } };
 
       const result = await svc.find(filter, args, {
         ...options,
