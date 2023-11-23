@@ -1,4 +1,5 @@
 import axios, { CreateAxiosDefaults, mergeConfig, AxiosRequestConfig } from 'axios';
+import set from 'lodash/set';
 import isEmpty from 'lodash/isEmpty';
 import castArray from 'lodash/castArray';
 import { ModelService, DataService } from './services';
@@ -6,6 +7,7 @@ import { Model } from './model';
 import { ModelPromiseMeta, ResponseCallback } from './types';
 import { Defaults, DataDefaults } from './interface';
 import { useCacheInterceptors } from './services/interceptors';
+import { CACHE_HEADER } from './constants';
 
 const defaultAxiosConfig = Object.freeze({
   baseURL: '/api',
@@ -100,25 +102,40 @@ export function createAdapter(
         defaults,
       );
     },
-    wrapGet: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
-      return (axiosRequestConfig?: AxiosRequestConfig) =>
-        instance.get<T>(url, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    wrapGet: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+      set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'true');
+      return (axiosRequestConfig?: AxiosRequestConfig) => {
+        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+        return instance.get<T>(url, config);
+      };
     },
-    wrapPost: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
-      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
-        instance.post<T>(url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    wrapPost: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+      set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
+      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
+        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+        return instance.post<T>(url, data, config);
+      };
     },
-    wrapPut: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
-      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
-        instance.put<T>(url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    wrapPut: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+      set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
+      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
+        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+        return instance.put<T>(url, data, config);
+      };
     },
-    wrapPatch: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
-      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
-        instance.patch<T>(url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    wrapPatch: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+      set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
+      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
+        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+        return instance.patch<T>(url, data, config);
+      };
     },
-    wrapDelete: <T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) => {
-      return (axiosRequestConfig?: AxiosRequestConfig) =>
-        instance.delete<T>(url, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    wrapDelete: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+      set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
+      return (axiosRequestConfig?: AxiosRequestConfig) => {
+        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+        return instance.delete<T>(url, config);
+      };
     },
     group: async <T extends (ModelPromiseMeta & Promise<unknown>)[]>(
       ...proms: T
