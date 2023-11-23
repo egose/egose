@@ -1,4 +1,5 @@
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
+import set from 'lodash/set';
 import { Response } from '../types';
 import { CACHE_HEADER } from '../constants';
 
@@ -49,34 +50,49 @@ export class Service<T> {
     return result as T;
   }
 
-  wrapGet<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+  wrapGet<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
-    return (axiosRequestConfig?: AxiosRequestConfig) =>
-      this._axios.get<T>(_url, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'true');
+    return (axiosRequestConfig?: AxiosRequestConfig) => {
+      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+      return this._axios.get<T>(_url, config);
+    };
   }
 
-  wrapPost<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+  wrapPost<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
-    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
-      this._axios.post<T>(_url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
+    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
+      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+      return this._axios.post<T>(_url, data, config);
+    };
   }
 
-  wrapPut<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+  wrapPut<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
-    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
-      this._axios.put<T>(_url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
+    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
+      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+      return this._axios.put<T>(_url, data, config);
+    };
   }
 
-  wrapPatch<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+  wrapPatch<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
-    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) =>
-      this._axios.patch<T>(_url, data, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
+    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
+      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+      return this._axios.patch<T>(_url, data, config);
+    };
   }
 
-  wrapDelete<T>(url: string, defaultAxiosRequestConfig?: AxiosRequestConfig) {
+  wrapDelete<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
-    return (axiosRequestConfig?: AxiosRequestConfig) =>
-      this._axios.delete<T>(_url, axiosRequestConfig ?? defaultAxiosRequestConfig);
+    set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
+    return (axiosRequestConfig?: AxiosRequestConfig) => {
+      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
+      return this._axios.delete<T>(_url, config);
+    };
   }
 
   updateHeaders(headers, { ignoreCache }) {
