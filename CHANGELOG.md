@@ -1,3 +1,12 @@
+## [0.30.0](https://github.com/egose/egose/compare/v0.29.1...v0.30.0) (2023-11-23)
+
+
+### Features
+
+* **acl:** support additional filters in include arg ([438609e](https://github.com/egose/egose/commit/438609ef86a100d1c1fe3a6d4257dabd7bb67259))
+* **acl:** support count op in include arg ([78c04bc](https://github.com/egose/egose/commit/78c04bcb939945351b9f938058f7e431996bb2fe))
+* **adapter-js:** support cache in custom GET routes ([60bcee8](https://github.com/egose/egose/commit/60bcee8dd9db15d8dd4c0a6c88ed8662348935ba))
+
 ## [0.29.1](https://github.com/egose/egose/compare/v0.29.0...v0.29.1) (2023-11-21)
 
 ## [0.29.0](https://github.com/egose/egose/compare/v0.28.1...v0.29.0) (2023-11-20)
