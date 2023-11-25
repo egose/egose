@@ -4,9 +4,10 @@ import isEmpty from 'lodash/isEmpty';
 import castArray from 'lodash/castArray';
 import { ModelService, DataService } from './services';
 import { Model } from './model';
-import { ModelPromiseMeta, ResponseCallback } from './types';
+import { ModelPromiseMeta, ResponseCallback, WrapOptions } from './types';
 import { Defaults, DataDefaults } from './interface';
 import { useCacheInterceptors } from './services/interceptors';
+import { getWrapContext } from './helpers';
 import { CACHE_HEADER } from './constants';
 
 const defaultAxiosConfig = Object.freeze({
@@ -102,39 +103,64 @@ export function createAdapter(
         defaults,
       );
     },
-    wrapGet: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+    wrapGet: <T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
       set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'true');
-      return (axiosRequestConfig?: AxiosRequestConfig) => {
-        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-        return instance.get<T>(url, config);
+      return (options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+        const { finalUrl, finalConfig } = getWrapContext(
+          url,
+          options,
+          mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+        );
+
+        return instance.get<T>(finalUrl, finalConfig);
       };
     },
-    wrapPost: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+    wrapPost: <T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
       set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
-      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
-        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-        return instance.post<T>(url, data, config);
+      return (data?: any, options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+        const { finalUrl, finalConfig } = getWrapContext(
+          url,
+          options,
+          mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+        );
+
+        return instance.post<T>(finalUrl, data, finalConfig);
       };
     },
-    wrapPut: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+    wrapPut: <T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
       set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
-      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
-        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-        return instance.put<T>(url, data, config);
+      return (data?: any, options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+        const { finalUrl, finalConfig } = getWrapContext(
+          url,
+          options,
+          mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+        );
+
+        return instance.put<T>(finalUrl, data, finalConfig);
       };
     },
-    wrapPatch: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+    wrapPatch: <T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
       set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
-      return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
-        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-        return instance.patch<T>(url, data, config);
+      return (data?: any, options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+        const { finalUrl, finalConfig } = getWrapContext(
+          url,
+          options,
+          mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+        );
+
+        return instance.patch<T>(finalUrl, data, finalConfig);
       };
     },
-    wrapDelete: <T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
+    wrapDelete: <T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) => {
       set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
-      return (axiosRequestConfig?: AxiosRequestConfig) => {
-        const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-        return instance.delete<T>(url, config);
+      return (options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+        const { finalUrl, finalConfig } = getWrapContext(
+          url,
+          options,
+          mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+        );
+
+        return instance.delete<T>(finalUrl, finalConfig);
       };
     },
     group: async <T extends (ModelPromiseMeta & Promise<unknown>)[]>(

@@ -48,7 +48,7 @@ export const services = {
 };
 
 export const endpoints = {
-  apple: adapter.wrapGet('/apple'),
+  apple: adapter.wrapGet('/apple/{{name}}'),
   chairman: services.orgService.wrapPost<{ name: string; flag: string }>('/chairman'),
 };
 
