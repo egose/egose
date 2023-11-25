@@ -1,7 +1,8 @@
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
 import set from 'lodash/set';
-import { Response } from '../types';
+import { Response, WrapOptions } from '../types';
 import { CACHE_HEADER } from '../constants';
+import { getWrapContext } from '../helpers';
 
 const removeTrailingSlash = (inputString) => inputString.replace(/\/$/, '');
 const removeLeadingSlash = (inputString) => inputString.replace(/^\/+/g, '');
@@ -50,48 +51,73 @@ export class Service<T> {
     return result as T;
   }
 
-  wrapGet<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
+  wrapGet<T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
     set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'true');
-    return (axiosRequestConfig?: AxiosRequestConfig) => {
-      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-      return this._axios.get<T>(_url, config);
+    return (options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+      const { finalUrl, finalConfig } = getWrapContext(
+        _url,
+        options,
+        mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+      );
+
+      return this._axios.get<T>(finalUrl, finalConfig);
     };
   }
 
-  wrapPost<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
+  wrapPost<T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
     set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
-    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
-      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-      return this._axios.post<T>(_url, data, config);
+    return (data?: any, options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+      const { finalUrl, finalConfig } = getWrapContext(
+        _url,
+        options,
+        mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+      );
+
+      return this._axios.post<T>(finalUrl, data, finalConfig);
     };
   }
 
-  wrapPut<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
+  wrapPut<T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
     set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
-    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
-      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-      return this._axios.put<T>(_url, data, config);
+    return (data?: any, options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+      const { finalUrl, finalConfig } = getWrapContext(
+        _url,
+        options,
+        mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+      );
+
+      return this._axios.put<T>(finalUrl, data, finalConfig);
     };
   }
 
-  wrapPatch<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
+  wrapPatch<T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
     set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
-    return (data?: any, axiosRequestConfig?: AxiosRequestConfig) => {
-      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-      return this._axios.patch<T>(_url, data, config);
+    return (data?: any, options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+      const { finalUrl, finalConfig } = getWrapContext(
+        _url,
+        options,
+        mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+      );
+
+      return this._axios.patch<T>(finalUrl, data, finalConfig);
     };
   }
 
-  wrapDelete<T>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
+  wrapDelete<T = any>(url: string, defaultAxiosRequestConfig: AxiosRequestConfig = {}) {
     const _url = `${removeTrailingSlash(this._basePath)}/${removeLeadingSlash(url)}`;
     set(defaultAxiosRequestConfig, `headers.${CACHE_HEADER}`, 'false');
-    return (axiosRequestConfig?: AxiosRequestConfig) => {
-      const config = mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig);
-      return this._axios.delete<T>(_url, config);
+    return (options?: WrapOptions, axiosRequestConfig?: AxiosRequestConfig) => {
+      const { finalUrl, finalConfig } = getWrapContext(
+        _url,
+        options,
+        mergeConfig(defaultAxiosRequestConfig, axiosRequestConfig),
+      );
+
+      return this._axios.delete<T>(finalUrl, finalConfig);
     };
   }
 

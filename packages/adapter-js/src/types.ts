@@ -124,3 +124,8 @@ export const wrapLazyPromise = <T, M = undefined>(promiseFn: () => Promise<T>, m
 };
 
 export type ResponseCallback = <R>(res: R) => void;
+
+export interface WrapOptions {
+  queryParams?: { [key: string]: any };
+  pathParams?: { [key: string]: any };
+}

@@ -1,7 +1,8 @@
+import { AxiosRequestConfig, mergeConfig } from 'axios';
 import isPlainObject from 'lodash/isPlainObject';
 import isArray from 'lodash/isArray';
 import mapValues from 'lodash/mapValues';
-import { FilterQuery } from './types';
+import { FilterQuery, WrapOptions } from './types';
 
 export function replaceSubQuery<T>(filter: FilterQuery<T>) {
   if (!isPlainObject(filter)) return filter;
@@ -25,4 +26,18 @@ export function replaceSubQuery<T>(filter: FilterQuery<T>) {
   });
 
   return ret;
+}
+
+export function template(templateString, data) {
+  return templateString.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    return data[key] !== undefined ? data[key] : match;
+  });
+}
+
+export function getWrapContext(url: string, options?: WrapOptions, config?: AxiosRequestConfig) {
+  const { queryParams, pathParams } = options ?? {};
+  const finalUrl = pathParams ? template(url, pathParams) : url;
+
+  if (queryParams) config.params = queryParams;
+  return { finalUrl, finalConfig: config };
 }
