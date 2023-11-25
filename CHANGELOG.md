@@ -1,3 +1,10 @@
+## [0.31.0](https://github.com/egose/egose/compare/v0.30.0...v0.31.0) (2023-11-25)
+
+
+### Features
+
+* **adapter-js:** support params in wrap methods ([98ccbad](https://github.com/egose/egose/commit/98ccbad659e754a1cca27709239ef9774156d14c))
+
 ## [0.30.0](https://github.com/egose/egose/compare/v0.29.1...v0.30.0) (2023-11-23)
 
 
