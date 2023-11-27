@@ -1,3 +1,15 @@
+## [0.32.0](https://github.com/egose/egose/compare/v0.31.0...v0.32.0) (2023-11-27)
+
+
+### Features
+
+* **moo:** add cascade delete plugin ([d84af74](https://github.com/egose/egose/commit/d84af74aacb467eb7ea6f621f9c0b46b2e4d127c))
+
+
+### Bug Fixes
+
+* **acl:** allow override select fields ([a96469a](https://github.com/egose/egose/commit/a96469ae2a14f50eda15e001f8c126ed0b738192))
+
 ## [0.31.0](https://github.com/egose/egose/compare/v0.30.0...v0.31.0) (2023-11-25)
 
 
