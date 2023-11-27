@@ -122,7 +122,11 @@ export class Service extends Base {
     }
     if (includeDocPermissions) doc = await this.addDocPermissions(doc, access);
     if (includePermissions) doc = await this.addFieldPermissions(doc, access);
-    doc = await this.pickAllowedFields(doc, access, this.baseFieldsExt.concat(includePaths));
+    doc = await this.pickAllowedFields(
+      doc,
+      access,
+      this.baseFieldsExt.concat(includePaths, normalizeSelect(overrideSelect)),
+    );
     if (!includePermissions) doc = this.addEmptyPermissions(doc);
 
     return { success: true, code: Codes.Success, data: doc, query };
@@ -230,7 +234,11 @@ export class Service extends Base {
         }
         if (includeDocPermissions) doc = await this.addDocPermissions(doc, 'list');
         if (includePermissions) doc = await this.addFieldPermissions(doc, 'list');
-        doc = await this.pickAllowedFields(doc, 'list', this.baseFieldsExt.concat(includePaths));
+        doc = await this.pickAllowedFields(
+          doc,
+          'list',
+          this.baseFieldsExt.concat(includePaths, normalizeSelect(overrideSelect)),
+        );
         doc = await _decorate(doc);
         if (!includePermissions) doc = this.addEmptyPermissions(doc);
 
