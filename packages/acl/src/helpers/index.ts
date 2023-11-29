@@ -13,6 +13,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import isString from 'lodash/isString';
 import noop from 'lodash/noop';
 import { isSchema, isReference, mapValuesAsync } from '../lib';
+import { FilterOperator } from '../enums';
 
 function recurseObject(obj: any) {
   if (isSchema(obj)) {
@@ -82,7 +83,9 @@ export async function iterateQuery(query: any, handler: Function) {
   return mapValuesAsync(query, async (val, key) => {
     if (isPlainObject(val)) {
       if (val.$$sq) {
-        return handler(val.$$sq, key);
+        return handler(FilterOperator.SubQuery, val.$$sq, key);
+      } else if (val.$$date) {
+        return handler(FilterOperator.Date, val.$$sq, key);
       } else {
         return iterateQuery(val, handler);
       }

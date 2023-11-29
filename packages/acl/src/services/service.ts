@@ -15,9 +15,6 @@ import intersectionBy from 'lodash/intersectionBy';
 import Model from '../model';
 import { getModelOption, getModelOptions } from '../options';
 import {
-  iterateQuery,
-  CustomError,
-  setDocValue,
   getDocPermissions,
   genPagination,
   normalizeSelect,
