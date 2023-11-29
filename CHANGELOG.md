@@ -1,3 +1,11 @@
+## [0.33.0](https://github.com/egose/egose/compare/v0.32.0...v0.33.0) (2023-11-29)
+
+
+### Features
+
+* **acl:** add date filter operator ([3be477c](https://github.com/egose/egose/commit/3be477c6e05ead6d75dde6610f5fc86bc2c08699))
+* **acl:** include originalDocObject in decorate middleware ([16cd775](https://github.com/egose/egose/commit/16cd775d723ed4b6c6ee160f4c584e484f393d11))
+
 ## [0.32.0](https://github.com/egose/egose/compare/v0.31.0...v0.32.0) (2023-11-27)
 
 
