@@ -108,4 +108,6 @@ export interface ServiceResult {
   input?: any;
   query?: any;
   errors?: any[];
+  context?: MiddlewareContext;
+  contexts?: MiddlewareContext[];
 }

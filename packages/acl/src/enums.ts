@@ -20,3 +20,8 @@ export enum Codes {
 export enum CustomHeaders {
   TotalCount = 'egose-total-count',
 }
+
+export enum FilterOperator {
+  SubQuery,
+  Date,
+}

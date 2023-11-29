@@ -15,10 +15,7 @@ import intersectionBy from 'lodash/intersectionBy';
 import Model from '../model';
 import { getModelOption, getModelOptions } from '../options';
 import {
-  iterateQuery,
-  CustomError,
-  setDocValue,
-  getDocValue,
+  getDocPermissions,
   genPagination,
   normalizeSelect,
   populateDoc,
@@ -114,6 +111,8 @@ export class Service extends Base {
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
+    const context: MiddlewareContext = { originalDocObject: toObject(doc) };
+
     doc = await this.includeDocs(doc, includes);
 
     let includeDocPermissions = includePermissions;
@@ -129,7 +128,7 @@ export class Service extends Base {
     );
     if (!includePermissions) doc = this.addEmptyPermissions(doc);
 
-    return { success: true, code: Codes.Success, data: doc, query };
+    return { success: true, code: Codes.Success, data: doc, query, context };
   }
 
   public async findById(
@@ -222,12 +221,14 @@ export class Service extends Base {
       lean,
     });
 
+    const contexts: MiddlewareContext[] = docs.map((doc) => ({ originalDocObject: toObject(doc) }));
+
     const _decorate = isFunction(decorate) ? decorate : (v) => v;
 
     docs = await this.includeDocs(docs, includes);
 
     docs = await Promise.all(
-      docs.map(async (doc) => {
+      docs.map(async (doc, i) => {
         let includeDocPermissions = includePermissions;
         if (!includeDocPermissions && !skim) {
           includeDocPermissions = this.checkIfModelPermissionExists(['list', 'read', 'update']);
@@ -239,7 +240,7 @@ export class Service extends Base {
           'list',
           this.baseFieldsExt.concat(includePaths, normalizeSelect(overrideSelect)),
         );
-        doc = await _decorate(doc);
+        doc = await _decorate(doc, contexts[i]);
         if (!includePermissions) doc = this.addEmptyPermissions(doc);
 
         return doc;
@@ -253,6 +254,7 @@ export class Service extends Base {
       count: docs.length,
       totalCount: includeCount ? await this.model.countDocuments(_filter) : null,
       query,
+      contexts,
     };
   }
 
@@ -372,7 +374,7 @@ export class Service extends Base {
     context.originalData = data;
 
     doc = await this.addDocPermissions(doc, 'update', context);
-    context.docPermissions = this.getDocValue(doc);
+    context.docPermissions = this.getDocPermissions(doc);
 
     context.currentDoc = doc;
     const allowedFields = await this.genAllowedFields(doc, 'update');
@@ -489,8 +491,8 @@ export class Service extends Base {
     return { success: true, code: Codes.Success, data: await this.model.countDocuments(filter), query };
   }
 
-  public getDocValue(doc) {
-    return getDocValue(this.modelName, doc);
+  public getDocPermissions(doc) {
+    return getDocPermissions(this.modelName, doc);
   }
 
   async listSub(id, sub, options?: { filter: any; fields: string[] }): Promise<ServiceResult> {

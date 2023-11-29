@@ -13,15 +13,7 @@ import pick from 'lodash/pick';
 import uniq from 'lodash/uniq';
 import intersectionBy from 'lodash/intersectionBy';
 import { getModelOption } from '../options';
-import {
-  iterateQuery,
-  CustomError,
-  setDocValue,
-  getDocValue,
-  genPagination,
-  normalizeSelect,
-  populateDoc,
-} from '../helpers';
+import { iterateQuery, CustomError, setDocValue, genPagination, normalizeSelect, populateDoc } from '../helpers';
 import {
   Include,
   MiddlewareContext,
@@ -39,6 +31,7 @@ import {
   SubQueryEntry,
   Task,
 } from '../interfaces';
+import { FilterOperator } from '../enums';
 
 export class Base {
   req: Request;
@@ -222,42 +215,57 @@ export class Base {
   }
 
   protected async operateQuery(filter) {
-    const result = await iterateQuery(filter, async (sq: SubQueryEntry, key) => {
-      const { model, op, id, filter, args, options, sqOptions = {} } = sq;
-
-      const svc = this.req.macl.getPublicService(model);
-      if (!svc) return null;
-
-      let result!: ServiceResult;
-
-      if (op === 'list') {
-        result = await svc.find(filter, args, options);
-      } else if (op === 'read') {
-        if (id) {
-          result = await svc.findById(id, args, options);
-        } else if (filter) {
-          result = await svc.findOne(filter, args, options);
-        } else {
+    const result = await iterateQuery(filter, async (fo: FilterOperator, val: any, key: string) => {
+      switch (fo) {
+        case FilterOperator.SubQuery:
+          return this.handleSubQuery(val, key);
+        case FilterOperator.Date:
+          return this.handleDate(val, key);
+        default:
           return null;
-        }
-      } else {
-        return null;
       }
-
-      if (!result.success) return null;
-
-      let ret = result.data;
-      if (sqOptions.path) {
-        ret = isArray(ret) ? flatten(ret.map((v) => get(v, sqOptions.path))) : get(ret, sqOptions.path);
-      }
-
-      if (sqOptions.compact) {
-        ret = compact(ret);
-      }
-
-      return ret;
     });
 
     return result;
+  }
+
+  private async handleSubQuery(sq: SubQueryEntry, key: string) {
+    const { model, op, id, filter, args, options, sqOptions = {} } = sq;
+
+    const svc = this.req.macl.getPublicService(model);
+    if (!svc) return null;
+
+    let result!: ServiceResult;
+
+    if (op === 'list') {
+      result = await svc.find(filter, args, options);
+    } else if (op === 'read') {
+      if (id) {
+        result = await svc.findById(id, args, options);
+      } else if (filter) {
+        result = await svc.findOne(filter, args, options);
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+
+    if (!result.success) return null;
+
+    let ret = result.data;
+    if (sqOptions.path) {
+      ret = isArray(ret) ? flatten(ret.map((v) => get(v, sqOptions.path))) : get(ret, sqOptions.path);
+    }
+
+    if (sqOptions.compact) {
+      ret = compact(ret);
+    }
+
+    return ret;
+  }
+
+  private async handleDate(val: any, key: string) {
+    return new Date();
   }
 }

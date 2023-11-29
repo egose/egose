@@ -44,7 +44,7 @@ import { Service, PublicService, Base } from './services';
 import {
   normalizeSelect,
   createValidator,
-  getDocValue,
+  getDocPermissions,
   setDocValue,
   toObject,
   pickDocFields,
@@ -123,7 +123,7 @@ export class Core {
     const modelPermissionPrefix = getModelOption(modelName, 'modelPermissionPrefix', '');
 
     const permissions = this.getGlobalPermissions();
-    const docPermissions = getDocValue(modelName, doc);
+    const docPermissions = getDocPermissions(modelName, doc);
     // get keys from permission schema as some fields might not be filled when created
     const keys = Object.keys(permissionSchema);
     // const keys = getModelKeys(doc);
@@ -357,7 +357,7 @@ export class Core {
     const decorate = getModelOption(modelName, `decorate.${access}`, null);
 
     const permissions = this.getGlobalPermissions();
-    context.docPermissions = getDocValue(modelName, doc);
+    context.docPermissions = getDocPermissions(modelName, doc);
 
     return this.callMiddleware(decorate, doc, permissions, context);
   }

@@ -61,9 +61,9 @@ export class PublicService extends Service {
       filter,
       { select, populate, include, sort, skip, limit, page, pageSize },
       { skim, includePermissions, includeCount, populateAccess, lean },
-      async (doc) => {
+      async (doc, context: MiddlewareContext) => {
         doc = toObject(doc);
-        return this.decorate(doc, 'list');
+        return this.decorate(doc, 'list', context);
       },
     );
 
@@ -163,7 +163,7 @@ export class PublicService extends Service {
     }
 
     let doc = toObject(result.data);
-    doc = await this.decorate(doc, access);
+    doc = await this.decorate(doc, access, result.context);
     doc = this.runTasks(doc, tasks);
 
     result.data = doc;
@@ -219,7 +219,7 @@ export class PublicService extends Service {
     }
 
     let doc = toObject(result.data);
-    doc = await this.decorate(doc, access);
+    doc = await this.decorate(doc, access, result.context);
     doc = this.runTasks(doc, tasks);
 
     result.data = doc;

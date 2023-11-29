@@ -40,15 +40,7 @@ import {
 } from './interfaces';
 import Permission, { Permissions } from './permission';
 import { DataService } from './services';
-import {
-  normalizeSelect,
-  createValidator,
-  getDocValue,
-  setDocValue,
-  toObject,
-  pickDocFields,
-  genPagination,
-} from './helpers';
+import { normalizeSelect, createValidator, setDocValue, toObject, pickDocFields, genPagination } from './helpers';
 import { copyAndDepopulate } from './processors';
 import { isDocument, arrToObj } from './lib';
 import { DATA_MIDDLEWARE, PERMISSIONS, PERMISSION_KEYS } from './symbols';
