@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import isPlainObject from 'lodash/isPlainObject';
+import get from 'lodash/get';
 import set from 'lodash/set';
 import pick from 'lodash/pick';
 import keys from 'lodash/keys';
@@ -13,16 +14,12 @@ import { getModelOption } from '../options';
 import { SubPopulate } from '../interfaces';
 import { normalizeSelect } from './query';
 
-export function getDocValue(modelName, doc) {
-  const docPermissionField = getModelOption(modelName, 'permissionField');
-  let docPermissions = {};
+export function getDocValue(doc, path, defalutValue) {
   if (isDocument(doc)) {
-    docPermissions = (doc._doc && doc._doc[docPermissionField]) || {};
+    return get(doc._doc, path, defalutValue);
   } else if (isPlainObject(doc)) {
-    docPermissions = doc[docPermissionField] || {};
+    return get(doc, path, defalutValue);
   }
-
-  return docPermissions;
 }
 
 export function setDocValue(doc, path, value) {
@@ -31,6 +28,11 @@ export function setDocValue(doc, path, value) {
   } else if (isPlainObject(doc)) {
     set(doc, path, value);
   }
+}
+
+export function getDocPermissions(modelName, doc) {
+  const docPermissionField = getModelOption(modelName, 'permissionField');
+  return getDocValue(doc, docPermissionField, {});
 }
 
 export function getModelKeys(doc) {

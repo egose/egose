@@ -18,7 +18,7 @@ import {
   iterateQuery,
   CustomError,
   setDocValue,
-  getDocValue,
+  getDocPermissions,
   genPagination,
   normalizeSelect,
   populateDoc,
@@ -372,7 +372,7 @@ export class Service extends Base {
     context.originalData = data;
 
     doc = await this.addDocPermissions(doc, 'update', context);
-    context.docPermissions = this.getDocValue(doc);
+    context.docPermissions = this.getDocPermissions(doc);
 
     context.currentDoc = doc;
     const allowedFields = await this.genAllowedFields(doc, 'update');
@@ -489,8 +489,8 @@ export class Service extends Base {
     return { success: true, code: Codes.Success, data: await this.model.countDocuments(filter), query };
   }
 
-  public getDocValue(doc) {
-    return getDocValue(this.modelName, doc);
+  public getDocPermissions(doc) {
+    return getDocPermissions(this.modelName, doc);
   }
 
   async listSub(id, sub, options?: { filter: any; fields: string[] }): Promise<ServiceResult> {
