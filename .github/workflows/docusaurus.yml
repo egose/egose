@@ -15,7 +15,10 @@ jobs:
     - name: Setup Tools
       uses: ./.github/actions/setup-tools
 
-    - name: Build the MkDocs site
+    - name: Setup NPM Packages
+      uses: ./.github/actions/setup-yarn
+
+    - name: Build the Docusaurus site
       run: |
         yarn build
       working-directory: docusaurus
