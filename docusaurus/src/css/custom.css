@@ -1,0 +1,58 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #ff7f00;
+  --ifm-color-primary-dark: #e06800;
+  --ifm-color-primary-darker: #c25800;
+  --ifm-color-primary-darkest: #a44c00;
+  --ifm-color-primary-light: #ff8e33;
+  --ifm-color-primary-lighter: #ff9f66;
+  --ifm-color-primary-lightest: #ffb380;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #ffad66;
+  --ifm-color-primary-dark: #ff9933;
+  --ifm-color-primary-darker: #ff8c1a;
+  --ifm-color-primary-darkest: #ff751a;
+  --ifm-color-primary-light: #ffc299;
+  --ifm-color-primary-lighter: #ffd1b3;
+  --ifm-color-primary-lightest: #ffddb3;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+.cardContainer {
+  --ifm-link-color: var(--ifm-color-emphasis-800);
+  --ifm-link-hover-color: var(--ifm-color-emphasis-700);
+  --ifm-link-hover-decoration: none;
+
+  box-shadow: 0 1.5px 3px 0 rgb(0 0 0 / 15%);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  transition: all var(--ifm-transition-fast) ease;
+  transition-property: border, box-shadow;
+}
+
+.cardContainer:hover {
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 3px 6px 0 rgb(0 0 0 / 20%);
+}
+
+.cardContainer *:last-child {
+  margin-bottom: 0;
+}
+
+.cardTitle {
+  font-size: 1.2rem;
+}
+
+.cardDescription {
+  font-size: 0.8rem;
+}

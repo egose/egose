@@ -1,0 +1,462 @@
+---
+sidebar_position: 2
+---
+
+# Model Router Options
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## Options for Model Routers
+
+Model router options refer to the specific options that are applied to an individual model router. These options can be provided either to the instance constructor or to individual setter methods.
+
+### basePath
+
+The `basePath` option sets the base URL path for the routes used by the Mongoose Model.
+
+It is only applicable when creating the model router and can be passed as an option object to the `createRouter()` method.
+
+```ts
+import egose from '@egose/acl';
+
+const userRouter = egose.createRouter('User', { basePath: '/users' });
+```
+
+### parentPath
+
+The `parentPath` option is a configuration setting that allows you to specify the path name between the `host` and the `basePath` for each model router. This option is used to build the full path for each router. This option is only applicable when creating a model router and will use the value from the [`default model router options - parentPath`](/docs/egose-acl/options/default-model-options/#parentpath) if it is not explicitly defined.
+
+```ts
+import egose from '@egose/acl';
+
+const userRouter = egose.createRouter('User', { parentPath: '/api' });
+```
+
+### queryPath
+
+The `queryPath` option is used to specify the path name (suffix) for `Advanced View Routes`. This option is only applicable when creating a model router and will use the value from the [`default model router options - queryPath`](/docs/egose-acl/options/default-model-options/#querypath) if it is not explicitly defined.
+
+```ts
+import egose from '@egose/acl';
+
+const userRouter = egose.createRouter('User', { queryPath: '__q__' });
+```
+
+### mutationPath
+
+The `mutationPath` option is used to specify the path name (suffix) for `Advanced Write Routes`. This option is only applicable when creating a model router and will use the value from the [`default model router options - mutationPath`](/docs/egose-acl/options/default-model-options/#mutationpath) if it is not explicitly defined.
+
+```ts
+import egose from '@egose/acl';
+
+const userRouter = egose.createRouter('User', { mutationPath: '__m__' });
+```
+
+### idParam
+
+The `idParam` option is used to specify the `Express Route Parameter` that is used to capture the `Document ID` value. This option is only applicable when creating a model router and will use the value from the [`default model router options - idParam`](/docs/egose-acl/options/default-model-options/#idparam) if it is not explicitly defined.
+
+```ts
+import egose from '@egose/acl';
+
+const userRouter = egose.createRouter('User', { idParam: 'doc_id' });
+```
+
+### listHardLimit
+
+The `listHardLimit` option specifies the maximum number of documents to return from a query. It is useful for limiting the amount of data that is retrieved from the database, which can improve performance and reduce the risk of overloading the server or client. It will use the value from the [`default model router options - listHardLimit`](/docs/egose-acl/options/default-model-options/#listhardlimit) if it is not explicitly defined.
+
+```ts
+import egose from '@egose/acl';
+
+const userRouter = egose.createRouter('User', { listHardLimit: 100 });
+
+// or
+
+userRouter.listHardLimit(100);
+
+// or
+
+userRouter.set('listHardLimit', 100);
+```
+
+If the `listHardLimit` option is set to `100` and a request is made with a limit parameter that exceeds `100`, the number of returned documents will be capped at `100`.
+
+### permissionField
+
+The `permissionField` option specifies the name of the object field that is used to set the model permissions in the Mongoose document or document object. It will use the value from the [`default model router options - permissionField`](/docs/egose-acl/options/default-model-options/#permissionfield) if it is not explicitly defined.
+
+```ts
+import egose from '@egose/acl';
+
+const permissionField = '__access';
+
+const userRouter = egose.createRouter('User', { permissionField });
+
+// or
+
+userRouter.permissionField(permissionField);
+
+// or
+
+userRouter.set('permissionField', permissionField);
+```
+
+### mandatoryFields
+
+With the `mandatoryFields` option, you can specify which model fields are essential for `docPermissions` middleware functions to operate correctly. After the middleware function, these fields are excluded and prevented from being returned to the requester, unless they are explicitly requested and authorized for viewing.
+
+```ts
+import egose from '@egose/acl';
+
+const mandatoryFields = ['role'];
+
+const userRouter = egose.createRouter('User', { mandatoryFields });
+
+// or
+
+userRouter.mandatoryFields(mandatoryFields);
+
+// or
+
+userRouter.set('mandatoryFields', mandatoryFields);
+```
+
+### identifier
+
+The option `identifier` defines how `id param` is used to find the target document and will use the value from the [`default model router options - identifier`](/docs/egose-acl/options/default-model-options/#identifier) if it is not explicitly defined.
+
+There is more than one way to define the relation:
+
+- `string`: Mongoose document field key
+- `function`: Function returns a Mongoose query to find the target document.
+
+```ts
+import egose from '@egose/acl';
+
+const identifier = function (id) {
+  return { $or: [{ _id: id }, { code: id }] };
+};
+
+const userRouter = egose.createRouter('User', { identifier });
+
+// or
+
+userRouter.identifier(identifier);
+
+// or
+
+userRouter.set('identifier', identifier);
+```
+
+### permissionSchema
+
+The `permissionSchema` option defines global and optional document permissions to resources, allowing for fine-grained control.
+If no field-level security rule is defined for a field, by default, the field is protected for all actions (list, read, update, and create).
+
+```ts
+import egose from '@egose/acl';
+
+const permissionSchema = {
+  name: { list: true, read: true, update: 'edit.name', create: true },
+  role: {
+    list: ['isAdmin', 'isUser'],
+    read: 'isAdmin',
+    update: function (globalPermissions, docPermissions) {
+      // `this` refers to Express request object
+      if (docPermissions['edit.role']) return true;
+      return false;
+    },
+    create: 'isAdmin',
+  },
+};
+
+const userRouter = egose.createRouter('User', { permissionSchema });
+
+// or
+
+userRouter.permissionSchema(permissionSchema);
+
+// or
+
+userRouter.set('permissionSchema', permissionSchema);
+```
+
+### docPermissions
+
+The `docPermissions` option is a feature that enables you to define the permissions for a target document. With this option, you can prepare the permission object for the document, defining whether a requester is authorized to view or modify the document, as well as the level of access they have.
+
+```ts
+import egose from '@egose/acl';
+
+const list = function (docOrObject, globalPermissions) {
+  return {
+    // processed document permissions
+  };
+};
+
+const read = function (docOrObject, globalPermissions) {
+  return {
+    // processed document permissions
+  };
+};
+
+const create = function (docOrObject, globalPermissions) {
+  return {
+    // processed document permissions
+  };
+};
+
+const update = function (docOrObject, globalPermissions) {
+  return {
+    // processed document permissions
+  };
+};
+
+const docPermissions = {
+  list,
+  read,
+  create,
+  update,
+};
+
+const userRouter = egose.createRouter('User', { docPermissions });
+
+// or
+
+userRouter.docPermissions(docPermissions);
+
+// or
+
+userRouter.set('docPermissions', docPermissions);
+
+// or
+
+userRouter.docPermissions('list', list);
+userRouter.docPermissions('read', read);
+userRouter.docPermissions('create', create);
+userRouter.docPermissions('update', update);
+
+// or
+
+userRouter.set('docPermissions.list', list);
+userRouter.set('docPermissions.read', read);
+userRouter.set('docPermissions.create', create);
+userRouter.set('docPermissions.update', update);
+```
+
+### routeGuard
+
+The `routeGuard` option enables you to control access to the backend API endpoints based on the requester's global permissions. With this option, you can specify which routes are allowed and which ones are excluded, using the familiar CRUDL model (Create, Read, Update, Delete, and List).
+
+By using `routeGuard`, you can ensure that only authorized users can access and modify your data, helping to protect the confidentiality and integrity of your information.
+
+It will use the value from the [`default model router options - routeGuard`](/docs/egose-acl/options/default-model-options/#routeguard) if it is not explicitly defined.
+
+```ts
+import egose from '@egose/acl';
+
+const listDef = true;
+const readDef = ['isAdmin', 'isUser'];
+const updateDef = 'isAdmin';
+const createDef = function (globalPermissions) {
+  if (globalPermissions.isAdmin) return true;
+  return false;
+};
+const deleteDef = false;
+
+const routeGuard = {
+  list: listDef,
+  read: readDef,
+  create: createDef,
+  update: updateDef,
+  delete: deleteDef,
+};
+
+const userRouter = egose.createRouter('User', { routeGuard });
+
+// or
+
+userRouter.routeGuard(routeGuard);
+
+// or
+
+userRouter.set('routeGuard', routeGuard);
+
+// or
+
+userRouter.routeGuard('list', listDef);
+userRouter.routeGuard('read', readDef);
+userRouter.routeGuard('create', createDef);
+userRouter.routeGuard('update', updateDef);
+userRouter.routeGuard('delete', deleteDef);
+
+// or
+
+userRouter.set('routeGuard.list', listDef);
+userRouter.set('routeGuard.read', readDef);
+userRouter.set('routeGuard.create', createDef);
+userRouter.set('routeGuard.update', updateDef);
+userRouter.set('routeGuard.delete', deleteDef);
+```
+
+### baseFilter
+
+The `baseFilter` option enables you to apply `document-level security` to control access to individual documents in a collection. With this option, you can define the permission guardrails for a given document, based on the requester's global permissions.
+
+Using `baseFilter` option, you can decorate the Mongoose Query object, applying custom filtering criteria to the query results to ensure that only authorized users can view or modify the documents.
+
+```ts
+import egose from '@egose/acl';
+
+const listDef = function (globalPermissions) {
+  return true;
+};
+const readDef = function (globalPermissions) {
+  if (globalPermissions.isAdmin) return {};
+  else return { $or: [{ _id: this.user._id }, { public: true }] };
+};
+const updateDef = function (globalPermissions) {
+  if (globalPermissions.isAdmin) return {};
+  else return { _id: this.user._id };
+};
+const deleteDef = function (globalPermissions) {
+  return globalPermissions.isAdmin;
+};
+
+const baseFilter = {
+  list: listDef,
+  read: readDef,
+  update: updateDef,
+  delete: deleteDef,
+};
+
+const userRouter = egose.createRouter('User', { baseFilter });
+
+// or
+
+userRouter.baseFilter(baseFilter);
+
+// or
+
+userRouter.set('baseFilter', baseFilter);
+
+// or
+
+userRouter.baseFilter('list', listDef);
+userRouter.baseFilter('read', readDef);
+userRouter.baseFilter('update', updateDef);
+userRouter.baseFilter('delete', deleteDef);
+
+// or
+
+userRouter.set('baseFilter.list', listDef);
+userRouter.set('baseFilter.read', readDef);
+userRouter.set('baseFilter.update', updateDef);
+userRouter.set('baseFilter.delete', deleteDef);
+```
+
+### defaults
+
+The `defaults` option allows you to define default options for each API endpoint, which will be used unless the requester provides their own options.
+
+```ts
+import egose from '@egose/acl';
+
+const publicListArgs = {
+  select: ['name'],
+  populate: [],
+  sort: '-createdAt',
+  limit: 1000,
+  page: 1,
+  process: [],
+};
+
+const publicListOptions = {
+  includePermissions: true,
+  includeCount: false,
+  populateAccess: 'read'
+};
+
+const publicCreateArgs = {
+  select: ['name'],
+  populate: [],
+  process: [],
+};
+
+const publicCreateOptions = {
+  includePermissions: true,
+  populateAccess: 'read',
+};
+
+const publicReadArgs = {
+  select: ['name'],
+  populate: [],
+  process: [],
+};
+
+const publicReadOptions = {
+  populateAccess: 'read',
+  includePermissions: true,
+  tryList: true,
+};
+
+const publicUpdateArgs = {
+  select: ['name'],
+  populate: [],
+  process: [],
+};
+
+const publicUpdateOptions = {
+  returningAll: false,
+  includePermissions: true,
+  populateAccess: 'read',
+};
+
+const defaults = {
+  publicListArgs,
+  publicListOptions,
+  publicCreateArgs,
+  publicCreateOptions,
+  publicReadArgs,
+  publicReadOptions,
+  publicUpdateArgs,
+  publicUpdateOptions,
+};
+
+const userRouter = egose.createRouter('User', { defaults });
+
+// or
+
+userRouter.defaults(defaults);
+
+// or
+
+userRouter.set('defaults', defaults);
+
+// or
+
+userRouter.defaults('publicListArgs', publicListArgs);
+userRouter.defaults('publicListOptions', publicListOptions);
+userRouter.defaults('publicCreateArgs', publicCreateArgs);
+userRouter.defaults('publicCreateOptions', publicCreateOptions);
+userRouter.defaults('publicReadArgs', publicReadArgs);
+userRouter.defaults('publicReadOptions', publicReadOptions);
+userRouter.defaults('publicUpdateArgs', publicUpdateArgs);
+userRouter.defaults('publicUpdateOptions', publicUpdateOptions);
+
+// or
+
+userRouter.set('defaults.publicListArgs', publicListArgs);
+userRouter.set('defaults.publicListOptions', publicListOptions);
+userRouter.set('defaults.publicCreateArgs', publicCreateArgs);
+userRouter.set('defaults.publicCreateOptions', publicCreateOptions);
+userRouter.set('defaults.publicReadArgs', publicReadArgs);
+userRouter.set('defaults.publicReadOptions', publicReadOptions);
+userRouter.set('defaults.publicUpdateArgs', publicUpdateArgs);
+userRouter.set('defaults.publicUpdateOptions', publicUpdateOptions);
+```

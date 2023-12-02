@@ -1,0 +1,57 @@
+---
+sidebar_position: 5
+---
+
+# New
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## New Resource
+
+This entrypoint returns an empty resource and is used to retrieve sample data as a placeholder.
+
+- `GET /{base_url}/new`
+
+### Example
+
+#### request
+
+<Tabs className="unique-tabs">
+<TabItem value="cURL">
+```bash
+curl \
+  -X GET \
+  -H "Accept: application/json" \
+  https://example.com/users/new
+```
+</TabItem>
+<TabItem value="Javascript">
+```js
+const url = 'https://example.com/users/new';
+
+const response = await fetch(url, {
+  method: 'GET',
+  headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+});
+
+const result = response.json();
+```
+</TabItem>
+</Tabs>
+
+#### response
+
+```json title="Status: 200"
+{
+  "_id": "5d6ede6a0ba62570afcedd3b",
+  "name": null,
+  "address": null,
+  "roles": ["user"],
+  "creditBalance": 0,
+  "loginDate": null
+}
+```
