@@ -1,0 +1,128 @@
+---
+sidebar_position: 3
+---
+
+# Update
+
+`Update` operation executes hook methods in the following sequence:
+
+<table>
+  <tr>
+    <th>Hook</th>
+    <th>Parameters</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>docPermissions</code></td>
+    <td>
+      <ol>
+        <li>Mongoose document</li>
+        <li>global permissions</li>
+      </ol>
+    </td>
+    <td>
+      <ul>
+        <li>called after Mongoose execute the query</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><code>validate</code></td>
+    <td>
+      <ol>
+        <li>allowed data object</li>
+        <li>global permissions</li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li></ul></li>
+      </ol>
+    </td>
+    <td>
+      <ul></ul>
+    </td>
+  </tr>
+  <tr>
+    <td><code>prepare</code></td>
+    <td>
+      <ol>
+        <li>allowed data object</li>
+        <li>global permissions</li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li></ul></li>
+      </ol>
+    </td>
+    <td>
+      <ul></ul>
+    </td>
+  </tr>
+  <tr>
+    <td><code>transform</code></td>
+    <td>
+      <ol>
+        <li>allowed data object</li>
+        <li>global permissions</li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
+      </ol>
+    </td>
+    <td>
+      <ul><li>called before changes saved</li></ul>
+    </td>
+  </tr>
+  <tr>
+    <td><code>docPermissions</code></td>
+    <td>
+      <ol>
+        <li>Mongoose document</li>
+        <li>global permissions</li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
+      </ol>
+    </td>
+    <td>
+      <ul>
+        <li>called after changes saved</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td><code>decorate</code></td>
+    <td>
+      <ol>
+        <li>plain document object</li>
+        <li>global permissions</li>
+        <li>context object:<ul><li>originalDocObject</li><li>originalData</li><li>currentDoc</li><li>preparedData</li><li>modifiedPaths</li></ul></li>
+      </ol>
+    </td>
+    <td>
+      <ul>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+### Configuration Example
+
+```ts
+modelRouter.validate('update', function (dataObject, globalPermissions) {
+  return true;
+});
+
+modelRouter.prepare('update', function (dataObject, globalPermissions) {
+  dataObject.name = dataObject.name.trim();
+  return dataObject;
+});
+
+modelRouter.transform(function (doc, globalPermissions) {
+  return doc;
+});
+
+modelRouter.docPermissions('update', function (doc, globalPermissions) {
+  const isMe = String(doc._id) === String(this.user._id);
+
+  return {
+    'edit.name': globalPermissions.isAdmin || isMe,
+    'edit.role': globalPermissions.isAdmin,
+  };
+});
+
+modelRouter.decorate('update', function (docObject, globalPermissions) {
+  docObject.decoratedBy = 'egose';
+  return docObject;
+});
+```
