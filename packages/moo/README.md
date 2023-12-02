@@ -8,7 +8,7 @@ The `@egose/moo` package provides support for
 
 ## Documentation
 
-please see [Egose documentation](https://egose.github.io/egose-moo/) for more details.
+please see [Egose documentation](https://egose.github.io/docs/egose-moo/) for more details.
 
 ## Installation
 

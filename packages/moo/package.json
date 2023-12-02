@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/egose/egose"
   },
-  "homepage": "https://egose.github.io/egose-moo",
+  "homepage": "https://egose.github.io/docs/egose-moo",
   "keywords": [
     "mongoose"
   ],

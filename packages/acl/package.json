@@ -13,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/egose/egose"
   },
-  "homepage": "https://egose.github.io/egose-acl/philosophy/",
+  "homepage": "https://egose.github.io/docs/egose-acl/philosophy/",
   "keywords": [
     "express",
     "mongoose",
