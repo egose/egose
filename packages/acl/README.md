@@ -8,7 +8,7 @@
 
 ## Documentation
 
-please see [Egose documentation](https://egose.github.io/egose-acl/philosophy/) for more details.
+please see [Egose documentation](https://egose.github.io/docs/egose-acl/philosophy/) for more details.
 
 ## Installation
 

@@ -8,7 +8,7 @@ The `@egose/react-pagination-hook` package provides a React pagination hook that
 
 ## Documentation
 
-please see [Egose documentation](https://egose.github.io/egose-react-pagination-hook/philosophy/) for more details.
+please see [Egose documentation](https://egose.github.io/docs/egose-react-pagination-hook/philosophy/) for more details.
 
 ## Installation
 

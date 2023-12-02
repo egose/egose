@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/egose/egose"
   },
-  "homepage": "https://egose.github.io/egose-deco/philosophy/",
+  "homepage": "https://egose.github.io/docs/egose-deco/philosophy/",
   "keywords": [
     "express",
     "mongoose",
