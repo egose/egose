@@ -1,3 +1,10 @@
+## [0.33.1](https://github.com/egose/egose/compare/v0.33.0...v0.33.1) (2023-12-02)
+
+
+### Docs
+
+* switch doc library to Docusaurus ([683930c](https://github.com/egose/egose/commit/683930cf98aaa615f57785731a5011bea0eb0368))
+
 ## [0.33.0](https://github.com/egose/egose/compare/v0.32.0...v0.33.0) (2023-11-29)
 
 
