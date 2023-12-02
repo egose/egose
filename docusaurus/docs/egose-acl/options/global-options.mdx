@@ -1,0 +1,47 @@
+---
+sidebar_position: 0
+---
+
+# Global Options
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## Global Options for Library and Model Routers
+
+Global options refer to the options that are set at the library-level.
+
+### globalPermissions
+
+Global permissions are based on the requester's authentication/authorization context and determine the requester's access level for each request. Here's an example usage:
+
+```ts
+import egose from '@egose/acl';
+
+egose.set('globalPermissions', function (req) {
+  const user = req.user;
+
+  if (!user) return { isGuest: true };
+
+  return {
+    isGuest: false,
+    isUser: true,
+    isAdmin: user.role === 'admin',
+  };
+});
+```
+
+In the above example, the `globalPermissions` option sets different access levels for users based on their authentication context. If a user is not authenticated, their access level is set to `isGuest`. If the user is authenticated, their access level is set to `isUser`, and if they have an 'admin' role, their access level is also set to `isAdmin`.
+
+### permissionField
+
+This option specifies the name of the object field that is used to set the global permissions in the `Request Object`. By default, it is set to `_permissions`.
+
+```ts
+import egose from '@egose/acl';
+
+egose.set('permissionField', '__access');
+```

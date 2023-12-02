@@ -1,0 +1,8 @@
+{
+  "name": "samples",
+  "license": "MIT",
+  "sideEffects": false,
+  "scripts": {
+    "quick-start": "DEBUG=express:* ../../node_modules/.bin/ts-node -r tsconfig-paths/register quick-start.ts"
+  }
+}

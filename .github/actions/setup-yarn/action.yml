@@ -14,3 +14,9 @@ runs:
     run: |
       yarn
     shell: bash
+
+  - name: Install Yarn dependencies
+    run: |
+      yarn
+    working-directory: docusaurus
+    shell: bash
