@@ -1,0 +1,135 @@
+---
+sidebar_position: 6
+---
+
+# Count
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method interacts with the [Basic Count](/docs/egose-acl/api-endpoints/count#count-documents) endpoint to count a set of resources.
+
+### Usage
+
+```ts
+const response = await userService.count();
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `number`               | The count of resources.                                                                      |
+| `data`    | `number`               | The count of resources.                                                                      |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: 2,
+  data: 2,
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
+
+## `Advanced`
+
+This method interacts with the [Advanced Update](/docs/egose-acl/api-endpoints/count#count-documents---advanced) endpoint to count a set of resources with advanced options.
+
+### Usage
+
+```ts
+const response = await userService.countAdvanced({ name: 'John' });
+```
+
+### Parameters
+
+| Parameter            | Type                             | Description                                                   |
+| -------------------- | -------------------------------- | ------------------------------------------------------------- |
+| `filter`             | `FilterQuery`                    | Filter query to narrow down the resources for counting.       |
+| `args`               | `{ access?: string }` (optional) | Advanced arguments for controlling the count operation.       |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional)  | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `number`               | The count of resources.                                                                      |
+| `data`    | `number`               | The count of resources.                                                                      |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: 2,
+  data: 2,
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>

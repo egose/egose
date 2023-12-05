@@ -1,0 +1,30 @@
+# Model Service
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+The adapter provides a way to create a new service to bind to the `egose-acl` Model API endpoints.
+
+```ts
+import egoseAdapter from '@egose/adapter-js';
+
+const adapter = egoseAdapter.createAdapter({ baseURL: 'http://127.0.0.1:3000/api' });
+
+interface User {
+  name: string;
+  role: string;
+  public: boolean;
+  [key: string]: any;
+}
+
+const userService = adapter.createModelService<User>({ modelName: 'User', basePath: 'users' });
+```
+
+```mdx-code-block
+import DocCardList from '@theme/DocCardList';
+
+<DocCardList />
+```

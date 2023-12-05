@@ -1,0 +1,83 @@
+---
+sidebar_position: 4
+---
+
+# Delete
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method interacts with the [Basic Delete](/docs/egose-acl/api-endpoints/delete) endpoint to delete a resource by its unique identifier.
+
+### Usage
+
+```ts
+const response = await userService.delete('79c8c567b05e986509d55733a');
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `identifier`         | `string`                        | Unique identifier of the resource to be deleted.              |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `string`               | The ID of the deleted resource.                                                              |
+| `data`    | `string`               | The ID of the deleted resource.                                                              |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: '79c8c567b05e986509d55733a',
+  data: '79c8c567b05e986509d55733a',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="404">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Not Found',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>

@@ -1,0 +1,84 @@
+---
+sidebar_position: 2
+---
+
+# Create
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method creates a single resource sub-document resource.
+
+### Usage
+
+```ts
+const response = await services.userService
+  .id("79c8c567b05e986509d55733a")
+  .subs("statusHistory")
+  .create({ name: 'free', status: true });
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `data`               | `object`                        | Data for creating the resource.                               |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop         | Type                   | Description                                                                                  |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success`    | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`     | `number`               | HTTP status code of the response.                                                            |
+| `message`    | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`        | `object`               | Raw data received from the server.                                                           |
+| `data`       | `object`               | Raw data received from the server.                                                           |
+| `headers`    | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="201">
+```
+{
+  success: true,
+  status: 201,
+  raw: {
+    _id: '5e9553c0d09768056739c8cb7',
+    name: 'free',
+    active: true
+  },
+  data: {
+    _id: '5e9553c0d09768056739c8cb7',
+    name: 'free',
+    active: true
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="400">
+```
+{
+  success: false,
+  status: 400,
+  message: 'Bad Request',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
