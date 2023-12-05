@@ -1,0 +1,301 @@
+---
+sidebar_position: 1
+---
+
+# Read
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method interacts with the [Basic Read](/docs/egose-acl/api-endpoints/read#read-resources) endpoint to retrieve a single resource by its identifier.
+
+### Usage
+
+```ts
+const response = await userService.read('656cd57be338c0057899a597');
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `identifier`         | `string`                        | Unique identifier of the resource to be retrieved.            |
+| `options`            | `ReadOptions` (optional)        | Additional options for customizing the read operation.        |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+```ts
+interface ReadOptions {
+    includePermissions?: boolean;  // Include permissions in the response.
+    tryList?: boolean;             // Attempt to retrieve the resource using the list operation.
+    ignoreCache?: boolean;         // Ignore cache and fetch fresh data.
+    sq?: sqOptions;                // Options related to Sub-Query.
+}
+```
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `object`               | Raw data received from the server.                                                           |
+| `data`    | `Model`                | Parsed data represented as an array of Model instances.                                      |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: {
+    _id: '656cd57be338c0057899a597',
+    name: 'John',
+    role: 'user',
+    public: true,
+    _permissions: {}
+  },
+  data: Model {
+    _id: [Getter/Setter],
+    name: [Getter/Setter],
+    role: [Getter/Setter],
+    public: [Getter/Setter],
+    _permissions: [Getter/Setter]
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="404">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Not Found',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
+
+## `Advanced`
+
+This method interacts with the [Advanced Read](/docs/egose-acl/api-endpoints/read#read-resource---advanced) endpoint to retrieve a single resource by its identifier with advanced options.
+
+### Usage
+
+```ts
+const response = await userService.readAdvanced('656cd57be338c0057899a597', { select: ['name'] });
+```
+
+### Parameters
+
+| Parameter            | Type                             | Description                                                     |
+| -------------------- | -------------------------------- | --------------------------------------------------------------- |
+| `identifier`         | `string`                         | Unique identifier of the resource to be retrieved.              |
+| `args`               | `ReadAdvancedArgs` (optional)    | Advanced arguments for controlling the read operation.          |
+| `options`            | `ReadAdvancedOptions` (optional) | Additional options for customizing the advanced read operation. |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional)  | Axios request configuration for fine-tuning the HTTP request.   |
+
+```ts
+interface ReadAdvancedArgs {
+  select?: Projection;                        // Projection for selecting specific fields.
+  populate?: Populate[] | Populate | string;  // Data to populate in the response.
+  include?: Include | Include[];              // Additional resources to include in the response.
+}
+
+interface ReadAdvancedOptions {
+  includePermissions?: boolean;     // Include permissions in the response.
+  tryList?: boolean;                // Attempt to retrieve the resource using the list operation.
+  populateAccess?: PopulateAccess;  // Options for populating access-related data.
+  ignoreCache?: boolean;            // Ignore cache and fetch fresh data.
+  sq?: sqOptions;                   // Options related to Sub-Query.
+}
+```
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `object`               | Raw data received from the server.                                                           |
+| `data`    | `Model`                | Parsed data represented as an array of Model instances.                                      |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: {
+    _id: '656cd57be338c0057899a597',
+    name: 'John',
+    _permissions: {}
+  },
+  data: Model {
+    _id: [Getter/Setter],
+    name: [Getter/Setter],
+    _permissions: [Getter/Setter]
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="404">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Not Found',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
+
+## `Advanced Filter`
+
+This method interacts with the [Advanced Read Filter](/docs/egose-acl/api-endpoints/read#read-resource---advanced-filter) endpoint to retrieve a single resource by filter.
+
+### Usage
+
+```ts
+const response = await userService.readAdvancedFilter({ name: 'John' }, { select: ['name'] });
+```
+
+### Parameters
+
+| Parameter            | Type                             | Description                                                     |
+| -------------------- | -------------------------------- | --------------------------------------------------------------- |
+| `filter`             | `FilterQuery`                    | Query to filter the resources.                                  |
+| `args`               | `ReadAdvancedArgs` (optional)    | Advanced arguments for controlling the read operation.          |
+| `options`            | `ReadAdvancedOptions` (optional) | Additional options for customizing the advanced read operation. |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional)  | Axios request configuration for fine-tuning the HTTP request.   |
+
+```ts
+interface ReadAdvancedArgs {
+  select?: Projection;                        // Projection for selecting specific fields.
+  populate?: Populate[] | Populate | string;  // Data to populate in the response.
+  include?: Include | Include[];              // Additional resources to include in the response.
+}
+
+interface ReadAdvancedOptions {
+  includePermissions?: boolean;     // Include permissions in the response.
+  tryList?: boolean;                // Attempt to retrieve the resource using the list operation.
+  populateAccess?: PopulateAccess;  // Options for populating access-related data.
+  ignoreCache?: boolean;            // Ignore cache and fetch fresh data.
+  sq?: sqOptions;                   // Options related to Sub-Query.
+}
+```
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `object`               | Raw data received from the server.                                                           |
+| `data`    | `Model`                | Parsed data represented as an array of Model instances.                                      |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: {
+    _id: '656cd57be338c0057899a597',
+    name: 'John',
+    _permissions: {}
+  },
+  data: Model {
+    _id: [Getter/Setter],
+    name: [Getter/Setter],
+    _permissions: [Getter/Setter]
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="404">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Not Found',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>

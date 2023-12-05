@@ -1,0 +1,219 @@
+---
+sidebar_position: 3
+---
+
+# Update
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method interacts with the [Basic Update](/docs/egose-acl/api-endpoints/update#update-resource) endpoint to update a resource.
+
+### Usage
+
+```ts
+const response = await userService.update('79c8c567b05e986509d55733a', { public: false });
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `identifier`         | `string`                        | Unique identifier of the resource to be updated.              |
+| `data`               | `object`                        | Data for updating the resource.                               |
+| `options`            | `UpdateOptions` (optional)      | Additional options for customizing the update operation.      |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+```ts
+interface UpdateOptions {
+  returningAll?: boolean;  // Set to `true` to return all fields in the response.
+}
+```
+
+### Response
+
+| Prop         | Type                   | Description                                                                                  |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success`    | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`     | `number`               | HTTP status code of the response.                                                            |
+| `message`    | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`        | `object`               | Raw data received from the server.                                                           |
+| `data`       | `Model`                | Parsed data represented as an array of Model instances.                                      |
+| `headers`    | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: {
+    _id: '79c8c567b05e986509d55733a',
+    name: 'Lucy',
+    role: 'user',
+    public: false,
+    _permissions: {}
+  },
+  data: Model {
+    _id: [Getter/Setter],
+    name: [Getter/Setter],
+    role: [Getter/Setter],
+    public: [Getter/Setter],
+    _permissions: [Getter/Setter]
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="400">
+```
+{
+  success: false,
+  status: 400,
+  message: 'Bad Request',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="404">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Not Found',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
+
+## `Advanced`
+
+This method interacts with the [Advanced Update](/docs/egose-acl/api-endpoints/update#update-resource---advanced) endpoint to update a resource with advanced options.
+
+### Usage
+
+```ts
+const response = await userService.update('79c8c567b05e986509d55733a', { public: false }, { select: ['name'] });
+```
+
+### Parameters
+
+| Parameter            | Type                               | Description                                                       |
+| -------------------- | ---------------------------------- | ----------------------------------------------------------------- |
+| `identifier`         | `string`                           | Unique identifier of the resource to be updated.                  |
+| `data`               | `object`                           | Data for updating the resource.                                   |
+| `args`               | `UpdateAdvancedArgs` (optional)    | Advanced arguments for controlling the update operation.          |
+| `options`            | `UpdateAdvancedOptions` (optional) | Additional options for customizing the advanced update operation. |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional)    | Axios request configuration for fine-tuning the HTTP request.     |
+
+```ts
+interface UpdateAdvancedArgs {
+  select?: Projection;                        // Projection for selecting specific fields.
+  populate?: Populate[] | Populate | string;  // Data to populate in the response.
+}
+
+interface UpdateAdvancedOptions {
+  returningAll?: boolean;           // Set to `true` to return all updated fields in the response.
+  includePermissions?: boolean;     // Include permissions in the response.
+  populateAccess?: PopulateAccess;  // Options for populating access-related data.
+}
+```
+
+### Response
+
+| Prop         | Type                   | Description                                                                                  |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success`    | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`     | `number`               | HTTP status code of the response.                                                            |
+| `message`    | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`        | `object`               | Raw data received from the server.                                                           |
+| `data`       | `Model`                | Parsed data represented as an array of Model instances.                                      |
+| `headers`    | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: {
+    _id: '79c8c567b05e986509d55733a',
+    name: 'Lucy',
+    _permissions: {}
+  },
+  data: Model {
+    _id: [Getter/Setter],
+    name: [Getter/Setter],
+    _permissions: [Getter/Setter]
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="400">
+```
+{
+  success: false,
+  status: 400,
+  message: 'Bad Request',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="404">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Not Found',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>

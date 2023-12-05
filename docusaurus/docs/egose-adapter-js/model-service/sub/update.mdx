@@ -1,0 +1,223 @@
+---
+sidebar_position: 3
+---
+
+# Update
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method updates a single resource sub-document resource.
+
+### Usage
+
+```ts
+const response = await services.userService
+  .id("79c8c567b05e986509d55733a")
+  .subs("statusHistory")
+  .update('95ac058c573be9879d059c663', { active: false });
+```
+
+### Parameters
+
+| Parameter            | Type                                    | Description                                                           |
+| -------------------- | --------------------------------------- | --------------------------------------------------------------------- |
+| `subId`              | `string`                                | The ID of the sub-document resource to be updated.                    |
+| `data`               | `object`                                | Data for updating the resource.                                       |
+| `options`            | `{ returningSub?: boolean }` (optional) | Update options, including whether to return the updated sub-document. |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional)         | Axios request configuration for fine-tuning the HTTP request.         |
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `object`               | Raw data received from the server.                                                           |
+| `data`    | `object`               | Raw data received from the server.                                                           |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: {
+    _id: '95ac058c573be9879d059c663',
+    name: 'premium',
+    active: false
+  },
+  data: {
+    _id: '95ac058c573be9879d059c663',
+    name: 'premium',
+    active: false
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="400">
+```
+{
+  success: false,
+  status: 400,
+  message: 'Bad Request',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="404">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Not Found',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
+
+## `Bulk`
+
+This method updates a multiple resource sub-document resources.
+
+### Usage
+
+```ts
+const response = await services.userService
+  .id("79c8c567b05e986509d55733a")
+  .subs("statusHistory")
+  .bulkUpdate([
+    {
+      _id: '656cd57be338c0057899a597',
+      active: false
+    },
+    {
+      _id: '656cd57be338c0057899a599',
+      active: false
+    }
+  ]);
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `data`               | `object[]`                      | Data for updating multiple resources.                         |
+| `options`            | `{}` (optional)                 | Update options                                                |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `object[]`             | Raw data received from the server.                                                           |
+| `data`    | `object[]`             | Raw data received from the server.                                                           |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: [
+    {
+      _id: '95ac058c573be9879d059c663',
+      name: 'premium',
+      active: false
+    },
+    {
+      _id: '9957c599b0c387ed5380c6057',
+      name: 'basic',
+      active: false
+    }
+  ],
+  data: [
+    {
+      _id: '95ac058c573be9879d059c663',
+      name: 'premium',
+      active: false
+    },
+    {
+      _id: '9957c599b0c387ed5380c6057',
+      name: 'basic',
+      active: false
+    }
+  ],
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="400">
+```
+{
+  success: false,
+  status: 400,
+  message: 'Bad Request',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="404">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Not Found',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>

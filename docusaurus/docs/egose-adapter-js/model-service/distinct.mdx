@@ -1,0 +1,136 @@
+---
+sidebar_position: 7
+---
+
+# Distinct
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method interacts with the [Basic Distinct](/docs/egose-acl/api-endpoints/distinct#distinct-documents) endpoint to find the distinct values for a specified field.
+
+### Usage
+
+```ts
+const response = await userService.distinct('name');
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `field`              | `string`                        | The field for which distinct values are to be retrieved.      |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `array[string]`        | The distinct values for the specified field.                                                 |
+| `data`    | `array[string]`        | The distinct values for the specified field.                                                 |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: ['John', 'Ella'],
+  data: ['John', 'Ella'],
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
+
+## `Advanced`
+
+This method interacts with the [Advanced Distinct](/docs/egose-acl/api-endpoints/distinct#distinct-documents---advanced) endpoint to find the distinct values for a specified field with advanced options.
+
+### Usage
+
+```ts
+const response = await userService.distinctAdvanced('name', { public: true });
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `field`              | `string`                        | The field for which distinct values are to be retrieved.      |
+| `conditions`         | `FilterQuery`                   | Advanced filter conditions to narrow down the resources.      |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop      | Type                   | Description                                                                                  |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success` | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`  | `number`               | HTTP status code of the response.                                                            |
+| `message` | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`     | `array[string]`        | The distinct values for the specified field.                                                 |
+| `data`    | `array[string]`        | The distinct values for the specified field.                                                 |
+| `headers` | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: ['John', 'Ella'],
+  data: ['John', 'Ella'],
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>

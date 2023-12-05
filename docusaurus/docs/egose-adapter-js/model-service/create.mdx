@@ -1,0 +1,176 @@
+---
+sidebar_position: 2
+---
+
+# Create
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method interacts with the [Basic Create](/docs/egose-acl/api-endpoints/create#create-resource) endpoint to create a resource.
+
+### Usage
+
+```ts
+const response = await userService.create({ name: 'Lucy', role: 'user', public: true });
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `data`               | `object`                        | Data for creating the resource.                               |
+| `options`            | `CreateOptions` (optional)      | Additional options for customizing the create operation.      |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+```ts
+interface CreateOptions {
+  includePermissions?: boolean;  // Include permissions in the response.
+}
+```
+
+### Response
+
+| Prop         | Type                   | Description                                                                                  |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success`    | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`     | `number`               | HTTP status code of the response.                                                            |
+| `message`    | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`        | `object`               | Raw data received from the server.                                                           |
+| `data`       | `Model`                | Parsed data represented as an array of Model instances.                                      |
+| `headers`    | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="201">
+```
+{
+  success: true,
+  status: 201,
+  raw: {
+    _id: '79c8c567b05e986509d55733a',
+    name: 'Lucy',
+    role: 'user',
+    public: true,
+    _permissions: {}
+  },
+  data: Model {
+    _id: [Getter/Setter],
+    name: [Getter/Setter],
+    role: [Getter/Setter],
+    public: [Getter/Setter],
+    _permissions: [Getter/Setter]
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="400">
+```
+{
+  success: false,
+  status: 400,
+  message: 'Bad Request',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
+
+## `Advanced`
+
+This method interacts with the [Advanced Create](/docs/egose-acl/api-endpoints/create#create-resource---advanced) endpoint to create a resource with advanced options.
+
+### Usage
+
+```ts
+const response = await userService.create({ name: 'Lucy', role: 'user', public: true }, { select: ['name'] });
+```
+
+### Parameters
+
+| Parameter            | Type                               | Description                                                       |
+| -------------------- | ---------------------------------- | ----------------------------------------------------------------- |
+| `data`               | `object`                           | Data for creating the resource.                                   |
+| `args`               | `CreateAdvancedArgs` (optional)    | Advanced arguments for controlling the create operation.          |
+| `options`            | `CreateAdvancedOptions` (optional) | Additional options for customizing the advanced create operation. |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional)    | Axios request configuration for fine-tuning the HTTP request.     |
+
+```ts
+interface CreateAdvancedArgs {
+  select?: Projection;                        // Projection for selecting specific fields.
+  populate?: Populate[] | Populate | string;  // Data to populate in the response.
+}
+
+interface CreateAdvancedOptions {
+  includePermissions?: boolean;     // Include permissions in the response.
+  populateAccess?: PopulateAccess;  // Options for populating access-related data.
+}
+```
+
+### Response
+
+| Prop         | Type                   | Description                                                                                  |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success`    | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`     | `number`               | HTTP status code of the response.                                                            |
+| `message`    | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`        | `object`               | Raw data received from the server.                                                           |
+| `data`       | `Model`                | Parsed data represented as an array of Model instances.                                      |
+| `headers`    | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="201">
+```
+{
+  success: true,
+  status: 201,
+  raw: {
+    _id: '79c8c567b05e986509d55733a',
+    name: 'Lucy',
+    _permissions: {}
+  },
+  data: Model {
+    _id: [Getter/Setter],
+    name: [Getter/Setter],
+    _permissions: [Getter/Setter]
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="400">
+```
+{
+  success: false,
+  status: 400,
+  message: 'Bad Request',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>

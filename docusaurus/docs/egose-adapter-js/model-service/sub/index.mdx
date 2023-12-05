@@ -1,0 +1,35 @@
+# Sub-Documents
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+The model service supports CRUD operations against sub-documents.
+
+```ts
+import egoseAdapter from '@egose/adapter-js';
+
+const adapter = egoseAdapter.createAdapter({ baseURL: 'http://127.0.0.1:3000/api' });
+
+interface Status {
+  name: string;
+  active: boolean;
+}
+
+interface User {
+  name: string;
+  statusHistory: Status[];
+  [key: string]: any;
+}
+
+const userService = adapter.createModelService<User>({ modelName: 'User', basePath: 'users' });
+const sub = services.userService.id('79c8c567b05e986509d55733a').subs('statusHistory');
+```
+
+```mdx-code-block
+import DocCardList from '@theme/DocCardList';
+
+<DocCardList />
+```

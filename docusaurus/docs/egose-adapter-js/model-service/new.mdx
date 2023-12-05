@@ -1,0 +1,74 @@
+---
+sidebar_position: 5
+---
+
+# New
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method interacts with the [Basic New](/docs/egose-acl/api-endpoints/new#new-resource) endpoint to retrieve an empty resource pre-filled with default values.
+
+### Usage
+
+```ts
+const response = await userService.new();
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop         | Type                   | Description                                                                                  |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success`    | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`     | `number`               | HTTP status code of the response.                                                            |
+| `message`    | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `raw`        | `object`               | Raw data received from the server.                                                           |
+| `data`       | `Model`                | Parsed data represented as an array of Model instances.                                      |
+| `headers`    | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  raw: {
+    _id: '975c0e8b955c6379056783ac',
+    name: '',
+    role: 'user',
+    public: false,
+    _permissions: {}
+  },
+  data: Model {
+    _id: [Getter/Setter],
+    name: [Getter/Setter],
+    role: [Getter/Setter],
+    public: [Getter/Setter],
+    _permissions: [Getter/Setter]
+  },
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>

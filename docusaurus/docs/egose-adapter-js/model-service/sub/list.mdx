@@ -1,0 +1,179 @@
+---
+sidebar_position: 0
+---
+
+# List
+
+```mdx-code-block
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+```
+
+## `Basic`
+
+This method retrieves a set of sub-document resources.
+
+### Usage
+
+```ts
+const response = await services.userService
+  .id("79c8c567b05e986509d55733a")
+  .subs("statusHistory")
+  .list();
+```
+
+### Parameters
+
+| Parameter            | Type                            | Description                                                   |
+| -------------------- | ------------------------------- | ------------------------------------------------------------- |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional) | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop         | Type                   | Description                                                                                  |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success`    | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`     | `number`               | HTTP status code of the response.                                                            |
+| `message`    | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `totalCount` | `number`               | Total count of resources in the response.                                                    |
+| `raw`        | `array[object]`        | Raw data received from the server.                                                           |
+| `data`       | `array[object]`        | Raw data received from the server.                                                           |
+| `headers`    | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  totalCount: 2,
+  raw: [
+    {
+      _id: '95ac058c573be9879d059c663',
+      name: 'premium',
+      active: true
+    },
+    {
+      _id: '9957c599b0c387ed5380c6057',
+      name: 'basic',
+      active: true
+    }
+  ],
+  data: [
+    {
+      _id: '95ac058c573be9879d059c663',
+      name: 'premium',
+      active: true
+    },
+    {
+      _id: '9957c599b0c387ed5380c6057',
+      name: 'basic',
+      active: true
+    }
+  ],
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
+
+## `Advanced`
+
+This method retrieves a set of sub-document resources with advanced options.
+
+### Usage
+
+```ts
+const response = await services.userService
+  .id("79c8c567b05e986509d55733a")
+  .subs("statusHistory")
+  .listAdvanced({ name: "premium" });
+```
+
+### Parameters
+
+| Parameter            | Type                              | Description                                                   |
+| -------------------- | --------------------------------- | ------------------------------------------------------------- |
+| `filter`             | `any` (optional)                  | Filter criteria for narrowing down the resources.             |
+| `args`               | `{ select: string[] }` (optional) | Advanced arguments for controlling the resource selection.    |
+| `axiosRequestConfig` | `AxiosRequestConfig` (optional)   | Axios request configuration for fine-tuning the HTTP request. |
+
+### Response
+
+| Prop         | Type                   | Description                                                                                  |
+| ------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `success`    | `boolean`              | Indicates whether the request was successful.                                                |
+| `status`     | `number`               | HTTP status code of the response.                                                            |
+| `message`    | `string`               | A message providing additional information about the response, especially in case of errors. |
+| `totalCount` | `number`               | Total count of resources in the response.                                                    |
+| `raw`        | `array[object]`        | Raw data received from the server.                                                           |
+| `data`       | `array[object]`        | Raw data received from the server.                                                           |
+| `headers`    | `object[AxiosHeaders]` | Axios headers associated with the response.                                                  |
+
+<Tabs className="unique-tabs">
+<TabItem value="200">
+```
+{
+  success: true,
+  status: 200,
+  totalCount: 1,
+  raw: [
+    {
+      _id: '95ac058c573be9879d059c663',
+      name: 'premium',
+      active: true
+    }
+  ],
+  data: [
+    {
+      _id: '95ac058c573be9879d059c663',
+      name: 'premium',
+      active: true
+    }
+  ],
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="401">
+```
+{
+  success: false,
+  status: 401,
+  message: 'Unauthorized',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+<TabItem value="403">
+```
+{
+  success: false,
+  status: 403,
+  message: 'Forbidden',
+  headers: Object [AxiosHeaders] {}
+}
+```
+</TabItem>
+</Tabs>
