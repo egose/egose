@@ -10,8 +10,10 @@ import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 import pick from 'lodash/pick';
+import omit from 'lodash/omit';
 import uniq from 'lodash/uniq';
 import intersectionBy from 'lodash/intersectionBy';
+import diff from 'deep-diff';
 import Model from '../model';
 import { getModelOption, getModelOptions } from '../options';
 import {
@@ -374,9 +376,10 @@ export class Service extends Base {
     context.originalData = data;
 
     doc = await this.addDocPermissions(doc, 'update', context);
-    context.docPermissions = this.getDocPermissions(doc);
 
+    context.docPermissions = this.getDocPermissions(doc);
     context.currentDoc = doc;
+
     const allowedFields = await this.genAllowedFields(doc, 'update');
     const allowedData = pick(data, allowedFields);
 
@@ -394,9 +397,13 @@ export class Service extends Base {
 
     context.modifiedPaths = doc.modifiedPaths();
     doc = await this.transform(doc, 'update', context);
-    context.modifiedPaths = doc.modifiedPaths();
     doc = await doc.save();
     context.finalDocObject = doc.toObject({ virtuals: false });
+
+    const diffExcludeFields = [this.options.permissionField, '__v'];
+    context.diff =
+      diff(omit(context.originalDocObject, diffExcludeFields), omit(context.finalDocObject, diffExcludeFields)) || [];
+    context.modifiedPaths = uniq(flatten(context.diff.map((di) => di.path)));
 
     let includeDocPermissions = includePermissions;
     if (!includeDocPermissions && !skim) {

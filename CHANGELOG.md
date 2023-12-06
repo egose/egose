@@ -1,3 +1,16 @@
+## [0.34.0](https://github.com/egose/egose/compare/v0.33.1...v0.34.0) (2023-12-06)
+
+
+### Features
+
+* **acl:** add diff data in update context ([07ed8c4](https://github.com/egose/egose/commit/07ed8c4aedc7551b1892274a456cb740c1c6fda8))
+
+
+### Docs
+
+* add egose-adapter-js > model-service ([bf3f182](https://github.com/egose/egose/commit/bf3f1820b1f905e64d10f346a3361718e78db4a2))
+* update main pillars ([e436f28](https://github.com/egose/egose/commit/e436f28730a1a3b744c9669371d747035ba25ad9))
+
 ## [0.33.1](https://github.com/egose/egose/compare/v0.33.0...v0.33.1) (2023-12-02)
 
 
