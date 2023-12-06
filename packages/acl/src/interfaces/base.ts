@@ -1,5 +1,6 @@
 import express from 'express';
 import { FilterQuery } from 'mongoose';
+import { Diff } from 'deep-diff';
 import { Core } from '../core';
 import { DataCore } from '../core-data';
 
@@ -54,6 +55,7 @@ export interface MiddlewareContext {
   originalData?: keyValue;
   preparedData?: keyValue;
   modifiedPaths?: string[];
+  diff?: Diff<any>[];
   docPermissions?: keyValue;
 }
 

@@ -31,6 +31,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "deep-diff": "^1.0.2",
     "express-json-router": "0.7.0",
     "lodash": "^4.17.21",
     "mongoose-schema-jsonschema": "^2.0.2",
@@ -41,7 +42,9 @@
     "express": ">=4.6.0",
     "mongoose": ">=5.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/deep-diff": "^1.0.5"
+  },
   "tsup": {
     "target": "node18",
     "entry": [
