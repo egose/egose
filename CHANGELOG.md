@@ -1,3 +1,10 @@
+## [0.35.1](https://github.com/egose/egose/compare/v0.35.0...v0.35.1) (2023-12-07)
+
+
+### Bug Fixes
+
+* **acl:** capture the top path only in changes in update middleware ([ccbbcb9](https://github.com/egose/egose/commit/ccbbcb938af4ce327f26a1e504c0533049cc519c))
+
 ## [0.35.0](https://github.com/egose/egose/compare/v0.34.0...v0.35.0) (2023-12-07)
 
 

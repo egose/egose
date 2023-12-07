@@ -1,7 +1,7 @@
 {
   "name": "egose",
   "private": true,
-  "version": "0.35.0",
+  "version": "0.35.1",
   "description": "A compilation of tools designed to assist in building WebApps using Express and Mongoose",
   "author": "Junmin Ahn",
   "license": "MIT",
