@@ -403,7 +403,7 @@ export class Service extends Base {
     const diffExcludeFields = [this.options.permissionField, '__v'];
     context.changes =
       diff(omit(context.originalDocObject, diffExcludeFields), omit(context.finalDocObject, diffExcludeFields)) || [];
-    context.modifiedPaths = uniq(flatten(context.changes.map((di) => di.path)));
+    context.modifiedPaths = uniq(context.changes.map((di) => (di.path.length > 0 ? di.path[0] : '')));
 
     let includeDocPermissions = includePermissions;
     if (!includeDocPermissions && !skim) {
