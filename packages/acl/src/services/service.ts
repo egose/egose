@@ -401,9 +401,9 @@ export class Service extends Base {
     context.finalDocObject = doc.toObject({ virtuals: false });
 
     const diffExcludeFields = [this.options.permissionField, '__v'];
-    context.diff =
+    context.changes =
       diff(omit(context.originalDocObject, diffExcludeFields), omit(context.finalDocObject, diffExcludeFields)) || [];
-    context.modifiedPaths = uniq(flatten(context.diff.map((di) => di.path)));
+    context.modifiedPaths = uniq(flatten(context.changes.map((di) => di.path)));
 
     let includeDocPermissions = includePermissions;
     if (!includeDocPermissions && !skim) {
