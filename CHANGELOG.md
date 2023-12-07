@@ -1,3 +1,14 @@
+## [0.35.0](https://github.com/egose/egose/compare/v0.34.0...v0.35.0) (2023-12-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **acl:** rename diff to changes in update middleware
+
+### Features
+
+* **acl:** rename diff to changes in update middleware ([040e560](https://github.com/egose/egose/commit/040e5609ecc09b6fdaa5b0747b9776915e060b8a))
+
 ## [0.34.0](https://github.com/egose/egose/compare/v0.33.1...v0.34.0) (2023-12-06)
 
 
