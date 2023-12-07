@@ -55,7 +55,7 @@ export interface MiddlewareContext {
   originalData?: keyValue;
   preparedData?: keyValue;
   modifiedPaths?: string[];
-  diff?: Diff<any>[];
+  changes?: Diff<any>[];
   docPermissions?: keyValue;
 }
 
