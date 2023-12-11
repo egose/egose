@@ -2147,9 +2147,9 @@
     "@octokit/openapi-types" "^18.0.0"
 
 "@openapi-contrib/json-schema-to-openapi-schema@^3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@openapi-contrib/json-schema-to-openapi-schema/-/json-schema-to-openapi-schema-3.0.0.tgz#127bef35ebdc1cbc3ea7511fb329bcf973d0cf43"
-  integrity sha512-n5cd+zpgvmdt+ivL4YWdOZGHoorjFdk0jwbyXCp9VsBtPvr/RF4HMQiOSzuM3oKS3iVrmWtTfFSD5yS8wzHM7w==
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@openapi-contrib/json-schema-to-openapi-schema/-/json-schema-to-openapi-schema-3.0.1.tgz#b1fba3e9a30e63139479bafb72061a45ed4ced61"
+  integrity sha512-zfWdzuewwNVSOJ2e/eM9453Zl5674Vk+GKp39x/p+1XHygkbGgHTvUQyqdc1aoavsRcKzSt4veDULu7kjkgB4Q==
   dependencies:
     "@apidevtools/json-schema-ref-parser" "^11.1.0"
     json-schema-walker "^2.0.0"
