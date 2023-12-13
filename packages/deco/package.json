@@ -34,7 +34,7 @@
   "peerDependencies": {
     "express": ">=4.6.0",
     "mongoose": ">=5.2.0",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13 || ^0.2.0"
   },
   "tsup": {
     "target": "node18",
