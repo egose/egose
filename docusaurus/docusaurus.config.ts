@@ -151,9 +151,9 @@ const config: Config = {
     },
     algolia: {
       // These keys are not secrets and can be added to your Git repository.
-      appId: 'DL1XREBXC4',
-      apiKey: '2708e318d8be7f1011c6e5fb1c6d054f',
-      indexName: 'egose',
+      appId: 'GG3T2M2V9J',
+      apiKey: 'b5435ac2b5014a82759ec3a6fb34fb25',
+      indexName: 'egoseio',
     },
     prism: {
       theme: prismThemes.github,
