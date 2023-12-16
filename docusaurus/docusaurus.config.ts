@@ -46,6 +46,11 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
+        sitemap: {
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
       } satisfies Preset.Options,
     ],
   ],
@@ -154,6 +159,8 @@ const config: Config = {
       appId: 'GG3T2M2V9J',
       apiKey: 'b5435ac2b5014a82759ec3a6fb34fb25',
       indexName: 'egoseio',
+      contextualSearch: false,
+      searchParameters: {},
     },
     prism: {
       theme: prismThemes.github,
