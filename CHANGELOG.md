@@ -1,3 +1,16 @@
+## [0.36.0](https://github.com/egose/egose/compare/v0.35.1...v0.36.0) (2023-12-22)
+
+
+### Features
+
+* **moo:** add isObject func ([5e8c0cf](https://github.com/egose/egose/commit/5e8c0cf03f7b99d768085577ce9da219042b9491))
+
+
+### Docs
+
+* update algolia config ([ad98eda](https://github.com/egose/egose/commit/ad98edac0e1d89014806c0dd2bcb6a87deadadfe))
+* update docusaurus config ([774410f](https://github.com/egose/egose/commit/774410fd5c9f3f047d842230d38477ebf5f891a9))
+
 ## [0.35.1](https://github.com/egose/egose/compare/v0.35.0...v0.35.1) (2023-12-07)
 
 
