@@ -1,3 +1,10 @@
+## [0.38.0](https://github.com/egose/egose/compare/v0.37.0...v0.38.0) (2023-12-28)
+
+
+### Features
+
+* **acl:** add finalize hook ([5d84dc3](https://github.com/egose/egose/commit/5d84dc3e4799dfb2ea44edff4821d1c0fd915836))
+
 ## [0.37.0](https://github.com/egose/egose/compare/v0.36.0...v0.37.0) (2023-12-28)
 
 
