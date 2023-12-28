@@ -2,6 +2,7 @@ import { getDataOptions } from '../options';
 import { findElement, filterCollection, genPagination, parseSortString } from '../helpers';
 import {
   MiddlewareContext,
+  DataMiddlewareContext,
   Request,
   Projection,
   SelectAccess,
@@ -116,7 +117,7 @@ export class DataService<T> {
     };
   }
 
-  public decorate(doc: any, access: DecorateAccess, context?: MiddlewareContext): Promise<any> {
+  public decorate(doc: any, access: DecorateAccess, context?: DataMiddlewareContext): Promise<any> {
     return this.req.dacl.decorate(this.dataName, doc, access, context);
   }
 

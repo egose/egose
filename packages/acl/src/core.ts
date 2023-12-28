@@ -249,7 +249,7 @@ export class Core {
     return populate;
   }
 
-  async validate(modelName: string, allowedData: any, access: ValidateAccess, context: MiddlewareContext = {}) {
+  async validate(modelName: string, allowedData: any, access: ValidateAccess, context: MiddlewareContext) {
     const validate = getModelOption(modelName, `validate.${access}`, null);
 
     if (isFunction(validate)) {
@@ -262,25 +262,25 @@ export class Core {
     }
   }
 
-  async prepare(modelName: string, allowedData: any, access: PrepareAccess, context: MiddlewareContext = {}) {
+  async prepare(modelName: string, allowedData: any, access: PrepareAccess, context: MiddlewareContext) {
     const prepare = getModelOption(modelName, `prepare.${access}`, null);
     const permissions = this.getGlobalPermissions();
     return this.callMiddleware(prepare, allowedData, permissions, context);
   }
 
-  async transform(modelName: string, doc: any, access: TransformAccess, context: MiddlewareContext = {}) {
+  async transform(modelName: string, doc: any, access: TransformAccess, context: MiddlewareContext) {
     const transform = getModelOption(modelName, `transform.${access}`, null);
     const permissions = this[PERMISSIONS];
     return this.callMiddleware(transform, doc, permissions, context);
   }
 
-  async finalize(modelName: string, doc: any, access: FinalizeAccess, context: MiddlewareContext = {}) {
+  async finalize(modelName: string, doc: any, access: FinalizeAccess, context: MiddlewareContext) {
     const finalize = getModelOption(modelName, `finalize.${access}`, null);
     const permissions = this[PERMISSIONS];
     return this.callMiddleware(finalize, doc, permissions, context);
   }
 
-  async genDocPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext = {}) {
+  async genDocPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext) {
     const docPermissionsFn = getModelOption(modelName, `docPermissions.${access}`, null);
     let docPermissions = {};
 
@@ -301,19 +301,14 @@ export class Core {
     return doc;
   }
 
-  async addDocPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext = {}) {
+  async addDocPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext) {
     const docPermissionField = getModelOption(modelName, 'permissionField');
     const docPermissions = await this.genDocPermissions(modelName, doc, access, context);
     setDocValue(doc, docPermissionField, docPermissions);
     return doc;
   }
 
-  async addFieldPermissions(
-    modelName: string,
-    doc: any,
-    access: DocPermissionsAccess,
-    context: MiddlewareContext = {},
-  ) {
+  async addFieldPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext) {
     const svc = this.req.macl.getService(modelName);
     const docPermissionField = getModelOption(modelName, 'permissionField');
 
@@ -360,7 +355,7 @@ export class Core {
     return doc;
   }
 
-  async decorate(modelName: string, doc: any, access: DecorateAccess, context: MiddlewareContext = {}) {
+  async decorate(modelName: string, doc: any, access: DecorateAccess, context: MiddlewareContext) {
     const decorate = getModelOption(modelName, `decorate.${access}`, null);
 
     const permissions = this.getGlobalPermissions();
@@ -369,11 +364,11 @@ export class Core {
     return this.callMiddleware(decorate, doc, permissions, context);
   }
 
-  async decorateAll(modelName: string, docs: any[], access: DecorateAllAccess) {
+  async decorateAll(modelName: string, docs: any[], access: DecorateAllAccess, context: MiddlewareContext) {
     const decorateAll = getModelOption(modelName, `decorateAll.${access}`, null);
     const permissions = this.getGlobalPermissions();
 
-    return this.callMiddleware(decorateAll, docs, permissions, {});
+    return this.callMiddleware(decorateAll, docs, permissions, context);
   }
 
   runTasks(modelName: string, docObject: any, task: Task | Task[]) {

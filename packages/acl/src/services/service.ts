@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import castArray from 'lodash/castArray';
 import forEach from 'lodash/forEach';
 import compact from 'lodash/compact';
@@ -113,7 +114,11 @@ export class Service extends Base {
     let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
-    const context: MiddlewareContext = { originalDocObject: toObject(doc) };
+    const context: MiddlewareContext = {
+      model: this.model.model,
+      modelName: this.modelName,
+      originalDocObject: toObject(doc),
+    };
 
     doc = await this.includeDocs(doc, includes);
 
@@ -121,8 +126,8 @@ export class Service extends Base {
     if (!includeDocPermissions && !skim) {
       includeDocPermissions = this.checkIfModelPermissionExists([access, 'read', 'update']);
     }
-    if (includeDocPermissions) doc = await this.addDocPermissions(doc, access);
-    if (includePermissions) doc = await this.addFieldPermissions(doc, access);
+    if (includeDocPermissions) doc = await this.addDocPermissions(doc, access, context);
+    if (includePermissions) doc = await this.addFieldPermissions(doc, access, context);
     doc = await this.pickAllowedFields(
       doc,
       access,
@@ -223,7 +228,11 @@ export class Service extends Base {
       lean,
     });
 
-    const contexts: MiddlewareContext[] = docs.map((doc) => ({ originalDocObject: toObject(doc) }));
+    const contexts: MiddlewareContext[] = docs.map((doc) => ({
+      model: this.model.model,
+      modelName: this.modelName,
+      originalDocObject: toObject(doc),
+    }));
 
     const _decorate = isFunction(decorate) ? decorate : (v) => v;
 
@@ -235,8 +244,8 @@ export class Service extends Base {
         if (!includeDocPermissions && !skim) {
           includeDocPermissions = this.checkIfModelPermissionExists(['list', 'read', 'update']);
         }
-        if (includeDocPermissions) doc = await this.addDocPermissions(doc, 'list');
-        if (includePermissions) doc = await this.addFieldPermissions(doc, 'list');
+        if (includeDocPermissions) doc = await this.addDocPermissions(doc, 'list', contexts[i]);
+        if (includePermissions) doc = await this.addFieldPermissions(doc, 'list', contexts[i]);
         doc = await this.pickAllowedFields(
           doc,
           'list',
@@ -278,7 +287,7 @@ export class Service extends Base {
     let validationError = null;
     const items = await Promise.all(
       arr.map(async (item, index) => {
-        const context: MiddlewareContext = { originalData: item };
+        const context: MiddlewareContext = { model: this.model.model, modelName: this.modelName, originalData: item };
 
         const allowedFields = await this.genAllowedFields(item, 'create');
         const allowedData = pick(item, allowedFields);
@@ -371,7 +380,7 @@ export class Service extends Base {
     let doc = await this.model.findOne({ filter: _filter });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
-    const context: MiddlewareContext = {};
+    const context: MiddlewareContext = { model: this.model.model, modelName: this.modelName };
 
     // see https://mongoosejs.com/docs/api/document.html#Document.prototype.toObject()
     context.originalDocObject = doc.toObject({ virtuals: false });

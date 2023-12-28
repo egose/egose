@@ -1,3 +1,10 @@
+## [0.39.0](https://github.com/egose/egose/compare/v0.38.0...v0.39.0) (2023-12-28)
+
+
+### Features
+
+* **acl:** add default contexts; model, modelName ([5b9f35a](https://github.com/egose/egose/commit/5b9f35a5406c2a6ae5e2fe5a316b3bc98d4e88ad))
+
 ## [0.38.0](https://github.com/egose/egose/compare/v0.37.0...v0.38.0) (2023-12-28)
 
 
