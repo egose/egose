@@ -26,6 +26,7 @@ import {
   ValidateAccess,
   PrepareAccess,
   TransformAccess,
+  FinalizeAccess,
   BaseFilterAccess,
   ServiceResult,
   SubQueryEntry,
@@ -105,6 +106,10 @@ export class Base {
 
   public transform(doc: any, access: TransformAccess, context?: MiddlewareContext): Promise<any> {
     return this.req.macl.transform(this.modelName, doc, access, context);
+  }
+
+  public finalize(doc: any, access: FinalizeAccess, context?: MiddlewareContext): Promise<any> {
+    return this.req.macl.finalize(this.modelName, doc, access, context);
   }
 
   public validate(allowedData: any, access: ValidateAccess, context?: MiddlewareContext): Promise<boolean | any[]> {

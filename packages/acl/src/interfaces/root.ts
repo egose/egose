@@ -165,6 +165,9 @@ export interface ExtendedModelRouterOptions extends ModelRouterOptions, Extended
   'prepare.update'?: any;
   'transform.default'?: any;
   'transform.update'?: any;
+  'finalize.default'?: any;
+  'finalize.create'?: any;
+  'finalize.update'?: any;
   'defaults.findOneArgs'?: DefaultFindOneArgs;
   'defaults.findOneOptions'?: FindOneOptions;
   'defaults.findByIdArgs'?: DefaultFindByIdArgs;
@@ -207,3 +210,4 @@ export type DecorateAllAccess = 'list' | string;
 export type ValidateAccess = 'create' | 'update' | string;
 export type PrepareAccess = 'create' | 'update' | string;
 export type TransformAccess = 'update' | string;
+export type FinalizeAccess = 'create' | 'update' | string;

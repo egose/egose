@@ -311,6 +311,8 @@ export class Service extends Base {
     let docs = await this.model.create(items);
     docs = await Promise.all(
       docs.map(async (doc, index) => {
+        doc = await this.finalize(doc, 'create', contexts[index]);
+        contexts[index].finalDocObject = doc.toObject({ virtuals: false });
         let includeDocPermissions = includePermissions;
         if (!includeDocPermissions && !skim) {
           includeDocPermissions = this.checkIfModelPermissionExists(['create', 'read', 'update']);
@@ -398,6 +400,7 @@ export class Service extends Base {
     context.modifiedPaths = doc.modifiedPaths();
     doc = await this.transform(doc, 'update', context);
     doc = await doc.save();
+    doc = await this.finalize(doc, 'update', context);
     context.finalDocObject = doc.toObject({ virtuals: false });
 
     const diffExcludeFields = [this.options.permissionField, '__v'];

@@ -37,6 +37,7 @@ import {
   ValidateAccess,
   PrepareAccess,
   TransformAccess,
+  FinalizeAccess,
   Task,
 } from './interfaces';
 import Permission, { Permissions } from './permission';
@@ -271,6 +272,12 @@ export class Core {
     const transform = getModelOption(modelName, `transform.${access}`, null);
     const permissions = this[PERMISSIONS];
     return this.callMiddleware(transform, doc, permissions, context);
+  }
+
+  async finalize(modelName: string, doc: any, access: FinalizeAccess, context: MiddlewareContext = {}) {
+    const finalize = getModelOption(modelName, `finalize.${access}`, null);
+    const permissions = this[PERMISSIONS];
+    return this.callMiddleware(finalize, doc, permissions, context);
   }
 
   async genDocPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext = {}) {
