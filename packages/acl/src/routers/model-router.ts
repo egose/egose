@@ -645,6 +645,14 @@ export class ModelRouter {
   /**
    * Middleware
    *
+   * The function called after a new document is created or an updated document is saved.
+   * @operation `create`, `update`
+   */
+  public finalize: SetTargetOption = setOption.bind(this, 'finalize');
+
+  /**
+   * Middleware
+   *
    * The function called before response data is sent. This method is used to process raw data to apply custom logic before sending the result.
    * @operation `list`, `read`, `create`, `update`
    */

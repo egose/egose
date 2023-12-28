@@ -82,6 +82,9 @@ userRouter
       },
     },
   })
+  .finalize(function (doc) {
+    return doc;
+  })
   .decorate({
     default: [
       function (doc) {
