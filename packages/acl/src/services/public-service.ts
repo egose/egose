@@ -72,7 +72,7 @@ export class PublicService extends Service {
     }
 
     let docs = result.data;
-    docs = await this.decorateAll(docs, 'list');
+    docs = await this.decorateAll(docs, 'list', { model: this.model.model, modelName: this.modelName });
     docs = docs.map((row) => this.runTasks(row, tasks));
 
     result.data = docs;

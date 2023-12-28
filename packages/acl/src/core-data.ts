@@ -25,6 +25,7 @@ import {
   Projection,
   Filter,
   MiddlewareContext,
+  DataMiddlewareContext,
   Validation,
   Request,
   SelectAccess,
@@ -182,7 +183,7 @@ export class DataCore {
     return fields;
   }
 
-  async decorate(dataName: string, doc: any, access: DecorateAccess, context: MiddlewareContext = {}) {
+  async decorate(dataName: string, doc: any, access: DecorateAccess, context: DataMiddlewareContext = {}) {
     const decorate = getDataOption(dataName, `decorate.${access}`, null);
 
     const permissions = this.getGlobalPermissions();
@@ -259,7 +260,7 @@ export class DataCore {
     middleware: Function | Function[],
     doc: any,
     permissions: Permissions,
-    context: MiddlewareContext,
+    context: DataMiddlewareContext,
   ) {
     middleware = castArray(middleware);
     for (let x = 0; x < middleware.length; x++) {
