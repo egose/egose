@@ -1,3 +1,10 @@
+## [0.37.0](https://github.com/egose/egose/compare/v0.36.0...v0.37.0) (2023-12-28)
+
+
+### Features
+
+* **moo:** add uniqueEmptiableString schema helpers ([5e25425](https://github.com/egose/egose/commit/5e25425b7e12888cc3c20bd4fce64754df73ab72))
+
 ## [0.36.0](https://github.com/egose/egose/compare/v0.35.1...v0.36.0) (2023-12-22)
 
 
