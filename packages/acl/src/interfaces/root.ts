@@ -115,6 +115,7 @@ export interface ModelRouterOptions extends DefaultModelRouterOptions {
   validate?: any;
   prepare?: any;
   transform?: any;
+  change?: Record<string, Function>;
   defaults?: Defaults;
 }
 

@@ -653,6 +653,14 @@ export class ModelRouter {
   /**
    * Middleware
    *
+   * The function called after a updated document finalized
+   * @operation `update`
+   */
+  public change: SetTargetOption = setOption.bind(this, 'change');
+
+  /**
+   * Middleware
+   *
    * The function called before response data is sent. This method is used to process raw data to apply custom logic before sending the result.
    * @operation `list`, `read`, `create`, `update`
    */

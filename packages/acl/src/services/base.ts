@@ -112,6 +112,10 @@ export class Base {
     return this.req.macl.finalize(this.modelName, doc, access, context);
   }
 
+  public changes(doc: any, context: MiddlewareContext): Promise<any> {
+    return this.req.macl.changes(this.modelName, doc, context);
+  }
+
   public validate(allowedData: any, access: ValidateAccess, context: MiddlewareContext): Promise<boolean | any[]> {
     return this.req.macl.validate(this.modelName, allowedData, access, context);
   }

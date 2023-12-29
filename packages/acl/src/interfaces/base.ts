@@ -1,5 +1,5 @@
 import express from 'express';
-import mongoose, { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery, Document } from 'mongoose';
 import { Diff } from 'deep-diff';
 import { Core } from '../core';
 import { DataCore } from '../core-data';
@@ -51,11 +51,12 @@ interface keyValue {
 export interface MiddlewareContext {
   modelName: string;
   model: mongoose.Model<any>;
-  originalDocObject?: keyValue;
-  finalDocObject?: keyValue;
+  originalDocObject?: Record<string, any>;
+  finalDocObject?: Record<string, any>;
+  diff?(doc: Document): void;
   currentDoc?: keyValue;
-  originalData?: keyValue;
-  preparedData?: keyValue;
+  originalData?: Record<string, any>;
+  preparedData?: Record<string, any>;
   modifiedPaths?: string[];
   changes?: Diff<any>[];
   docPermissions?: keyValue;

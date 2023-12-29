@@ -85,6 +85,12 @@ userRouter
   .finalize(function (doc) {
     return doc;
   })
+  .change('name', function (oldVal, newVal, meta) {
+    console.log(`name changed: ${oldVal} > ${newVal}: ${JSON.stringify(meta)}`);
+  })
+  .change('public', function (oldVal, newVal, meta) {
+    console.log(`public changed: ${oldVal} > ${newVal}: ${JSON.stringify(meta)}`);
+  })
   .decorate({
     default: [
       function (doc) {

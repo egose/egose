@@ -409,13 +409,23 @@ export class Service extends Base {
     context.modifiedPaths = doc.modifiedPaths();
     doc = await this.transform(doc, 'update', context);
     doc = await doc.save();
-    doc = await this.finalize(doc, 'update', context);
-    context.finalDocObject = doc.toObject({ virtuals: false });
 
     const diffExcludeFields = [this.options.permissionField, '__v'];
-    context.changes =
-      diff(omit(context.originalDocObject, diffExcludeFields), omit(context.finalDocObject, diffExcludeFields)) || [];
-    context.modifiedPaths = uniq(context.changes.map((di) => (di.path.length > 0 ? di.path[0] : '')));
+    context.diff = (d) => {
+      context.changes =
+        diff(
+          omit(context.originalDocObject, diffExcludeFields),
+          omit(d.toObject({ virtuals: false }), diffExcludeFields),
+        ) || [];
+
+      context.modifiedPaths = uniq(context.changes.map((di) => (di.path.length > 0 ? di.path[0] : '')));
+    };
+
+    doc = await this.finalize(doc, 'update', context);
+    context.finalDocObject = doc.toObject({ virtuals: false });
+    context.diff(doc);
+
+    await this.changes(doc, context);
 
     let includeDocPermissions = includePermissions;
     if (!includeDocPermissions && !skim) {
