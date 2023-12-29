@@ -1,3 +1,10 @@
+## [0.40.0](https://github.com/egose/egose/compare/v0.39.0...v0.40.0) (2023-12-29)
+
+
+### Features
+
+* **acl:** add 'change' model router option ([3c1c24c](https://github.com/egose/egose/commit/3c1c24c9603be5d940cf2b1a1ad41a8452cdb996))
+
 ## [0.39.0](https://github.com/egose/egose/compare/v0.38.0...v0.39.0) (2023-12-28)
 
 

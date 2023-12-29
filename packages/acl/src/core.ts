@@ -280,6 +280,23 @@ export class Core {
     return this.callMiddleware(finalize, doc, permissions, context);
   }
 
+  async changes(modelName: string, doc: any, context: MiddlewareContext) {
+    const changeOptions = getModelOption(modelName, `change`, {});
+
+    for (let x = 0; x < context.modifiedPaths.length; x++) {
+      const mpath = context.modifiedPaths[x];
+
+      if (isFunction(changeOptions[mpath])) {
+        await changeOptions[mpath].call(
+          this.req,
+          context.originalDocObject[mpath],
+          doc[mpath],
+          context.changes.filter((di) => di.path.length > 0 && di.path[0] === mpath),
+        );
+      }
+    }
+  }
+
   async genDocPermissions(modelName: string, doc: any, access: DocPermissionsAccess, context: MiddlewareContext) {
     const docPermissionsFn = getModelOption(modelName, `docPermissions.${access}`, null);
     let docPermissions = {};
