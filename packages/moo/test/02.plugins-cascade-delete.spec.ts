@@ -4,6 +4,10 @@ import mongoose, { Model, Document } from 'mongoose';
 import { expect } from 'chai';
 import './00.setup.spec';
 import { cascadeDeletePlugin } from '../src/plugins';
+import { parseSemver } from '../../_common/utils/semver';
+
+const semver = parseSemver(mongoose.version);
+console.log('semver', semver);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -83,7 +87,7 @@ fileSchema.plugin(cascadeDeletePlugin, {
 fileSchema.plugin(cascadeDeletePlugin, {
   model: 'Note',
   foreignFilter: {
-    content: { $eq: 'to-delete' },
+    content: 'to-delete',
   },
 });
 
