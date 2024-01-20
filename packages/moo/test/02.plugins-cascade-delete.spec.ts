@@ -1,9 +1,13 @@
 import 'mocha';
 
-import mongoose, { Model, Document, Types } from 'mongoose';
+import mongoose, { Model, Document, Schema } from 'mongoose';
 import { expect } from 'chai';
 import './00.setup.spec';
 import { cascadeDeletePlugin } from '../src/plugins';
+
+const { Types } = Schema;
+const { ObjectId } = Types;
+type TObjectId = typeof ObjectId;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -25,10 +29,10 @@ interface INote {
 
 interface IFile {
   name: string;
-  refs: Types.ObjectId[];
-  items: Types.ObjectId[];
-  prices: Types.ObjectId[];
-  notes: Types.ObjectId[];
+  refs: TObjectId[];
+  items: TObjectId[];
+  prices: TObjectId[];
+  notes: TObjectId[];
 }
 
 interface IFileMethods {
@@ -55,10 +59,10 @@ type FileModel = Model<IFile, {}, IFileMethods>;
 
 const fileSchema = new mongoose.Schema<IFile, FileModel, IFileMethods>({
   name: { type: String, required: true },
-  refs: { type: [{ type: Types.ObjectId, ref: 'Reference' }], default: [] },
-  items: { type: [{ type: Types.ObjectId, ref: 'Item' }], default: [] },
-  prices: { type: [{ type: Types.ObjectId, ref: 'Price' }], default: [] },
-  notes: { type: [{ type: Types.ObjectId, ref: 'Note' }], default: [] },
+  refs: { type: [{ type: ObjectId, ref: 'Reference' }], default: [] },
+  items: { type: [{ type: ObjectId, ref: 'Item' }], default: [] },
+  prices: { type: [{ type: ObjectId, ref: 'Price' }], default: [] },
+  notes: { type: [{ type: ObjectId, ref: 'Note' }], default: [] },
 });
 
 fileSchema.plugin(cascadeDeletePlugin, {
