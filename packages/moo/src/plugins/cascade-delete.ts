@@ -24,7 +24,6 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
         ? (foreignFilter as Function)(this.toObject({ virtuals: false }))
         : foreignFilter;
     } else if (localField && foreignField) {
-      this.depopulate(localField);
       const localValue = this.get(localField);
       let extraFilter = isFunction(extraForeignFilter)
         ? (extraForeignFilter as Function)(this.toObject({ virtuals: false }))
