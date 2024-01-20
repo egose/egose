@@ -111,6 +111,7 @@ describe('Cascade Delete Plugin', () => {
   it('should delete refs when a file deleted', async () => {
     const file = await File.findOne({ name: 'file1' });
 
+    // @ts-ignore
     deleteOneSupported ? await file.deleteOne() : await file.remove();
 
     const refs = await Reference.find();
@@ -130,6 +131,7 @@ describe('Cascade Delete Plugin', () => {
     ]);
     const file2 = await File.create({ name: 'file2', prices });
 
+    // @ts-ignore
     deleteOneSupported ? await file2.deleteOne() : await file2.remove();
 
     const _prices = await Price.find();
@@ -147,6 +149,7 @@ describe('Cascade Delete Plugin', () => {
     ]);
     const file3 = await File.create({ name: 'file3', notes });
 
+    // @ts-ignore
     deleteOneSupported ? await file3.deleteOne() : await file3.remove();
 
     const _notes = await Note.find();
