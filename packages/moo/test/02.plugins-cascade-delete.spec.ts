@@ -5,8 +5,8 @@ import { expect } from 'chai';
 import './00.setup.spec';
 import { cascadeDeletePlugin } from '../src/plugins';
 import { parseSemver } from '../../_common/utils/semver';
-
 const semver = parseSemver(mongoose.version);
+const deleteOneSupported = semver.major >= 7;
 console.log('semver', semver);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -111,15 +111,13 @@ describe('Cascade Delete Plugin', () => {
   it('should delete refs when a file deleted', async () => {
     const file = await File.findOne({ name: 'file1' });
 
-    if ('deleteOne' in file) {
-      await file.deleteOne();
+    deleteOneSupported ? await file.deleteOne() : file.remove();
 
-      const refs = await Reference.find();
-      const items = await Item.find();
+    const refs = await Reference.find();
+    const items = await Item.find();
 
-      expect(refs.length).equal(0);
-      expect(items.length).equal(2);
-    }
+    expect(refs.length).equal(0);
+    expect(items.length).equal(2);
   });
 
   it('should delete prices that matches the extra filter only when a file deleted', async () => {
@@ -132,12 +130,10 @@ describe('Cascade Delete Plugin', () => {
     ]);
     const file2 = await File.create({ name: 'file2', prices });
 
-    if ('deleteOne' in file2) {
-      await file2.deleteOne();
+    deleteOneSupported ? await file2.deleteOne() : file2.remove();
 
-      const prices = await Price.find();
-      expect(prices.length).equal(2);
-    }
+    const _prices = await Price.find();
+    expect(_prices.length).equal(2);
   });
 
   it('should delete notes that matches the filter only when a file deleted', async () => {
@@ -151,12 +147,10 @@ describe('Cascade Delete Plugin', () => {
     ]);
     const file3 = await File.create({ name: 'file3', notes });
 
-    if ('deleteOne' in file3) {
-      await file3.deleteOne();
+    deleteOneSupported ? await file3.deleteOne() : file3.remove();
 
-      const notes = await Note.find();
-      expect(notes.length).equal(3);
-    }
+    const _notes = await Note.find();
+    expect(_notes.length).equal(3);
   });
 
   it('should identify unresolved dependencies of a document', async () => {

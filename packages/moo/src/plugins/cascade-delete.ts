@@ -3,6 +3,7 @@ import { isFunction, isPlainObject } from '../../../_common/utils/types';
 import { parseSemver } from '../../../_common/utils/semver';
 const semver = parseSemver(mongoose.version);
 const deleteOneSupported = semver.major >= 7;
+
 interface Options<T> {
   model: string;
   localField?: string;
