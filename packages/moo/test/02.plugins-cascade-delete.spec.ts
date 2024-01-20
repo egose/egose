@@ -15,10 +15,20 @@ interface IItem {
   name: string;
 }
 
+interface IPrice {
+  amount: number;
+}
+
+interface INote {
+  content: string;
+}
+
 interface IFile {
   name: string;
   refs: string[];
   items: string[];
+  prices: string[];
+  notes: string[];
 }
 
 const referenceSchema = new mongoose.Schema({
@@ -29,10 +39,20 @@ const itemSchema = new mongoose.Schema({
   name: { type: String, required: true },
 });
 
+const priceSchema = new mongoose.Schema({
+  amount: { type: Number, required: true },
+});
+
+const noteSchema = new mongoose.Schema({
+  content: { type: String, required: true },
+});
+
 const fileSchema = new mongoose.Schema({
   name: { type: String, required: true },
   refs: { type: [{ type: 'ObjectId', ref: 'Reference' }], default: [] },
   items: { type: [{ type: 'ObjectId', ref: 'Item' }], default: [] },
+  prices: { type: [{ type: 'ObjectId', ref: 'Price' }], default: [] },
+  notes: { type: [{ type: 'ObjectId', ref: 'Note' }], default: [] },
 });
 
 fileSchema.plugin(cascadeDeletePlugin, {
@@ -41,8 +61,26 @@ fileSchema.plugin(cascadeDeletePlugin, {
   foreignField: '_id',
 });
 
+fileSchema.plugin(cascadeDeletePlugin, {
+  model: 'Price',
+  localField: 'prices',
+  foreignField: '_id',
+  extraForeignFilter: {
+    amount: { $lt: 100 },
+  },
+});
+
+fileSchema.plugin(cascadeDeletePlugin, {
+  model: 'Note',
+  foreignFilter: {
+    content: { $eq: 'to-delete' },
+  },
+});
+
 const Reference = mongoose.model<IReference>('Reference', referenceSchema);
 const Item = mongoose.model<IItem>('Item', itemSchema);
+const Price = mongoose.model<IPrice>('Price', priceSchema);
+const Note = mongoose.model<INote>('Note', noteSchema);
 const File = mongoose.model<IFile>('File', fileSchema);
 
 describe('Cascade Delete Plugin', () => {
@@ -67,6 +105,43 @@ describe('Cascade Delete Plugin', () => {
 
       expect(refs.length).equal(0);
       expect(items.length).equal(2);
+    }
+  });
+
+  it('should delete prices that matches the extra filter only when a file deleted', async () => {
+    const prices = await Price.create([
+      { amount: 10 },
+      { amount: 20 },
+      { amount: 50 },
+      { amount: 100 },
+      { amount: 200 },
+    ]);
+    const file2 = await File.create({ name: 'file2', prices });
+
+    if ('deleteOne' in file2) {
+      await file2.deleteOne();
+
+      const prices = await Price.find();
+      expect(prices.length).equal(2);
+    }
+  });
+
+  it('should delete notes that matches the filter only when a file deleted', async () => {
+    const notes = await Note.create([
+      { content: 'not-to-delete' },
+      { content: 'not-to-delete' },
+      { content: 'not-to-delete' },
+      { content: 'to-delete' },
+      { content: 'to-delete' },
+      { content: 'to-delete' },
+    ]);
+    const file3 = await File.create({ name: 'file3', notes });
+
+    if ('deleteOne' in file3) {
+      await file3.deleteOne();
+
+      const notes = await Note.find();
+      expect(notes.length).equal(3);
     }
   });
 });

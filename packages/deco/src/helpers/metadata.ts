@@ -1,5 +1,5 @@
 import { iterate } from 'iterare';
-import { isConstructor, isFunction } from './variable';
+import { isConstructor, isFunction } from '../../../_common/utils/types';
 import {
   ROOT_ROUTER_WATERMARK,
   ROUTER_WATERMARK,

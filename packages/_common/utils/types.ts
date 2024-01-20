@@ -4,3 +4,12 @@ export const isNumber = (val: any): val is number => typeof val === 'number';
 export const isConstructor = (val: any): boolean => val === 'constructor';
 export const isEmpty = (array: any): boolean => !(array && array.length > 0);
 export const isSymbol = (val: any): val is symbol => typeof val === 'symbol';
+export const isObject = (val: any): val is object => val !== null && typeof val === 'object';
+export const isPlainObject = (val: any): val is object => {
+  if (val === null || typeof val !== 'object' || val.constructor !== Object) {
+    return false;
+  }
+
+  const proto = Object.getPrototypeOf(val);
+  return proto === null || proto === Object.prototype;
+};
