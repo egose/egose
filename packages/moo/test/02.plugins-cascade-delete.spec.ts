@@ -25,10 +25,14 @@ interface INote {
 
 interface IFile {
   name: string;
-  refs: string[];
-  items: string[];
-  prices: string[];
-  notes: string[];
+  refs: Types.ObjectId[];
+  items: Types.ObjectId[];
+  prices: Types.ObjectId[];
+  notes: Types.ObjectId[];
+}
+
+interface IFileMethods {
+  findOrphans(): Record<string, Document[]>;
 }
 
 const referenceSchema = new mongoose.Schema({
@@ -47,12 +51,14 @@ const noteSchema = new mongoose.Schema({
   content: { type: String, required: true },
 });
 
-const fileSchema = new mongoose.Schema({
+type FileModel = Model<IFile, {}, IFileMethods>;
+
+const fileSchema = new mongoose.Schema<IFile, FileModel, IFileMethods>({
   name: { type: String, required: true },
-  refs: { type: [{ type: 'ObjectId', ref: 'Reference' }], default: [] },
-  items: { type: [{ type: 'ObjectId', ref: 'Item' }], default: [] },
-  prices: { type: [{ type: 'ObjectId', ref: 'Price' }], default: [] },
-  notes: { type: [{ type: 'ObjectId', ref: 'Note' }], default: [] },
+  refs: { type: [{ type: Types.ObjectId, ref: 'Reference' }], default: [] },
+  items: { type: [{ type: Types.ObjectId, ref: 'Item' }], default: [] },
+  prices: { type: [{ type: Types.ObjectId, ref: 'Price' }], default: [] },
+  notes: { type: [{ type: Types.ObjectId, ref: 'Note' }], default: [] },
 });
 
 fileSchema.plugin(cascadeDeletePlugin, {
@@ -81,7 +87,7 @@ const Reference = mongoose.model<IReference>('Reference', referenceSchema);
 const Item = mongoose.model<IItem>('Item', itemSchema);
 const Price = mongoose.model<IPrice>('Price', priceSchema);
 const Note = mongoose.model<INote>('Note', noteSchema);
-const File = mongoose.model<IFile>('File', fileSchema);
+const File = mongoose.model<IFile, FileModel>('File', fileSchema);
 
 describe('Cascade Delete Plugin', () => {
   it('should create refs and items under a file', async () => {
@@ -143,5 +149,33 @@ describe('Cascade Delete Plugin', () => {
       const notes = await Note.find();
       expect(notes.length).equal(3);
     }
+  });
+
+  it('should identify unresolved dependencies of a document', async () => {
+    const refs = await Reference.create([{ name: 'ref1' }, { name: 'ref2' }]);
+
+    const prices = await Price.create([
+      { amount: 10 },
+      { amount: 20 },
+      { amount: 50 },
+      { amount: 100 },
+      { amount: 200 },
+    ]);
+
+    const notes = await Note.create([
+      { content: 'not-to-delete' },
+      { content: 'not-to-delete' },
+      { content: 'not-to-delete' },
+      { content: 'to-delete' },
+      { content: 'to-delete' },
+      { content: 'to-delete' },
+    ]);
+
+    const file4 = await File.create({ name: 'file4', refs, prices, notes });
+    const orphans = await file4.findOrphans();
+
+    expect(orphans.Reference.length).equal(2);
+    expect(orphans.Price.length).equal(3);
+    expect(orphans.Note.length).equal(3);
   });
 });

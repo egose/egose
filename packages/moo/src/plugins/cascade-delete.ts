@@ -1,4 +1,4 @@
-import mongoose, { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery, Schema } from 'mongoose';
 import { isFunction, isPlainObject } from '../../../_common/utils/types';
 
 interface Options<T> {
@@ -9,44 +9,57 @@ interface Options<T> {
   extraForeignFilter?: FilterQuery<T> | Function;
 }
 
-export function cascadeDeletePlugin<T>(schema, options: Options<T>) {
+export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
   const { model, localField, foreignField, foreignFilter, extraForeignFilter } = options ?? {};
 
-  schema.post('deleteOne', { document: true, query: false }, async function () {
+  const findDependencies = async function () {
     const Target = mongoose.model(model);
+    let query: FilterQuery<T> = null;
 
+    if (foreignFilter) {
+      query = isFunction(foreignFilter)
+        ? (foreignFilter as Function)(this.toObject({ virtuals: false }))
+        : foreignFilter;
+    } else if (localField && foreignField) {
+      const localValue = this.get(localField);
+      let extraFilter = isFunction(extraForeignFilter)
+        ? (extraForeignFilter as Function)(this.toObject({ virtuals: false }))
+        : extraForeignFilter;
+
+      if (!isPlainObject(extraFilter)) {
+        extraFilter = {};
+      }
+
+      query = {
+        [foreignField]: Array.isArray(localValue) ? { $in: localValue } : localValue,
+        ...extraFilter,
+      };
+    }
+
+    if (!query || !isPlainObject(query)) {
+      console.error('[cascadeDeletePlugin] invalid options');
+      return;
+    }
+
+    const documents = await Target.find(query).select('_id');
+    return documents;
+  };
+
+  schema.post('deleteOne', { document: true, query: false }, async function () {
     try {
-      let query: FilterQuery<T> = null;
-
-      if (foreignFilter) {
-        query = isFunction(foreignFilter)
-          ? (foreignFilter as Function)(this.toObject({ virtuals: false }))
-          : foreignFilter;
-      } else if (localField && foreignField) {
-        const localValue = this.get(localField);
-        let extraFilter = isFunction(extraForeignFilter)
-          ? (extraForeignFilter as Function)(this.toObject({ virtuals: false }))
-          : extraForeignFilter;
-
-        if (!isPlainObject(extraFilter)) {
-          extraFilter = {};
-        }
-
-        query = {
-          [foreignField]: Array.isArray(localValue) ? { $in: localValue } : localValue,
-          ...extraFilter,
-        };
-      }
-
-      if (!query || !isPlainObject(query)) {
-        console.error('[cascadeDeletePlugin] invalid options');
-        return;
-      }
-
-      const documents = await Target.find(query);
+      const documents = await findDependencies.call(this);
       await Promise.all(documents.map((doc) => doc.deleteOne()));
     } catch (err) {
       console.error(err);
     }
+  });
+
+  const fnName = 'findOrphans';
+  const prevFn = schema.methods[fnName];
+
+  schema.method(fnName, async function methodFn() {
+    const prev = prevFn ? await prevFn.call(this) : {};
+    const results = { ...prev, [model]: await findDependencies.call(this) };
+    return results;
   });
 }
