@@ -292,6 +292,7 @@ export class Core {
           context.originalDocObject[mpath],
           doc[mpath],
           context.changes.filter((di) => di.path.length > 0 && di.path[0] === mpath),
+          context,
         );
       }
     }
