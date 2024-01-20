@@ -32,7 +32,7 @@ interface IFile {
 }
 
 interface IFileMethods {
-  findOrphans(): Record<string, Document[]>;
+  findDependents(): Record<string, Document[]>;
 }
 
 const referenceSchema = new mongoose.Schema({
@@ -172,7 +172,7 @@ describe('Cascade Delete Plugin', () => {
     ]);
 
     const file4 = await File.create({ name: 'file4', refs, prices, notes });
-    const orphans = await file4.findOrphans();
+    const orphans = await file4.findDependents();
 
     expect(orphans.Reference.length).equal(2);
     expect(orphans.Price.length).equal(3);

@@ -54,7 +54,7 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
     }
   });
 
-  const fnName = 'findOrphans';
+  const fnName = 'findDependents';
   const prevFn = schema.methods[fnName];
 
   schema.method(fnName, async function methodFn() {
