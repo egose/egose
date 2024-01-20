@@ -41,6 +41,7 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
       console.error('[cascadeDeletePlugin] invalid options');
       return;
     }
+    console.error('[debug]', JSON.stringify(query));
 
     const documents = await Target.find(query).select('_id');
     return documents;
