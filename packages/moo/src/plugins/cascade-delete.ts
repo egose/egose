@@ -1,5 +1,8 @@
 import mongoose, { FilterQuery, Schema } from 'mongoose';
 import { isFunction, isPlainObject } from '../../../_common/utils/types';
+import { parseSemver } from '../../../_common/utils/semver';
+const semver = parseSemver(mongoose.version);
+const deleteOneSupported = semver.major >= 7;
 
 interface Options<T> {
   model: string;
@@ -45,16 +48,28 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
     return documents;
   };
 
-  schema.post('deleteOne', { document: true, query: false }, async function () {
-    try {
-      const documents = await findDependencies.call(this);
-      await Promise.all(documents.map((doc) => doc.deleteOne()));
-    } catch (err) {
-      console.error(err);
-    }
-  });
+  if (deleteOneSupported) {
+    schema.post('deleteOne', { document: true, query: false }, async function () {
+      try {
+        const documents = await findDependencies.call(this);
+        await Promise.all(documents.map((doc) => (deleteOneSupported ? doc.deleteOne() : doc.remove())));
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  } else {
+    // @ts-ignore
+    schema.post('remove', async function () {
+      try {
+        const documents = await findDependencies.call(this);
+        await Promise.all(documents.map((doc) => (deleteOneSupported ? doc.deleteOne() : doc.remove())));
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
 
-  const fnName = 'findOrphans';
+  const fnName = 'findDependents';
   const prevFn = schema.methods[fnName];
 
   schema.method(fnName, async function methodFn() {
