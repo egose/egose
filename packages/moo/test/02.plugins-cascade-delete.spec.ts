@@ -1,9 +1,13 @@
 import 'mocha';
 
-import mongoose, { Model, Document, Types } from 'mongoose';
+import mongoose, { Model, Document } from 'mongoose';
 import { expect } from 'chai';
 import './00.setup.spec';
 import { cascadeDeletePlugin } from '../src/plugins';
+import { parseSemver } from '../../_common/utils/semver';
+const semver = parseSemver(mongoose.version);
+const deleteOneSupported = semver.major >= 7;
+console.log('semver', semver);
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -25,14 +29,14 @@ interface INote {
 
 interface IFile {
   name: string;
-  refs: Types.ObjectId[];
-  items: Types.ObjectId[];
-  prices: Types.ObjectId[];
-  notes: Types.ObjectId[];
+  refs: string[];
+  items: string[];
+  prices: string[];
+  notes: string[];
 }
 
 interface IFileMethods {
-  findOrphans(): Record<string, Document[]>;
+  findDependents(): Record<string, Document[]>;
 }
 
 const referenceSchema = new mongoose.Schema({
@@ -55,10 +59,14 @@ type FileModel = Model<IFile, {}, IFileMethods>;
 
 const fileSchema = new mongoose.Schema<IFile, FileModel, IFileMethods>({
   name: { type: String, required: true },
-  refs: { type: [{ type: Types.ObjectId, ref: 'Reference' }], default: [] },
-  items: { type: [{ type: Types.ObjectId, ref: 'Item' }], default: [] },
-  prices: { type: [{ type: Types.ObjectId, ref: 'Price' }], default: [] },
-  notes: { type: [{ type: Types.ObjectId, ref: 'Note' }], default: [] },
+  // @ts-ignore
+  refs: { type: [{ type: 'ObjectId', ref: 'Reference' }], default: [] },
+  // @ts-ignore
+  items: { type: [{ type: 'ObjectId', ref: 'Item' }], default: [] },
+  // @ts-ignore
+  prices: { type: [{ type: 'ObjectId', ref: 'Price' }], default: [] },
+  // @ts-ignore
+  notes: { type: [{ type: 'ObjectId', ref: 'Note' }], default: [] },
 });
 
 fileSchema.plugin(cascadeDeletePlugin, {
@@ -103,15 +111,14 @@ describe('Cascade Delete Plugin', () => {
   it('should delete refs when a file deleted', async () => {
     const file = await File.findOne({ name: 'file1' });
 
-    if ('deleteOne' in file) {
-      await file.deleteOne();
+    // @ts-ignore
+    deleteOneSupported ? await file.deleteOne() : await file.remove();
 
-      const refs = await Reference.find();
-      const items = await Item.find();
+    const refs = await Reference.find();
+    const items = await Item.find();
 
-      expect(refs.length).equal(0);
-      expect(items.length).equal(2);
-    }
+    expect(refs.length).equal(0);
+    expect(items.length).equal(2);
   });
 
   it('should delete prices that matches the extra filter only when a file deleted', async () => {
@@ -124,12 +131,11 @@ describe('Cascade Delete Plugin', () => {
     ]);
     const file2 = await File.create({ name: 'file2', prices });
 
-    if ('deleteOne' in file2) {
-      await file2.deleteOne();
+    // @ts-ignore
+    deleteOneSupported ? await file2.deleteOne() : await file2.remove();
 
-      const prices = await Price.find();
-      expect(prices.length).equal(2);
-    }
+    const _prices = await Price.find();
+    expect(_prices.length).equal(2);
   });
 
   it('should delete notes that matches the filter only when a file deleted', async () => {
@@ -143,12 +149,11 @@ describe('Cascade Delete Plugin', () => {
     ]);
     const file3 = await File.create({ name: 'file3', notes });
 
-    if ('deleteOne' in file3) {
-      await file3.deleteOne();
+    // @ts-ignore
+    deleteOneSupported ? await file3.deleteOne() : await file3.remove();
 
-      const notes = await Note.find();
-      expect(notes.length).equal(3);
-    }
+    const _notes = await Note.find();
+    expect(_notes.length).equal(3);
   });
 
   it('should identify unresolved dependencies of a document', async () => {
@@ -172,7 +177,7 @@ describe('Cascade Delete Plugin', () => {
     ]);
 
     const file4 = await File.create({ name: 'file4', refs, prices, notes });
-    const orphans = await file4.findOrphans();
+    const orphans = await file4.findDependents();
 
     expect(orphans.Reference.length).equal(2);
     expect(orphans.Price.length).equal(3);
