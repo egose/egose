@@ -44,21 +44,31 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
       console.error('[cascadeDeletePlugin] invalid options');
       return;
     }
-    console.error('[debug]', JSON.stringify(query));
 
     const documents = await Target.find(query).select('_id');
     return documents;
   };
 
-  // @ts-ignore
-  schema.post(deleteOneSupported ? 'deleteOne' : 'remove', { document: true, query: false }, async function () {
-    try {
-      const documents = await findDependencies.call(this);
-      await Promise.all(documents.map((doc) => (deleteOneSupported ? doc.deleteOne() : doc.remove())));
-    } catch (err) {
-      console.error(err);
-    }
-  });
+  if (deleteOneSupported) {
+    schema.post('deleteOne', { document: true, query: false }, async function () {
+      try {
+        const documents = await findDependencies.call(this);
+        await Promise.all(documents.map((doc) => (deleteOneSupported ? doc.deleteOne() : doc.remove())));
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  } else {
+    // @ts-ignore
+    schema.post('remove', async function () {
+      try {
+        const documents = await findDependencies.call(this);
+        await Promise.all(documents.map((doc) => (deleteOneSupported ? doc.deleteOne() : doc.remove())));
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
 
   const fnName = 'findDependents';
   const prevFn = schema.methods[fnName];
