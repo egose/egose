@@ -41,6 +41,8 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
       return;
     }
 
+    console.error('[debug]', query);
+
     const documents = await Target.find(query).select('_id');
     return documents;
   };
