@@ -15,7 +15,7 @@ interface Options<T> {
 export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
   const { model, localField, foreignField, foreignFilter, extraForeignFilter } = options ?? {};
 
-  const findDependencies = async function () {
+  const findDependencies = async function ({ select, sort, populate, lean }) {
     const Target = mongoose.model(model);
     let query: FilterQuery<T> = null;
 
@@ -43,16 +43,21 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
       console.error('[cascadeDeletePlugin] invalid options');
       return;
     }
+    let builder = Target.find(query);
+    if (select) builder = builder.select(select);
+    if (sort) builder = builder.sort(sort);
+    if (populate) builder = builder.populate(populate);
+    if (lean) builder = builder.lean();
 
-    const documents = await Target.find(query).select('_id');
+    const documents = await builder;
     return documents;
   };
 
   if (deleteOneSupported) {
     schema.post('deleteOne', { document: true, query: false }, async function () {
       try {
-        const documents = await findDependencies.call(this);
-        await Promise.all(documents.map((doc) => (deleteOneSupported ? doc.deleteOne() : doc.remove())));
+        const documents = await findDependencies.call(this, { select: '_id' });
+        await Promise.all(documents.map((doc) => doc.deleteOne()));
       } catch (err) {
         console.error(err);
       }
@@ -61,8 +66,8 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
     // @ts-ignore
     schema.post('remove', async function () {
       try {
-        const documents = await findDependencies.call(this);
-        await Promise.all(documents.map((doc) => (deleteOneSupported ? doc.deleteOne() : doc.remove())));
+        const documents = await findDependencies.call(this, { select: '_id' });
+        await Promise.all(documents.map((doc) => doc.remove()));
       } catch (err) {
         console.error(err);
       }
@@ -74,7 +79,10 @@ export function cascadeDeletePlugin<T>(schema: Schema, options: Options<T>) {
 
   schema.method(fnName, async function methodFn() {
     const prev = prevFn ? await prevFn.call(this) : {};
-    const results = { ...prev, [model]: await findDependencies.call(this) };
+    const results = {
+      ...prev,
+      [model]: await findDependencies.call(this, {}),
+    };
     return results;
   });
 }
