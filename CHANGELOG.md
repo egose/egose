@@ -1,3 +1,18 @@
+## [0.40.1](https://github.com/egose/egose/compare/v0.40.0...v0.40.1) (2024-02-09)
+
+
+### Features
+
+* **deco:** add foreignFilter option in cascadeDeletePlugin ([40fb97e](https://github.com/egose/egose/commit/40fb97e227d47ee07625750bf5fa68f44cd0411b))
+* include context as changes middleware arguments ([d137e21](https://github.com/egose/egose/commit/d137e2111cd1cd53cf4185ec024e6b41f962d47f))
+* **moo:** add findOrphans in cascadeDeletePlugin ([c88a746](https://github.com/egose/egose/commit/c88a746517543ed6ff44de34310757c7979bbab3))
+* **moo:** add findOrphans method on cascadeDeletePlugin ([599d538](https://github.com/egose/egose/commit/599d53871a357a2efde9010436475fce1ed1a64d))
+
+
+### Bug Fixes
+
+* resolve small bugs ([bf0a50a](https://github.com/egose/egose/commit/bf0a50ae09c828afd02a8cb228a27755c0ed1532))
+
 ## [0.40.0](https://github.com/egose/egose/compare/v0.39.0...v0.40.0) (2023-12-29)
 
 
