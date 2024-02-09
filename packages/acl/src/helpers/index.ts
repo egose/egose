@@ -84,7 +84,7 @@ export async function iterateQuery(query: any, handler: Function) {
       if (val.$$sq) {
         return handler(FilterOperator.SubQuery, val.$$sq, key);
       } else if (val.$$date) {
-        return handler(FilterOperator.Date, val.$$sq, key);
+        return handler(FilterOperator.Date, val.$$date, key);
       } else {
         return iterateQuery(val, handler);
       }
