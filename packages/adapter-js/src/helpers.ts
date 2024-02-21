@@ -1,7 +1,6 @@
 import { AxiosRequestConfig, mergeConfig } from 'axios';
-import isPlainObject from 'lodash/isPlainObject';
-import isArray from 'lodash/isArray';
-import mapValues from 'lodash/mapValues';
+import isPlainObject from 'lodash.isplainobject';
+import mapValues from 'lodash.mapvalues';
 import { FilterQuery, WrapOptions } from './types';
 
 export function replaceSubQuery<T>(filter: FilterQuery<T>) {
@@ -18,7 +17,7 @@ export function replaceSubQuery<T>(filter: FilterQuery<T>) {
       return replaceSubQuery(val);
     }
 
-    if (isArray(val)) {
+    if (Array.isArray(val)) {
       return val.map((v) => replaceSubQuery(v));
     }
 

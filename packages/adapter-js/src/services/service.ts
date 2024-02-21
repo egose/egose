@@ -1,5 +1,5 @@
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
-import set from 'lodash/set';
+import set from 'lodash.set';
 import { Response, WrapOptions } from '../types';
 import { CACHE_HEADER } from '../constants';
 import { getWrapContext } from '../helpers';

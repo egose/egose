@@ -1,7 +1,6 @@
-import get from 'lodash/get';
-import set from 'lodash/set';
-import isArray from 'lodash/isArray';
-import noop from 'lodash/noop';
+import get from 'lodash.get';
+import set from 'lodash.set';
+import noop from 'lodash.noop';
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
 import {
   FilterQuery,

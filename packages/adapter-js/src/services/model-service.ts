@@ -1,7 +1,6 @@
-import get from 'lodash/get';
-import set from 'lodash/set';
-import isArray from 'lodash/isArray';
-import noop from 'lodash/noop';
+import get from 'lodash.get';
+import set from 'lodash.set';
+import noop from 'lodash.noop';
 import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
 import {
   FilterQuery,
@@ -843,7 +842,7 @@ export class ModelService<T extends Document> extends Service<T> {
                   )
                   .then(this.handleSuccess)
                   .then((result: ListModelResponse<S>) => {
-                    result.totalCount = isArray(result.raw) ? result.raw.length : 0;
+                    result.totalCount = Array.isArray(result.raw) ? result.raw.length : 0;
                     result.data = [];
                     return result;
                   })
