@@ -1,3 +1,10 @@
+## [0.40.2](https://github.com/egose/egose/compare/v0.40.1...v0.40.2) (2024-02-21)
+
+
+### Bug Fixes
+
+* resolve small bugs ([afccafd](https://github.com/egose/egose/commit/afccafd7bf58a907697c7a291f03f605341dfc65))
+
 ## [0.40.1](https://github.com/egose/egose/compare/v0.40.0...v0.40.1) (2024-02-09)
 
 
