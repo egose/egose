@@ -1,7 +1,7 @@
-import cloneDeep from 'lodash/cloneDeep';
-import assign from 'lodash/assign';
-import omit from 'lodash/omit';
-import pick from 'lodash/pick';
+import cloneDeep from 'lodash.clonedeep';
+import assign from 'lodash.assign';
+import omit from 'lodash.omit';
+import pick from 'lodash.pick';
 import { AxiosRequestConfig } from 'axios';
 import { Document } from './types';
 import { ModelService } from './services';

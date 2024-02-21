@@ -1,14 +1,13 @@
 import { AxiosRequestConfig, mergeConfig } from 'axios';
-import isPlainObject from 'lodash/isPlainObject';
-import isArray from 'lodash/isArray';
-import mapValues from 'lodash/mapValues';
+import isPlainObject from 'lodash.isplainobject';
+import mapValues from 'lodash.mapvalues';
 import { FilterQuery, WrapOptions } from './types';
 
 export function replaceSubQuery<T>(filter: FilterQuery<T>) {
   if (!isPlainObject(filter)) return filter;
 
   const ret = mapValues(filter, (val, key) => {
-    if (val.__op && val.__query) {
+    if (val && val.__op && val.__query) {
       return {
         $$sq: val.__query,
       };
@@ -18,7 +17,7 @@ export function replaceSubQuery<T>(filter: FilterQuery<T>) {
       return replaceSubQuery(val);
     }
 
-    if (isArray(val)) {
+    if (Array.isArray(val)) {
       return val.map((v) => replaceSubQuery(v));
     }
 

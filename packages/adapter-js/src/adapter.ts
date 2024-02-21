@@ -1,7 +1,7 @@
 import axios, { CreateAxiosDefaults, mergeConfig, AxiosRequestConfig } from 'axios';
-import set from 'lodash/set';
-import isEmpty from 'lodash/isEmpty';
-import castArray from 'lodash/castArray';
+import set from 'lodash.set';
+import isEmpty from 'lodash.isempty';
+import castArray from 'lodash.castarray';
 import { ModelService, DataService } from './services';
 import { Model } from './model';
 import { ModelPromiseMeta, ResponseCallback, WrapOptions } from './types';

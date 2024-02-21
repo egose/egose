@@ -28,7 +28,17 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
-    "lodash": "^4.17.21"
+    "lodash.assign": "^4.2.0",
+    "lodash.castarray": "^4.4.0",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.get": "^4.4.2",
+    "lodash.isempty": "^4.4.0",
+    "lodash.isplainobject": "^4.0.6",
+    "lodash.mapvalues": "^4.6.0",
+    "lodash.noop": "^3.0.1",
+    "lodash.omit": "^4.5.0",
+    "lodash.pick": "^4.4.0",
+    "lodash.set": "^4.3.2"
   },
   "peerDependencies": {},
   "tsup": {
@@ -54,5 +64,18 @@
     "spec": [
       "test/**/*.spec.ts"
     ]
+  },
+  "devDependencies": {
+    "@types/lodash.assign": "^4.2.9",
+    "@types/lodash.castarray": "^4.4.9",
+    "@types/lodash.clonedeep": "^4.5.9",
+    "@types/lodash.get": "^4.4.9",
+    "@types/lodash.isempty": "^4.4.9",
+    "@types/lodash.isplainobject": "^4.0.9",
+    "@types/lodash.mapvalues": "^4.6.9",
+    "@types/lodash.noop": "^3.0.9",
+    "@types/lodash.omit": "^4.5.9",
+    "@types/lodash.pick": "^4.4.9",
+    "@types/lodash.set": "^4.3.9"
   }
 }
