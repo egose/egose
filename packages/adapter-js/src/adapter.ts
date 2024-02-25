@@ -27,6 +27,7 @@ export function createAdapter(
     rootRouterPath?: string;
     onSuccess?: ResponseCallback;
     onFailure?: ResponseCallback;
+    suppressError?: boolean;
     cacheTTL?: number;
   },
 ) {
@@ -36,6 +37,7 @@ export function createAdapter(
     rootRouterPath = 'macl',
     onSuccess: onSuccessRoot,
     onFailure: onFailureRoot,
+    suppressError: suppressErrorRoot,
     cacheTTL = 0,
   } = egoseOptions ?? {};
 
@@ -51,6 +53,7 @@ export function createAdapter(
         mutationPath = '__mutation',
         onSuccess,
         onFailure,
+        suppressError,
       }: {
         modelName: string;
         basePath: string;
@@ -58,6 +61,7 @@ export function createAdapter(
         mutationPath?: string;
         onSuccess?: ResponseCallback;
         onFailure?: ResponseCallback;
+        suppressError?: boolean;
       },
       defaults?: Defaults,
     ) => {
@@ -70,6 +74,7 @@ export function createAdapter(
           mutationPath,
           onSuccess: onSuccess ?? onSuccessRoot,
           onFailure: onFailure ?? onFailureRoot,
+          suppressError: suppressError ?? suppressErrorRoot ?? true,
         },
         defaults,
       );

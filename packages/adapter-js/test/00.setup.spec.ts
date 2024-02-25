@@ -42,6 +42,11 @@ export interface Pet {
 
 export const services = {
   userService: adapter.createModelService<User>({ modelName: 'User', basePath: 'users' }),
+  userServiceWithError: adapter.createModelService<User>({
+    modelName: 'User',
+    basePath: 'users',
+    suppressError: false,
+  }),
   orgService: adapter.createModelService<Org>({ modelName: 'Org', basePath: 'orgs', queryPath: '_extra' }),
   petService: adapter.createDataService<Pet>({ dataName: 'Pet', basePath: 'pets' }),
   userService2: adapterWithCache.createModelService<User>({ modelName: 'User', basePath: 'users' }),
