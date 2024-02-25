@@ -35,7 +35,7 @@ import {
 import { CustomHeaders } from '../enums';
 
 import { Model } from '../model';
-import { Service } from './service';
+import { Service, ServiceError, ResultError } from './service';
 import { replaceSubQuery } from '../helpers';
 import { CACHE_HEADER } from '../constants';
 
@@ -56,6 +56,7 @@ interface Props {
   mutationPath: string;
   onSuccess: ResponseCallback;
   onFailure: ResponseCallback;
+  suppressError: boolean;
 }
 
 export class ModelService<T extends Document> extends Service<T> {
@@ -66,7 +67,7 @@ export class ModelService<T extends Document> extends Service<T> {
   private _defaults!: Defaults;
 
   constructor(
-    { axios, modelName, basePath, queryPath, mutationPath, onSuccess, onFailure }: Props,
+    { axios, modelName, basePath, queryPath, mutationPath, onSuccess, onFailure, suppressError }: Props,
     defaults?: Defaults,
   ) {
     super(axios, basePath);
@@ -80,9 +81,14 @@ export class ModelService<T extends Document> extends Service<T> {
     const _onFailure = onFailure ?? noop;
 
     this._handleCallbacks = <T extends { success: boolean }>(res: T) => {
-      if (res.success) _onSuccess(res);
-      else _onFailure(res);
-      return res;
+      if (res.success) {
+        _onSuccess(res);
+        return res;
+      }
+
+      _onFailure(res);
+      if (suppressError) return res;
+      throw new ServiceError(res as unknown as ResultError);
     };
 
     [

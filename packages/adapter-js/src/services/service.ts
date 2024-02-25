@@ -1,8 +1,17 @@
-import { AxiosResponse, AxiosRequestConfig, AxiosInstance, mergeConfig } from 'axios';
+import { AxiosResponse, AxiosRequestConfig, AxiosInstance, AxiosHeaders, mergeConfig } from 'axios';
 import set from 'lodash.set';
 import { Response, WrapOptions } from '../types';
 import { CACHE_HEADER } from '../constants';
 import { getWrapContext } from '../helpers';
+
+export interface ResultError {
+  success: boolean;
+  raw: any;
+  data: any;
+  message: string;
+  status: number;
+  headers: { [key: string]: any };
+}
 
 const removeTrailingSlash = (inputString) => inputString.replace(/\/$/, '');
 const removeLeadingSlash = (inputString) => inputString.replace(/^\/+/g, '');
@@ -22,14 +31,14 @@ export class Service<T> {
   }
 
   // See https://axios-http.com/docs/handling_errors
-  protected handleError<T>(error) {
-    const result: any = {
+  protected handleError<T extends ResultError>(error) {
+    const result = {
       success: false,
       raw: null,
       data: null,
-      message: null,
-      status: null,
-      headers: null,
+      message: '',
+      status: 0,
+      headers: {},
     };
 
     if (error.response) {
@@ -126,5 +135,23 @@ export class Service<T> {
 
     headers[CACHE_HEADER] = ignoreCache ? 'false' : 'true';
     return headers;
+  }
+}
+
+export class ServiceError extends Error {
+  success: boolean;
+  raw: any;
+  data: any;
+  status: number;
+  headers: { [key: string]: any };
+
+  constructor(result: ResultError) {
+    super(result.message);
+    this.name = 'ServiceError';
+    this.success = result.success;
+    this.raw = result.raw;
+    this.data = result.data;
+    this.status = result.status;
+    this.headers = result.headers;
   }
 }

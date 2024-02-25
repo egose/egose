@@ -1,3 +1,10 @@
+## [0.41.0](https://github.com/egose/egose/compare/v0.40.2...v0.41.0) (2024-02-25)
+
+
+### Features
+
+* **adapter-js:** add option to supress errors ([7a87b85](https://github.com/egose/egose/commit/7a87b8503c0c9536d9d7ba155be39a85e43e5230))
+
 ## [0.40.2](https://github.com/egose/egose/compare/v0.40.1...v0.40.2) (2024-02-21)
 
 
