@@ -26,7 +26,9 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "@egose/adapter-js": "0.0.0-PLACEHOLDER"
+    "@egose/adapter-js": "0.0.0-PLACEHOLDER",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "tsup": {
     "target": "node18",
