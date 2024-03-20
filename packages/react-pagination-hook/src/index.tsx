@@ -1,6 +1,30 @@
 import { useState } from 'react';
 import { Model, ModelService, PopulateAccess } from '@egose/adapter-js';
 
+export interface UsePaginationResult<T> {
+  isLoading: boolean;
+  isError: boolean;
+  message: string;
+  raw: T[];
+  data: (Model<T> & T)[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  startIndex: number;
+  endIndex: number;
+  sort: any;
+  filter: any;
+  gotoPage: (page: number) => Promise<void>;
+  nextPage: () => Promise<void>;
+  previousPage: () => Promise<void>;
+  setPageSize: (pageSize: number) => Promise<void>;
+  setFilter: (filter: any) => Promise<void>;
+  setSort: (sort: any) => Promise<void>;
+  canNextPage: boolean;
+  canPreviousPage: boolean;
+}
+
 export function usePagination<T>({
   service,
   initialPage,
@@ -24,7 +48,7 @@ export function usePagination<T>({
     populateAccess?: PopulateAccess;
     lean?: boolean;
   };
-}) {
+}): UsePaginationResult<T> {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [message, setMessage] = useState('');
@@ -65,10 +89,11 @@ export function usePagination<T>({
   const _setFilter = async (_filter) => {
     setIsLoading(true);
 
-    const result = await service.listAdvanced(_filter, { select, populate, page, pageSize, sort }, _options);
+    const result = await service.listAdvanced(_filter, { select, populate, page: 1, pageSize, sort }, _options);
     handleResult(result);
 
-    setFilter(filter);
+    setFilter(_filter);
+    setPage(1);
     setIsLoading(false);
   };
 
@@ -107,10 +132,15 @@ export function usePagination<T>({
   const _setPageSize = async (_pageSize: number) => {
     setIsLoading(true);
 
-    const result = await service.listAdvanced(filter, { select, populate, page, pageSize: _pageSize, sort }, _options);
+    const result = await service.listAdvanced(
+      filter,
+      { select, populate, page: 1, pageSize: _pageSize, sort },
+      _options,
+    );
     handleResult(result);
 
     setPageSize(_pageSize);
+    setPage(1);
     setIsLoading(false);
   };
 
