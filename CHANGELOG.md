@@ -1,3 +1,10 @@
+## [0.41.2](https://github.com/egose/egose/compare/v0.41.1...v0.41.2) (2024-03-20)
+
+
+### Features
+
+* **react-pagination-hook:** export UsePaginationResult type ([0bba983](https://github.com/egose/egose/commit/0bba9831cd36be459b4dffba2b6a8e6953fa5400))
+
 ## [0.41.1](https://github.com/egose/egose/compare/v0.41.0...v0.41.1) (2024-03-18)
 
 ## [0.41.0](https://github.com/egose/egose/compare/v0.40.2...v0.41.0) (2024-02-25)
