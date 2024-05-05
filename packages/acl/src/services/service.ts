@@ -95,7 +95,7 @@ export class Service extends Base {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     let [_filter, _select, _populate] = await Promise.all([
-      overrideFilter || this.genFilter(access, await this.operateQuery(filter)),
+      overrideFilter || this.genFilter(access, await this.parseClientData(filter)),
       overrideSelect || this.genSelect(access, select),
       overridePopulate || this.genPopulate(populateAccess || access, populate),
     ]);
@@ -197,7 +197,7 @@ export class Service extends Base {
     const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
 
     const [_filter, _select, _populate, pagination] = await Promise.all([
-      overrideFilter || this.genFilter('list', await this.operateQuery(filter)),
+      overrideFilter || this.genFilter('list', await this.parseClientData(filter)),
       overrideSelect || this.genSelect('list', select),
       overridePopulate || this.genPopulate(populateAccess, populate),
       genPagination({ skip, limit, page, pageSize }, this.options.listHardLimit),
@@ -280,13 +280,14 @@ export class Service extends Base {
     decorate?: Function,
   ): Promise<ServiceResult> {
     const isArr = Array.isArray(data);
-    let arr = isArr ? data : [data];
+    let dataArr = isArr ? data : [data];
+    dataArr = await Promise.all(dataArr.map((d) => this.parseClientData(d)));
 
     const contexts: MiddlewareContext[] = [];
 
     let validationError = null;
     const items = await Promise.all(
-      arr.map(async (item, index) => {
+      dataArr.map(async (item, index) => {
         const context: MiddlewareContext = { model: this.model.model, modelName: this.modelName, originalData: item };
 
         const allowedFields = await this.genAllowedFields(item, 'create');
@@ -381,6 +382,8 @@ export class Service extends Base {
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
     const context: MiddlewareContext = { model: this.model.model, modelName: this.modelName };
+
+    data = await this.parseClientData(data);
 
     // see https://mongoosejs.com/docs/api/document.html#Document.prototype.toObject()
     context.originalDocObject = doc.toObject({ virtuals: false });
