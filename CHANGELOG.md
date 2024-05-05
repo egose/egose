@@ -1,3 +1,10 @@
+## [0.42.0](https://github.com/egose/egose/compare/v0.41.2...v0.42.0) (2024-05-05)
+
+
+### Features
+
+* **acl:** parse client data of update data ([4405854](https://github.com/egose/egose/commit/4405854e12be35b5ccee0d95916a2de66cbdcc84))
+
 ## [0.41.2](https://github.com/egose/egose/compare/v0.41.1...v0.41.2) (2024-03-20)
 
 
