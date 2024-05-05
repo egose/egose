@@ -223,7 +223,7 @@ export class Base {
     return docs;
   }
 
-  protected async operateQuery(filter) {
+  protected async parseClientData(filter) {
     const result = await iterateQuery(filter, async (fo: FilterOperator, val: any, key: string) => {
       switch (fo) {
         case FilterOperator.SubQuery:
