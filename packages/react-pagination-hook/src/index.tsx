@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Model, ModelService, PopulateAccess } from '@egose/adapter-js';
 
 export interface UsePaginationResult<T> {
@@ -61,7 +61,7 @@ export function usePagination<T>({
   const [totalCount, setTotalCount] = useState(0);
   const _options = { ...options, includeCount: true };
 
-  const handleResult = useCallback((result) => {
+  const handleResult = (result) => {
     if (result.success) {
       setIsError(false);
       setRaw(result.raw);
@@ -74,9 +74,9 @@ export function usePagination<T>({
       setTotalCount(0);
       setMessage(result.message);
     }
-  }, []);
+  };
 
-  const _setSort = useCallback(async (_sort) => {
+  const _setSort = async (_sort) => {
     setIsLoading(true);
 
     const result = await service.listAdvanced(filter, { select, populate, page, pageSize, sort: _sort }, _options);
@@ -84,9 +84,9 @@ export function usePagination<T>({
 
     setSort(_sort);
     setIsLoading(false);
-  }, []);
+  };
 
-  const _setFilter = useCallback(async (_filter) => {
+  const _setFilter = async (_filter) => {
     setIsLoading(true);
 
     const result = await service.listAdvanced(_filter, { select, populate, page: 1, pageSize, sort }, _options);
@@ -95,9 +95,9 @@ export function usePagination<T>({
     setFilter(_filter);
     setPage(1);
     setIsLoading(false);
-  }, []);
+  };
 
-  const _gotoPage = useCallback(async (_page: number) => {
+  const _gotoPage = async (_page: number) => {
     setIsLoading(true);
 
     const result = await service.listAdvanced(filter, { select, populate, page: _page, pageSize, sort }, _options);
@@ -105,9 +105,9 @@ export function usePagination<T>({
 
     setPage(_page);
     setIsLoading(false);
-  }, []);
+  };
 
-  const _nextPage = useCallback(async () => {
+  const _nextPage = async () => {
     setIsLoading(true);
 
     const npage = page + 1;
@@ -116,9 +116,9 @@ export function usePagination<T>({
 
     setPage(npage);
     setIsLoading(false);
-  }, []);
+  };
 
-  const _previousPage = useCallback(async () => {
+  const _previousPage = async () => {
     setIsLoading(true);
 
     const ppage = page - 1;
@@ -127,9 +127,9 @@ export function usePagination<T>({
 
     setPage(ppage);
     setIsLoading(false);
-  }, []);
+  };
 
-  const _setPageSize = useCallback(async (_pageSize: number) => {
+  const _setPageSize = async (_pageSize: number) => {
     setIsLoading(true);
 
     const result = await service.listAdvanced(
@@ -142,7 +142,7 @@ export function usePagination<T>({
     setPageSize(_pageSize);
     setPage(1);
     setIsLoading(false);
-  }, []);
+  };
 
   const totalPages = Math.ceil(totalCount / pageSize);
   const startIndex = (page - 1) * pageSize;

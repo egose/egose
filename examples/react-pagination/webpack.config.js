@@ -15,8 +15,9 @@ const config = {
     open: true,
     hot: true,
     liveReload: true,
-    proxy: {
-      '/api': {
+    proxy: [
+      {
+        context: ['/api'],
         target: 'http://127.0.0.1:3000',
         secure: false,
         changeOrigin: true,
@@ -24,7 +25,7 @@ const config = {
           Connection: 'keep-alive',
         },
       },
-    },
+    ],
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
