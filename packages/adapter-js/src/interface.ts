@@ -162,3 +162,7 @@ export interface DataDefaults {
   readAdvancedArgs?: DataReadAdvancedArgs;
   readAdvancedOptions?: DataReadAdvancedOptions;
 }
+
+export interface AdditionalReqConfig {
+  suppressError?: boolean;
+}

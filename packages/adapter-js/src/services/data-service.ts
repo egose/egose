@@ -22,10 +22,11 @@ import {
   DataReadAdvancedArgs,
   DataReadAdvancedOptions,
   DataDefaults,
+  AdditionalReqConfig,
 } from '../interface';
 import { CustomHeaders } from '../enums';
 
-import { Service } from './service';
+import { Service, ServiceError, ResultError } from './service';
 import { replaceSubQuery } from '../helpers';
 
 const setIfNotFound = (obj: object, key: string, value: any) => {
@@ -37,6 +38,8 @@ interface ListData<T> {
   rows: T[];
 }
 
+type RequestConfig = AxiosRequestConfig & AdditionalReqConfig;
+
 interface Props {
   axios: AxiosInstance;
   dataName: string;
@@ -44,15 +47,19 @@ interface Props {
   queryPath: string;
   onSuccess: ResponseCallback;
   onFailure: ResponseCallback;
+  suppressError: boolean;
 }
 
 export class DataService<T> extends Service<T> {
   private _dataName!: string;
   private _queryPath!: string;
-  private _handleCallbacks!: <T extends { success: boolean }>(res: T) => T;
+  private _handleCallbacks!: <T extends { success: boolean }>(res: T, suppressError?: boolean) => T;
   private _defaults!: DataDefaults;
 
-  constructor({ axios, dataName, basePath, queryPath, onSuccess, onFailure }: Props, defaults?: DataDefaults) {
+  constructor(
+    { axios, dataName, basePath, queryPath, onSuccess, onFailure, suppressError }: Props,
+    defaults?: DataDefaults,
+  ) {
     super(axios, basePath);
 
     this._dataName = dataName;
@@ -61,11 +68,15 @@ export class DataService<T> extends Service<T> {
 
     const _onSuccess = onSuccess ?? noop;
     const _onFailure = onFailure ?? noop;
+    this._handleCallbacks = <T extends { success: boolean }>(res: T, _suppressError = suppressError) => {
+      if (res.success) {
+        _onSuccess(res);
+        return res;
+      }
 
-    this._handleCallbacks = <T extends { success: boolean }>(res: T) => {
-      if (res.success) _onSuccess(res);
-      else _onFailure(res);
-      return res;
+      _onFailure(res);
+      if (_suppressError) return res;
+      throw new ServiceError(res as unknown as ResultError);
     };
 
     [
@@ -79,7 +90,7 @@ export class DataService<T> extends Service<T> {
     ].forEach((key) => setIfNotFound(this._defaults, key, {}));
   }
 
-  list(args?: DataListArgs, options?: DataListOptions, axiosRequestConfig?: AxiosRequestConfig) {
+  list(args?: DataListArgs, options?: DataListOptions, axiosRequestConfig?: RequestConfig) {
     const {
       skip = this._defaults.listArgs.skip,
       limit = this._defaults.listArgs.limit,
@@ -94,7 +105,7 @@ export class DataService<T> extends Service<T> {
       ignoreCache = this._defaults.listOptions.ignoreCache ?? false,
     } = options ?? {};
 
-    const reqConfig = axiosRequestConfig ?? {};
+    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
@@ -122,7 +133,7 @@ export class DataService<T> extends Service<T> {
             return this.processListResult(result, { includeCount, includeExtraHeaders });
           })
           .catch(this.handleError<ListDataResponse<T>>)
-          .then(this._handleCallbacks<ListDataResponse<T>>),
+          .then((res) => this._handleCallbacks<ListDataResponse<T>>(res, suppressError)),
       {
         __op: 'list',
         __query: {
@@ -148,7 +159,7 @@ export class DataService<T> extends Service<T> {
     filter: FilterQuery<T>,
     args?: DataListAdvancedArgs,
     options?: DataListAdvancedOptions,
-    axiosRequestConfig?: AxiosRequestConfig,
+    axiosRequestConfig?: RequestConfig,
   ) {
     const {
       select = this._defaults.listAdvancedArgs.select,
@@ -166,7 +177,7 @@ export class DataService<T> extends Service<T> {
       ignoreCache = this._defaults.listAdvancedOptions.ignoreCache ?? false,
     } = options ?? {};
 
-    const reqConfig = axiosRequestConfig ?? {};
+    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
@@ -198,7 +209,7 @@ export class DataService<T> extends Service<T> {
             return this.processListResult(result, { includeCount, includeExtraHeaders });
           })
           .catch(this.handleError<ListDataResponse<T>>)
-          .then(this._handleCallbacks<ListDataResponse<T>>),
+          .then((res) => this._handleCallbacks<ListDataResponse<T>>(res, suppressError)),
       {
         __op: 'listAdvanced',
         __query: {
@@ -220,13 +231,13 @@ export class DataService<T> extends Service<T> {
     return result;
   }
 
-  read(identifier: string, options?: DataReadOptions, axiosRequestConfig?: AxiosRequestConfig) {
+  read(identifier: string, options?: DataReadOptions, axiosRequestConfig?: RequestConfig) {
     const {
       includePermissions = this._defaults.readOptions.includePermissions ?? true,
       ignoreCache = this._defaults.readOptions.ignoreCache ?? false,
     } = options ?? {};
 
-    const reqConfig = axiosRequestConfig ?? {};
+    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
@@ -246,7 +257,7 @@ export class DataService<T> extends Service<T> {
             return result;
           })
           .catch(this.handleError<DataResponse<T>>)
-          .then(this._handleCallbacks<DataResponse<T>>),
+          .then((res) => this._handleCallbacks<DataResponse<T>>(res, suppressError)),
       {
         __op: 'read',
         __query: {
@@ -270,7 +281,7 @@ export class DataService<T> extends Service<T> {
     identifier: string,
     args?: DataReadAdvancedArgs,
     options?: DataReadAdvancedOptions,
-    axiosRequestConfig?: AxiosRequestConfig,
+    axiosRequestConfig?: RequestConfig,
   ) {
     const {
       select = this._defaults.readAdvancedArgs.select,
@@ -279,7 +290,7 @@ export class DataService<T> extends Service<T> {
 
     const { includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true } = options ?? {};
 
-    const reqConfig = axiosRequestConfig ?? {};
+    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
@@ -301,7 +312,7 @@ export class DataService<T> extends Service<T> {
             return result;
           })
           .catch(this.handleError<DataResponse<T>>)
-          .then(this._handleCallbacks<DataResponse<T>>),
+          .then((res) => this._handleCallbacks<DataResponse<T>>(res, suppressError)),
       {
         __op: 'readAdvanced',
         __query: {
@@ -325,7 +336,7 @@ export class DataService<T> extends Service<T> {
     filter: FilterQuery<T>,
     args?: DataReadAdvancedArgs,
     options?: DataReadAdvancedOptions,
-    axiosRequestConfig?: AxiosRequestConfig,
+    axiosRequestConfig?: RequestConfig,
   ) {
     const { select = this._defaults.readAdvancedArgs.select } = args ?? {};
 
@@ -334,7 +345,7 @@ export class DataService<T> extends Service<T> {
       ignoreCache = this._defaults.readAdvancedOptions.ignoreCache ?? false,
     } = options ?? {};
 
-    const reqConfig = axiosRequestConfig ?? {};
+    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
@@ -357,7 +368,7 @@ export class DataService<T> extends Service<T> {
             return result;
           })
           .catch(this.handleError<DataResponse<T>>)
-          .then(this._handleCallbacks<DataResponse<T>>),
+          .then((res) => this._handleCallbacks<DataResponse<T>>(res, suppressError)),
       {
         __op: 'readAdvancedFilter',
         __query: {

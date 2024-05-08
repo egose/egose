@@ -27,6 +27,10 @@ db:
 	mkdir -p ../_mongodb/egose
 	mongod --dbpath ../_mongodb/egose
 
+.PHONY: upgrade
+upgrade:
+	yarn upgrade-interactive --latest
+
 .PHONY: mk-serve
 mk-serve:
 	mkdocs serve
