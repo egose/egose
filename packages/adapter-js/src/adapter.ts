@@ -86,6 +86,7 @@ export function createAdapter(
         queryPath = '__query',
         onSuccess,
         onFailure,
+        suppressError,
       }: {
         dataName: string;
         basePath: string;
@@ -93,6 +94,7 @@ export function createAdapter(
         mutationPath?: string;
         onSuccess?: ResponseCallback;
         onFailure?: ResponseCallback;
+        suppressError?: boolean;
       },
       defaults?: DataDefaults,
     ) => {
@@ -104,6 +106,7 @@ export function createAdapter(
           queryPath,
           onSuccess: onSuccess ?? onSuccessRoot,
           onFailure: onFailure ?? onFailureRoot,
+          suppressError: suppressError ?? suppressErrorRoot ?? true,
         },
         defaults,
       );
