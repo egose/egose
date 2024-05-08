@@ -1,10 +1,12 @@
 ## [0.43.0](https://github.com/egose/egose/compare/v0.41.2...v0.43.0) (2024-05-08)
+## [0.42.0](https://github.com/egose/egose/compare/v0.41.2...v0.42.0) (2024-05-05)
 
 
 ### Features
 
 * **react-pagination-hook:** use useCallback ([baf0a06](https://github.com/egose/egose/commit/baf0a06b2ae278ae2e28a164fa3570bda34d9b0f))
 * support suppressError option in each request ([bad7cf6](https://github.com/egose/egose/commit/bad7cf60f2c049f2d8309409d9796e408d4b466d))
+* **acl:** parse client data of update data ([4405854](https://github.com/egose/egose/commit/4405854e12be35b5ccee0d95916a2de66cbdcc84))
 
 ## [0.41.2](https://github.com/egose/egose/compare/v0.41.1...v0.41.2) (2024-03-20)
 

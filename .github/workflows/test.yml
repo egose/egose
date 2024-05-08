@@ -17,7 +17,7 @@ jobs:
         mongoose: [4.4.8_5.2.0, 5.3.2_6.0.15, 6.0.11_6.10.5, 6.0.11_latest]
     steps:
     - uses: hmarr/debug-action@v2
-    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
 
     - name: Setup Tools
       uses: ./.github/actions/setup-tools
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - uses: hmarr/debug-action@v2
-    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
 
     - name: Setup Tools
       uses: ./.github/actions/setup-tools
@@ -64,7 +64,7 @@ jobs:
   commitlint:
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+    - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
       with:
         fetch-depth: 0
-    - uses: wagoid/commitlint-github-action@v5
+    - uses: wagoid/commitlint-github-action@v6
