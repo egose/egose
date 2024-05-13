@@ -1,3 +1,8 @@
+## [0.44.0](https://github.com/egose/egose/compare/v0.43.2...v0.44.0) (2024-05-13)
+
+### Features
+
+* **acl:** add order option in root query route ([f234eb1](https://github.com/egose/egose/commit/f234eb14ee215103fa6688944fb724c8f1acbfa4))
 ## [0.43.2](https://github.com/egose/egose/compare/v0.43.1...v0.43.2) (2024-05-08)
 ## [0.43.1](https://github.com/egose/egose/compare/v0.43.0...v0.43.1) (2024-05-08)
 ## [0.42.0](https://github.com/egose/egose/compare/v0.41.2...v0.42.0) (2024-05-05)
