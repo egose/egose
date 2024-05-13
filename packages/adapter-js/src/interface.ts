@@ -164,5 +164,5 @@ export interface DataDefaults {
 }
 
 export interface AdditionalReqConfig {
-  suppressError?: boolean;
+  throwOnError?: boolean;
 }

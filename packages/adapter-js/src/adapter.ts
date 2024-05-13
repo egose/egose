@@ -27,7 +27,7 @@ export function createAdapter(
     rootRouterPath?: string;
     onSuccess?: ResponseCallback;
     onFailure?: ResponseCallback;
-    suppressError?: boolean;
+    throwOnError?: boolean;
     cacheTTL?: number;
   },
 ) {
@@ -37,7 +37,7 @@ export function createAdapter(
     rootRouterPath = 'macl',
     onSuccess: onSuccessRoot,
     onFailure: onFailureRoot,
-    suppressError: suppressErrorRoot,
+    throwOnError: throwOnErrorRoot,
     cacheTTL = 0,
   } = egoseOptions ?? {};
 
@@ -53,7 +53,7 @@ export function createAdapter(
         mutationPath = '__mutation',
         onSuccess,
         onFailure,
-        suppressError,
+        throwOnError,
       }: {
         modelName: string;
         basePath: string;
@@ -61,7 +61,7 @@ export function createAdapter(
         mutationPath?: string;
         onSuccess?: ResponseCallback;
         onFailure?: ResponseCallback;
-        suppressError?: boolean;
+        throwOnError?: boolean;
       },
       defaults?: Defaults,
     ) => {
@@ -74,7 +74,7 @@ export function createAdapter(
           mutationPath,
           onSuccess: onSuccess ?? onSuccessRoot,
           onFailure: onFailure ?? onFailureRoot,
-          suppressError: suppressError ?? suppressErrorRoot ?? true,
+          throwOnError: throwOnError ?? throwOnErrorRoot ?? false,
         },
         defaults,
       );
@@ -86,7 +86,7 @@ export function createAdapter(
         queryPath = '__query',
         onSuccess,
         onFailure,
-        suppressError,
+        throwOnError,
       }: {
         dataName: string;
         basePath: string;
@@ -94,7 +94,7 @@ export function createAdapter(
         mutationPath?: string;
         onSuccess?: ResponseCallback;
         onFailure?: ResponseCallback;
-        suppressError?: boolean;
+        throwOnError?: boolean;
       },
       defaults?: DataDefaults,
     ) => {
@@ -106,7 +106,7 @@ export function createAdapter(
           queryPath,
           onSuccess: onSuccess ?? onSuccessRoot,
           onFailure: onFailure ?? onFailureRoot,
-          suppressError: suppressError ?? suppressErrorRoot ?? true,
+          throwOnError: throwOnError ?? throwOnErrorRoot ?? false,
         },
         defaults,
       );
