@@ -47,17 +47,17 @@ interface Props {
   queryPath: string;
   onSuccess: ResponseCallback;
   onFailure: ResponseCallback;
-  suppressError: boolean;
+  throwOnError: boolean;
 }
 
 export class DataService<T> extends Service<T> {
   private _dataName!: string;
   private _queryPath!: string;
-  private _handleCallbacks!: <T extends { success: boolean }>(res: T, suppressError?: boolean) => T;
+  private _handleCallbacks!: <T extends { success: boolean }>(res: T, throwOnError?: boolean) => T;
   private _defaults!: DataDefaults;
 
   constructor(
-    { axios, dataName, basePath, queryPath, onSuccess, onFailure, suppressError }: Props,
+    { axios, dataName, basePath, queryPath, onSuccess, onFailure, throwOnError }: Props,
     defaults?: DataDefaults,
   ) {
     super(axios, basePath);
@@ -68,15 +68,17 @@ export class DataService<T> extends Service<T> {
 
     const _onSuccess = onSuccess ?? noop;
     const _onFailure = onFailure ?? noop;
-    this._handleCallbacks = <T extends { success: boolean }>(res: T, _suppressError = suppressError) => {
+    this._handleCallbacks = <T extends { success: boolean }>(res: T, _throwOnError = throwOnError) => {
       if (res.success) {
         _onSuccess(res);
         return res;
       }
 
       _onFailure(res);
-      if (_suppressError) return res;
-      throw new ServiceError(res as unknown as ResultError);
+      if (_throwOnError) {
+        throw new ServiceError(res as unknown as ResultError);
+      }
+      return res;
     };
 
     [
@@ -105,7 +107,7 @@ export class DataService<T> extends Service<T> {
       ignoreCache = this._defaults.listOptions.ignoreCache ?? false,
     } = options ?? {};
 
-    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
+    const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
@@ -133,7 +135,7 @@ export class DataService<T> extends Service<T> {
             return this.processListResult(result, { includeCount, includeExtraHeaders });
           })
           .catch(this.handleError<ListDataResponse<T>>)
-          .then((res) => this._handleCallbacks<ListDataResponse<T>>(res, suppressError)),
+          .then((res) => this._handleCallbacks<ListDataResponse<T>>(res, throwOnError)),
       {
         __op: 'list',
         __query: {
@@ -177,7 +179,7 @@ export class DataService<T> extends Service<T> {
       ignoreCache = this._defaults.listAdvancedOptions.ignoreCache ?? false,
     } = options ?? {};
 
-    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
+    const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
@@ -209,7 +211,7 @@ export class DataService<T> extends Service<T> {
             return this.processListResult(result, { includeCount, includeExtraHeaders });
           })
           .catch(this.handleError<ListDataResponse<T>>)
-          .then((res) => this._handleCallbacks<ListDataResponse<T>>(res, suppressError)),
+          .then((res) => this._handleCallbacks<ListDataResponse<T>>(res, throwOnError)),
       {
         __op: 'listAdvanced',
         __query: {
@@ -237,7 +239,7 @@ export class DataService<T> extends Service<T> {
       ignoreCache = this._defaults.readOptions.ignoreCache ?? false,
     } = options ?? {};
 
-    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
+    const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
@@ -257,7 +259,7 @@ export class DataService<T> extends Service<T> {
             return result;
           })
           .catch(this.handleError<DataResponse<T>>)
-          .then((res) => this._handleCallbacks<DataResponse<T>>(res, suppressError)),
+          .then((res) => this._handleCallbacks<DataResponse<T>>(res, throwOnError)),
       {
         __op: 'read',
         __query: {
@@ -290,7 +292,7 @@ export class DataService<T> extends Service<T> {
 
     const { includePermissions = this._defaults.readAdvancedOptions.includePermissions ?? true } = options ?? {};
 
-    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
+    const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
@@ -312,7 +314,7 @@ export class DataService<T> extends Service<T> {
             return result;
           })
           .catch(this.handleError<DataResponse<T>>)
-          .then((res) => this._handleCallbacks<DataResponse<T>>(res, suppressError)),
+          .then((res) => this._handleCallbacks<DataResponse<T>>(res, throwOnError)),
       {
         __op: 'readAdvanced',
         __query: {
@@ -345,7 +347,7 @@ export class DataService<T> extends Service<T> {
       ignoreCache = this._defaults.readAdvancedOptions.ignoreCache ?? false,
     } = options ?? {};
 
-    const { suppressError, ...reqConfig } = axiosRequestConfig ?? {};
+    const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
@@ -368,7 +370,7 @@ export class DataService<T> extends Service<T> {
             return result;
           })
           .catch(this.handleError<DataResponse<T>>)
-          .then((res) => this._handleCallbacks<DataResponse<T>>(res, suppressError)),
+          .then((res) => this._handleCallbacks<DataResponse<T>>(res, throwOnError)),
       {
         __op: 'readAdvancedFilter',
         __query: {

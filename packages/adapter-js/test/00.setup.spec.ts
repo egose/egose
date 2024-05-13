@@ -45,7 +45,7 @@ export const services = {
   userServiceWithError: adapter.createModelService<User>({
     modelName: 'User',
     basePath: 'users',
-    suppressError: false,
+    throwOnError: true,
   }),
   orgService: adapter.createModelService<Org>({ modelName: 'Org', basePath: 'orgs', queryPath: '_extra' }),
   petService: adapter.createDataService<Pet>({ dataName: 'Pet', basePath: 'pets' }),
