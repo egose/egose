@@ -73,6 +73,7 @@ export interface RootQueryEntry {
   data?: any;
   args?: any;
   options?: any;
+  order?: number;
 }
 
 export interface SubQueryEntry extends RootQueryEntry {
