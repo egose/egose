@@ -270,13 +270,13 @@ export class Core {
 
   async transform(modelName: string, doc: any, access: TransformAccess, context: MiddlewareContext) {
     const transform = getModelOption(modelName, `transform.${access}`, null);
-    const permissions = this[PERMISSIONS];
+    const permissions = this.getGlobalPermissions();
     return this.callMiddleware(transform, doc, permissions, context);
   }
 
   async finalize(modelName: string, doc: any, access: FinalizeAccess, context: MiddlewareContext) {
     const finalize = getModelOption(modelName, `finalize.${access}`, null);
-    const permissions = this[PERMISSIONS];
+    const permissions = this.getGlobalPermissions();
     return this.callMiddleware(finalize, doc, permissions, context);
   }
 
