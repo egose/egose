@@ -1,3 +1,8 @@
+## [0.44.1](https://github.com/egose/egose/compare/v0.44.0...v0.44.1) (2024-05-14)
+
+### Bug Fixes
+
+* **acl:** retrieve permission properly in middleware ([2fd2f07](https://github.com/egose/egose/commit/2fd2f071362c2b09955e913cdbac35ff3cf82748))
 ## [0.44.0](https://github.com/egose/egose/compare/v0.43.2...v0.44.0) (2024-05-13)
 
 ### Features
