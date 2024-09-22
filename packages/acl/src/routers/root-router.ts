@@ -67,7 +67,7 @@ export class RootRouter {
       }
       return { success: false, code: Codes.BadRequest, data: null, message: `Operation ${item.op} invalid` };
     } else if (item.op === 'update') {
-      return this.processResult(item.op, await svc._update(item.id, item.args, item.options));
+      return this.processResult(item.op, await svc._update(item.id, item.data, item.args, item.options));
     } else if (item.op === 'delete') {
       return this.processResult(item.op, await svc._delete(item.id));
     } else if (item.op === 'distinct') {
