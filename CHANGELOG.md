@@ -1,3 +1,8 @@
+## [0.44.2](https://github.com/egose/egose/compare/v0.44.1...v0.44.2) (2024-09-22)
+
+### Bug Fixes
+
+* **acl:** pass update data properly ([b320bc8](https://github.com/egose/egose/commit/b320bc8681bffed12079042bf25009031f2ea44a))
 ## [0.44.1](https://github.com/egose/egose/compare/v0.44.0...v0.44.1) (2024-05-14)
 
 ### Bug Fixes
