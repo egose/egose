@@ -7,6 +7,7 @@ import difference from 'lodash/difference';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import intersection from 'lodash/intersection';
+import isUndefined from 'lodash/isUndefined';
 import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isEmpty from 'lodash/isEmpty';
@@ -19,7 +20,7 @@ import noop from 'lodash/noop';
 import pick from 'lodash/pick';
 import set from 'lodash/set';
 import reduce from 'lodash/reduce';
-import { getGlobalOption, getModelOption } from './options';
+import { getGlobalOption, getModelOption, getExactModelOption } from './options';
 import { getModelRef } from './meta';
 import {
   Populate,
@@ -445,6 +446,27 @@ export class Core {
   }
 
   async isAllowed(modelName: string, access: RouteGuardAccess | string) {
+    if (access.startsWith('subs')) {
+      const keys = access.split('.');
+      if (keys.length < 3) {
+        return false;
+      }
+
+      const [, field, op] = keys;
+      const subOption = getExactModelOption(modelName, `routeGuard.${access}`);
+      if (isUndefined(subOption)) {
+        const subFieldOption = getExactModelOption(modelName, `routeGuard.subs.${field}`);
+        if (isUndefined(subFieldOption)) {
+          const opOption = getModelOption(modelName, `routeGuard.${op}`);
+          return this.canActivate(opOption);
+        }
+
+        return this.canActivate(subFieldOption);
+      }
+
+      return this.canActivate(subOption);
+    }
+
     const routeGuard = getModelOption(modelName, `routeGuard.${access}`);
     return this.canActivate(routeGuard);
   }
