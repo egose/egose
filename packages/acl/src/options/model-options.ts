@@ -166,8 +166,14 @@ export const getModelOption = <K extends keyof ExtendedModelRouterOptions>(
   const parentKey = keys.slice(0, -1).join('.') as keyof ModelRouterOptions;
   option = manager.get(`${parentKey}.default`);
 
-  if (option === undefined) option = manager.get(parentKey, manager.get(keys[0], defaultModelValue));
+  if (option === undefined) option = manager.get(parentKey, defaultModelValue);
   return option;
+};
+
+export const getExactModelOption = <K extends keyof ExtendedModelRouterOptions>(modelName: string, key: K | string) => {
+  const manager = getOrCreateModelOptions(modelName);
+  const defaultModelValue = getDefaultModelOption(key as keyof DefaultModelRouterOptions);
+  return manager.get(key, defaultModelValue);
 };
 
 export const getModelNames = () => {
