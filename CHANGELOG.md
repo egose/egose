@@ -1,3 +1,8 @@
+## [0.44.7](https://github.com/egose/egose/compare/v0.44.6...v0.44.7) (2024-10-05)
+
+### Bug Fixes
+
+* **adapter-js:** include filter argument in operation metadata ([72fc328](https://github.com/egose/egose/commit/72fc328cb73643b1a76fd65bce5f910875f03fa2))
 ## [0.44.6](https://github.com/egose/egose/compare/v0.44.5...v0.44.6) (2024-10-05)
 ## [0.44.5](https://github.com/egose/egose/compare/v0.44.4...v0.44.5) (2024-10-05)
 
