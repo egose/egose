@@ -182,6 +182,7 @@ export class DataService<T> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
+    const _filter = replaceSubQuery<T>(filter);
     const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
       ListDataResponse<T>,
       DataPromiseMeta
@@ -191,7 +192,7 @@ export class DataService<T> extends Service<T> {
           .post(
             `${this._basePath}/${this._queryPath}`,
             {
-              filter: replaceSubQuery<T>(filter),
+              filter: _filter,
               select,
               sort,
               skip,
@@ -217,7 +218,7 @@ export class DataService<T> extends Service<T> {
         __query: {
           name: this._dataName,
           op: 'list',
-          filter: {},
+          filter: _filter,
           args: { select, sort, skip, limit, page, pageSize },
           options: {
             includePermissions,
@@ -350,13 +351,14 @@ export class DataService<T> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
+    const _filter = replaceSubQuery<T>(filter);
     const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
       () =>
         this._axios
           .post(
             `${this._basePath}/${this._queryPath}/__filter`,
             {
-              filter: replaceSubQuery<T>(filter),
+              filter: _filter,
               select,
               options: {
                 includePermissions,
@@ -376,7 +378,7 @@ export class DataService<T> extends Service<T> {
         __query: {
           name: this._dataName,
           op: 'read',
-          filter,
+          filter: _filter,
           args: { select },
           options: {
             includePermissions,
