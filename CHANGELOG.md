@@ -1,3 +1,4 @@
+## [0.44.6](https://github.com/egose/egose/compare/v0.44.5...v0.44.6) (2024-10-05)
 ## [0.44.5](https://github.com/egose/egose/compare/v0.44.4...v0.44.5) (2024-10-05)
 
 ### Bug Fixes
