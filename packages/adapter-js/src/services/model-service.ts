@@ -213,6 +213,7 @@ export class ModelService<T extends Document> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
+    const _filter = replaceSubQuery<T>(filter);
     const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
       ListModelResponse<T>,
       ModelPromiseMeta
@@ -222,7 +223,7 @@ export class ModelService<T extends Document> extends Service<T> {
           .post(
             `${this._basePath}/${this._queryPath}`,
             {
-              filter: replaceSubQuery<T>(filter),
+              filter: _filter,
               select,
               sort,
               populate,
@@ -252,7 +253,7 @@ export class ModelService<T extends Document> extends Service<T> {
         __query: {
           model: this._modelName,
           op: 'list',
-          filter: {},
+          filter: _filter,
           args: { select, sort, populate, include, skip, limit, page, pageSize },
           options: {
             skim,
@@ -414,13 +415,14 @@ export class ModelService<T extends Document> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
+    const _filter = replaceSubQuery<T>(filter);
     const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
       () =>
         this._axios
           .post(
             `${this._basePath}/${this._queryPath}/__filter`,
             {
-              filter: replaceSubQuery<T>(filter),
+              filter: _filter,
               select,
               populate,
               include,
@@ -444,7 +446,7 @@ export class ModelService<T extends Document> extends Service<T> {
         __query: {
           model: this._modelName,
           op: 'read',
-          filter,
+          filter: _filter,
           args: { select, populate, include },
           options: {
             includePermissions,
