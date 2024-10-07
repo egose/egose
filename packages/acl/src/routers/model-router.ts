@@ -277,7 +277,7 @@ export class ModelRouter {
       const allowed = await req.macl.isAllowed(this.modelName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      let { filter, select, populate, include, tasks, options = {} } = req.body;
+      let { filter, select, sort, populate, include, tasks, options = {} } = req.body;
       const { skim, includePermissions, tryList, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
@@ -285,6 +285,7 @@ export class ModelRouter {
         filter,
         {
           select,
+          sort,
           populate,
           include,
           tasks,

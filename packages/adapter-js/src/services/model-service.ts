@@ -400,6 +400,7 @@ export class ModelService<T extends Document> extends Service<T> {
   ) {
     const {
       select = this._defaults.readAdvancedArgs.select,
+      sort = this._defaults.readAdvancedArgs.sort,
       populate = this._defaults.readAdvancedArgs.populate,
       include = this._defaults.readAdvancedArgs.include,
     } = args ?? {};
@@ -424,6 +425,7 @@ export class ModelService<T extends Document> extends Service<T> {
             {
               filter: _filter,
               select,
+              sort,
               populate,
               include,
               options: {
@@ -447,7 +449,7 @@ export class ModelService<T extends Document> extends Service<T> {
           model: this._modelName,
           op: 'read',
           filter: _filter,
-          args: { select, populate, include },
+          args: { select, sort, populate, include },
           options: {
             includePermissions,
             tryList,

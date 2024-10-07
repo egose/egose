@@ -15,6 +15,7 @@ interface FindProps {
 interface FindOneProps {
   filter: Filter;
   select?: any;
+  sort?: Sort;
   populate?: any;
   lean?: boolean;
 }
@@ -99,9 +100,10 @@ class Model {
     return ret;
   }
 
-  findOne({ filter, select, populate, lean }: FindOneProps) {
+  findOne({ filter, select, sort, populate, lean }: FindOneProps) {
     let builder = this.model.findOne(filter as FilterQuery<any>);
     if (select) builder = builder.select(select);
+    if (sort) builder = builder.sort(sort);
     if (populate) builder = builder.populate(populate);
     if (lean) builder = builder.lean();
 

@@ -80,6 +80,7 @@ export class Service extends Base {
     filter: Filter,
     {
       select = this.defaults.findOneArgs?.select,
+      sort = this.defaults.findOneArgs?.sort,
       populate = this.defaults.findOneArgs?.populate,
       include = this.defaults.findOneArgs?.include,
       overrides = {},
@@ -106,6 +107,7 @@ export class Service extends Base {
     const query = {
       filter: _filter,
       select: finalSelect.concat(includeLocalFields),
+      sort,
       populate: _populate,
     };
 

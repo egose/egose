@@ -51,6 +51,7 @@ export interface ReadOptions {
 
 export interface ReadAdvancedArgs {
   select?: Projection;
+  sort?: Sort;
   populate?: Populate[] | Populate | string;
   include?: Include | Include[];
 }

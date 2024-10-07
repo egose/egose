@@ -26,6 +26,7 @@ export interface FindOptions {
 
 export interface FindOneArgs {
   select?: Projection;
+  sort?: Sort;
   populate?: Populate[] | string;
   include?: Include | Include[];
   overrides?: {

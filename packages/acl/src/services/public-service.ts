@@ -13,6 +13,7 @@ import { normalizeSelect, toObject } from '../helpers';
 import { Service } from './service';
 import {
   Filter,
+  Sort,
   MiddlewareContext,
   FindAccess,
   SubPopulate,
@@ -174,10 +175,11 @@ export class PublicService extends Service {
     filter: Filter,
     {
       select = this.defaults.publicReadArgs?.select,
+      sort = this.defaults.publicListArgs?.sort,
       populate = this.defaults.publicReadArgs?.populate,
       include = this.defaults.publicReadArgs?.include,
       tasks = this.defaults.publicReadArgs?.tasks ?? [],
-    }: PublicReadArgs = {},
+    }: PublicReadArgs & { sort?: Sort } = {},
     {
       skim = this.defaults.publicReadOptions?.skim ?? false,
       includePermissions = this.defaults.publicReadOptions?.includePermissions ?? true,
@@ -192,6 +194,7 @@ export class PublicService extends Service {
       filter,
       {
         select,
+        sort,
         populate,
         include,
         overrides: {},
@@ -207,6 +210,7 @@ export class PublicService extends Service {
         filter,
         {
           select,
+          sort,
           populate,
           overrides: {},
         },
