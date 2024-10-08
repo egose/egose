@@ -370,6 +370,35 @@ export class ModelRouter {
     });
 
     ////////////
+    // UPSERT //
+    ////////////
+    this.router.put(`/`, async (req: Request) => {
+      const allowed = await req.macl.isAllowed(this.modelName, 'upsert');
+      if (!allowed) throw new clientErrors.UnauthorizedError();
+
+      const id = req.params[this.options.idParam];
+      const { returning_all, include_permissions } = req.query;
+
+      const { _id, ...data } = req.body;
+
+      const svc = req.macl.getPublicService(this.modelName);
+      if (_id) {
+        const existing = await svc.model.model.findById({ _id }).lean();
+        if (!existing) throw new clientErrors.UnauthorizedError();
+
+        const result = await svc._update(_id, data, {}, { returningAll: parseBooleanString(returning_all) });
+
+        handleResultError(result);
+        return result.data;
+      } else {
+        const result = await svc._create(data, {}, { includePermissions: parseBooleanString(include_permissions) });
+
+        handleResultError(result);
+        return new success.Created(result.data);
+      }
+    });
+
+    ////////////
     // DELETE //
     ////////////
     this.router.delete(`/:${this.options.idParam}`, async (req: Request) => {
