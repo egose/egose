@@ -204,6 +204,7 @@ export class DataRouter {
   public permissionSchema: SetTargetOption = setOption.bind(this, 'permissionSchema');
   public routeGuard: SetTargetOption = setOption.bind(this, 'routeGuard');
   public baseFilter: SetTargetOption = setOption.bind(this, 'baseFilter');
+  public overrideFilter: SetTargetOption = setOption.bind(this, 'overrideFilter');
   public decorate: SetTargetOption = setOption.bind(this, 'decorate');
   public decorateAll: SetTargetOption = setOption.bind(this, 'decorateAll');
   public identifier: SetTargetOption = setOption.bind(this, 'identifier');

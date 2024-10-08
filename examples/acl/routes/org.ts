@@ -35,6 +35,9 @@ orgRouter
       else return { _id: this._user.orgs };
     },
   })
+  .overrideFilter('list', function (filter: any, permissions: Permissions) {
+    return filter;
+  })
   .routeGuard({
     list: true,
     read: true,

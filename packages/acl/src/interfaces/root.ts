@@ -110,6 +110,7 @@ export interface ModelRouterOptions extends DefaultModelRouterOptions {
   mandatoryFields?: string[];
   docPermissions?: DocPermissions | Function;
   baseFilter?: any;
+  overrideFilter?: any;
   decorate?: any;
   decorateAll?: any;
   validate?: any;
@@ -131,6 +132,7 @@ export interface DataRouterOptions {
   basePath?: string;
   permissionSchema?: PermissionSchema;
   baseFilter?: any;
+  overrideFilter?: any;
   decorate?: any;
   decorateAll?: any;
 }
@@ -151,6 +153,11 @@ export interface ExtendedModelRouterOptions extends ModelRouterOptions, Extended
   'baseFilter.read'?: any;
   'baseFilter.update'?: any;
   'baseFilter.delete'?: any;
+  'overrideFilter.default'?: any;
+  'overrideFilter.list'?: any;
+  'overrideFilter.read'?: any;
+  'overrideFilter.update'?: any;
+  'overrideFilter.delete'?: any;
   'decorate.default'?: any;
   'decorate.list'?: any;
   'decorate.create'?: any;

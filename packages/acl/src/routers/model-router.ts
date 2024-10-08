@@ -614,10 +614,16 @@ export class ModelRouter {
   public routeGuard: SetTargetOption = setOption.bind(this, 'routeGuard');
 
   /**
-   * The base query definitions applied in every query transaction.
+   * The base filter definitions applied in every query transaction.
    * @operation `list`, `read`, `update`, `delete`
    */
   public baseFilter: SetTargetOption = setOption.bind(this, 'baseFilter');
+
+  /**
+   * The override filter definitions applied in every query transaction.
+   * @operation `list`, `read`, `update`, `delete`
+   */
+  public overrideFilter: SetTargetOption = setOption.bind(this, 'overrideFilter');
 
   /**
    * Middleware

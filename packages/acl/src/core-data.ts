@@ -75,17 +75,24 @@ export class DataCore {
   }
 
   async genFilter(dataName: string, access: BaseFilterAccess = 'read', _filter: Filter = null): Promise<Filter> {
+    const permissions = this.getGlobalPermissions();
+
+    let overrideFilterFn = getDataOption(dataName, `overrideFilter.${access}`, null);
+    if (isFunction(overrideFilterFn)) {
+      _filter = await overrideFilterFn.call(this.req, _filter, permissions);
+    }
+
     const baseFilterFn = getDataOption(dataName, `baseFilter.${access}`, null);
     if (!isFunction(baseFilterFn)) return _filter || {};
 
+    let baseFilter = null;
     const cacheKey = `${dataName}_baseFilter_${access}`;
     if (this.caches.baseFilter.has(cacheKey)) {
-      return this.caches.baseFilter.get(cacheKey);
+      baseFilter = this.caches.baseFilter.get(cacheKey);
+    } else {
+      baseFilter = await baseFilterFn.call(this.req, permissions);
     }
 
-    const permissions = this.getGlobalPermissions();
-
-    const baseFilter = await baseFilterFn.call(this.req, permissions);
     if (baseFilter === false) return false;
     if (baseFilter === true || isEmpty(baseFilter)) return _filter || {};
     if (!_filter) return baseFilter;
@@ -96,7 +103,7 @@ export class DataCore {
   }
 
   async genAllowedFields(dataName: string, doc: any, access: SelectAccess, baseFields = []) {
-    let fields = [...baseFields] || [];
+    let fields = [...(baseFields ?? [])];
 
     const permissionSchema = getDataOption(dataName, 'permissionSchema');
     if (!permissionSchema) return fields;

@@ -85,19 +85,24 @@ export class Core {
   }
 
   async genFilter(modelName: string, access: BaseFilterAccess = 'read', _filter: Filter = null): Promise<Filter> {
-    let baseFilterFn = getModelOption(modelName, `baseFilter.${access}`, null);
-    // @Deprecated option 'baseQuery'
-    if (!baseFilterFn) baseFilterFn = getModelOption(modelName, `baseQuery.${access}`, null);
-    if (!isFunction(baseFilterFn)) return _filter || {};
-
-    const cacheKey = `${modelName}_baseFilter_${access}`;
-    if (this.caches.baseFilter.has(cacheKey)) {
-      return this.caches.baseFilter.get(cacheKey);
-    }
-
     const permissions = this.getGlobalPermissions();
 
-    const baseFilter = await baseFilterFn.call(this.req, permissions);
+    let overrideFilterFn = getModelOption(modelName, `overrideFilter.${access}`, null);
+    if (isFunction(overrideFilterFn)) {
+      _filter = await overrideFilterFn.call(this.req, _filter, permissions);
+    }
+
+    let baseFilterFn = getModelOption(modelName, `baseFilter.${access}`, null);
+    if (!isFunction(baseFilterFn)) return _filter || {};
+
+    let baseFilter = null;
+    const cacheKey = `${modelName}_baseFilter_${access}`;
+    if (this.caches.baseFilter.has(cacheKey)) {
+      baseFilter = this.caches.baseFilter.get(cacheKey);
+    } else {
+      baseFilter = await baseFilterFn.call(this.req, permissions);
+    }
+
     if (baseFilter === false) return false;
     if (baseFilter === true || isEmpty(baseFilter)) return _filter || {};
     if (!_filter) return baseFilter;
@@ -117,7 +122,7 @@ export class Core {
   }
 
   async genAllowedFields(modelName: string, doc: any, access: SelectAccess, baseFields = []) {
-    let fields = [...baseFields] || [];
+    let fields = [...(baseFields ?? [])];
 
     const permissionSchema = getModelOption(modelName, 'permissionSchema');
     if (!permissionSchema) return fields;
