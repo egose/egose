@@ -21,7 +21,7 @@
     "build": "tsc -d",
     "bundle": "tsup",
     "lint": "git ls-files '*.js' '*.ts' | xargs yarn eslint",
-    "test": "mocha --exit"
+    "test": "mocha --bail --exit"
   },
   "engines": {
     "node": ">=18"

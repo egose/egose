@@ -2,6 +2,15 @@ import { Document, Schema } from 'mongoose';
 import isFunction from 'lodash/isFunction';
 import isPlainObject from 'lodash/isPlainObject';
 
+export class PermissionDoc extends Document {
+  _doc: any;
+
+  constructor(...args: any[]) {
+    super(...args);
+    this._doc = {};
+  }
+}
+
 export const isSchema = (val) => val instanceof Schema;
 export const isObjectIdType = (val) => val === 'ObjectId' || val === Schema.Types.ObjectId;
 export const isReference = (val) => isPlainObject(val) && val.ref && isObjectIdType(val.type);
@@ -10,7 +19,7 @@ export const isPromise = function isPromise(val) {
   return val && val.then && isFunction(val.then);
 };
 
-export const isDocument = function isDocument(doc) {
+export const isDocument = function isDocument(doc): doc is PermissionDoc {
   return doc instanceof Document;
 };
 
