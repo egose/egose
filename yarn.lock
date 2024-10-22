@@ -8255,9 +8255,9 @@ mongodb@6.9.0:
     mongodb-connection-string-url "^3.0.0"
 
 mongoose-schema-jsonschema@^2.0.2:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/mongoose-schema-jsonschema/-/mongoose-schema-jsonschema-2.2.0.tgz#a03e37c80c926185927a3d32cf6276f7ae195401"
-  integrity sha512-AX4apceReD4grg5XcnKVmiRQMW+AhCyRbC1M+0drr6gwzBF3y+UWYPdPc+XQ3a0BxSNw3FZLS6uynSuwRhxo3w==
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/mongoose-schema-jsonschema/-/mongoose-schema-jsonschema-2.2.1.tgz#5491f7d65e45418df676d0e9958d69852a8db963"
+  integrity sha512-6F8nYeAnwOAqTPSyvMRT05WUevh/SN6Urlw0/sXj8LWgF5aq29B86Oy+nVlUifWFD/KvZp4BfEZGLZpdHjrd5w==
   dependencies:
     pluralize "^8.0.0"
 
