@@ -8253,9 +8253,9 @@ mongodb@6.7.0:
     mongodb-connection-string-url "^3.0.0"
 
 mongoose-schema-jsonschema@^2.0.2:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/mongoose-schema-jsonschema/-/mongoose-schema-jsonschema-2.2.0.tgz#a03e37c80c926185927a3d32cf6276f7ae195401"
-  integrity sha512-AX4apceReD4grg5XcnKVmiRQMW+AhCyRbC1M+0drr6gwzBF3y+UWYPdPc+XQ3a0BxSNw3FZLS6uynSuwRhxo3w==
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/mongoose-schema-jsonschema/-/mongoose-schema-jsonschema-2.2.1.tgz#5491f7d65e45418df676d0e9958d69852a8db963"
+  integrity sha512-6F8nYeAnwOAqTPSyvMRT05WUevh/SN6Urlw0/sXj8LWgF5aq29B86Oy+nVlUifWFD/KvZp4BfEZGLZpdHjrd5w==
   dependencies:
     pluralize "^8.0.0"
 
@@ -11130,12 +11130,7 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
 
-"typescript@>=3 < 6":
-  version "5.6.3"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.6.3.tgz#5f3449e31c9d94febb17de03cc081dd56d81db5b"
-  integrity sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==
-
-typescript@^5.0.4:
+"typescript@>=3 < 6", typescript@^5.0.4:
   version "5.6.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.6.3.tgz#5f3449e31c9d94febb17de03cc081dd56d81db5b"
   integrity sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==
