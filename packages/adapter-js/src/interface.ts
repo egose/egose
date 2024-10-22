@@ -93,6 +93,10 @@ export interface UpdateAdvancedOptions {
   populateAccess?: PopulateAccess;
 }
 
+export interface UpsertOptions extends UpdateOptions {}
+export interface UpsertAdvancedArgs extends UpdateAdvancedArgs {}
+export interface UpsertAdvancedOptions extends UpdateAdvancedOptions {}
+
 export interface Defaults {
   listArgs?: ListArgs;
   listOptions?: ListOptions;
@@ -107,6 +111,9 @@ export interface Defaults {
   updateOptions?: UpdateOptions;
   updateAdvancedArgs?: UpdateAdvancedArgs;
   updateAdvancedOptions?: UpdateAdvancedOptions;
+  upsertOptions?: UpsertOptions;
+  upsertAdvancedArgs?: UpsertAdvancedArgs;
+  upsertAdvancedOptions?: UpsertAdvancedOptions;
 }
 
 export interface DataListArgs {

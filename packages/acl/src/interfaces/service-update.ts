@@ -20,6 +20,8 @@ export interface UpdateByIdArgs extends Omit<UpdateOneArgs, 'overrides'> {
   };
 }
 
+export interface UpsertArgs extends UpdateOneArgs {}
+
 export interface PublicUpdateOptions {
   skim?: boolean;
   returningAll?: boolean;
@@ -29,3 +31,4 @@ export interface PublicUpdateOptions {
 
 export interface UpdateOneOptions extends Omit<PublicUpdateOptions, 'returningAll'> {}
 export interface UpdateByIdOptions extends UpdateOneOptions {}
+export interface UpsertOptions extends UpdateOneOptions {}

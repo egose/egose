@@ -70,6 +70,20 @@ export class Core {
     };
   }
 
+  getIdentifier(modelName: string) {
+    const identifier = getModelOption(modelName, 'identifier');
+
+    if (isFunction(identifier)) {
+      return null;
+    }
+
+    if (isString(identifier)) {
+      return identifier;
+    }
+
+    return '_id';
+  }
+
   async genIDFilter(modelName: string, id: string) {
     const identifier = getModelOption(modelName, 'identifier');
 

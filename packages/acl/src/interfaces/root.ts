@@ -6,7 +6,9 @@ import {
   PublicUpdateOptions,
   UpdateOneArgs,
   UpdateOneOptions,
+  UpsertOptions,
   UpdateByIdArgs,
+  UpsertArgs,
   UpdateByIdOptions,
 } from './service-update';
 import { PublicListArgs, PublicListOptions } from './service-list';
@@ -30,7 +32,9 @@ export interface Defaults {
   createOptions?: CreateOptions;
   updateOneArgs?: UpdateOneArgs;
   updateOneOptions?: UpdateOneOptions;
+  upsertOptions?: UpsertOptions;
   updateByIdArgs?: UpdateByIdArgs;
+  upsertArgs?: UpsertArgs;
   updateByIdOptions?: UpdateByIdOptions;
   existsOptions?: ExistsOptions;
   publicListArgs?: PublicListArgs;

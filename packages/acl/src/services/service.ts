@@ -25,6 +25,7 @@ import {
   filterCollection,
   findElement,
   findElementById,
+  matchElement,
   toObject,
   genSubPopulate,
 } from '../helpers';
@@ -49,7 +50,9 @@ import {
   UpdateOneArgs,
   UpdateOneOptions,
   UpdateByIdArgs,
+  UpsertArgs,
   UpdateByIdOptions,
+  UpsertOptions,
   BaseFilterAccess,
   ExistsOptions,
   ServiceResult,
@@ -473,6 +476,55 @@ export class Service extends Base {
       { skim, includePermissions, populateAccess },
       decorate,
     );
+  }
+
+  public async upsert(
+    filter: Filter,
+    data,
+    { populate = this.defaults.upsertArgs?.populate, overrides = {} }: UpsertArgs = {},
+    {
+      skim = this.defaults.upsertOptions?.skim ?? false,
+      includePermissions = this.defaults.upsertOptions?.includePermissions ?? true,
+      populateAccess = this.defaults.upsertOptions?.populateAccess ?? 'read',
+    }: UpsertOptions = {},
+    decorate?: Function,
+  ): Promise<ServiceResult> {
+    const { filter: overrideFilter, populate: overridePopulate } = overrides;
+
+    const theone = await this.model.findOne({ filter });
+    if (theone) {
+      const _filter = await (overrideFilter || this.genFilter('update', filter));
+      const query = { filter: _filter };
+      if (_filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
+
+      const matched = matchElement(theone, _filter);
+      if (!matched) return { success: false, code: Codes.Forbidden, data: null, query };
+
+      return this.updateOne(
+        null,
+        data,
+        {
+          populate,
+          overrides: {
+            filter: _filter,
+            populate: overridePopulate,
+          },
+        },
+        { skim, includePermissions, populateAccess },
+        decorate,
+      );
+    } else {
+      return this.create(
+        data,
+        { populate },
+        {
+          skim,
+          includePermissions,
+          populateAccess,
+        },
+        decorate,
+      );
+    }
   }
 
   public async delete(id: string): Promise<ServiceResult> {
