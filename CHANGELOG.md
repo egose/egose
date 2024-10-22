@@ -1,3 +1,11 @@
+## [0.45.0](https://github.com/egose/egose/compare/v0.44.7...v0.45.0) (2024-10-22)
+
+### Features
+
+* **acl, adapter-js:** add upsert routes ([57b5bfc](https://github.com/egose/egose/commit/57b5bfcc59a81efd45c2d2a0e3c86928710643cc))
+* **acl:** add  public route ([2abf21c](https://github.com/egose/egose/commit/2abf21c8be8e113a60114816848ee0deaf998a51))
+* **acl:** add options for overriding filters ([6aa8ea1](https://github.com/egose/egose/commit/6aa8ea1bbb43870e465dadc517eb555b8edac197))
+* add sorting capability to readAdvancedFilter function ([8d0fbdd](https://github.com/egose/egose/commit/8d0fbdd3e72fb006eb336b48e9eccf6d9b07d600))
 ## [0.44.7](https://github.com/egose/egose/compare/v0.44.6...v0.44.7) (2024-10-05)
 
 ### Bug Fixes
