@@ -34,7 +34,7 @@
   "peerDependencies": {
     "@egose/acl": "0.0.0-PLACEHOLDER",
     "express": ">=4.20.0",
-    "mongoose": ">=5.2.0"
+    "mongoose": ">=6.0.15"
   },
   "tsup": {
     "target": "node18",

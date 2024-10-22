@@ -27,7 +27,7 @@
     "sift": "^17.0.1"
   },
   "peerDependencies": {
-    "mongoose": ">=5.2.0"
+    "mongoose": ">=6.0.15"
   },
   "tsup": {
     "target": "node18",
