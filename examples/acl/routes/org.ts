@@ -8,7 +8,7 @@ export const orgRouter = egose.createRouter('Org', {
 });
 
 orgRouter
-  .permissionSchema({ name: { list: true, read: true, create: true } })
+  .permissionSchema({ name: { list: true, read: true, update: true, create: true } })
   .docPermissions(() => {
     return { read: false, edit: true };
   })
@@ -42,6 +42,7 @@ orgRouter
     list: true,
     read: true,
     update: true,
+    upsert: true,
     delete: false,
     create: 'isAdmin',
     count: true,

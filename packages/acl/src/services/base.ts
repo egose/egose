@@ -63,6 +63,10 @@ export class Base {
     return this.req.macl.genFilter(this.modelName, access, filter);
   }
 
+  public getIdentifier(): string | null {
+    return this.req.macl.getIdentifier(this.modelName);
+  }
+
   public genIDFilter(id: string): Promise<any> {
     return this.req.macl.genIDFilter(this.modelName, id);
   }

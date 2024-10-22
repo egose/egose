@@ -30,6 +30,9 @@ import {
   UpdateOptions,
   UpdateAdvancedArgs,
   UpdateAdvancedOptions,
+  UpsertOptions,
+  UpsertAdvancedArgs,
+  UpsertAdvancedOptions,
   Defaults,
   AdditionalReqConfig,
 } from '../interface';
@@ -110,6 +113,9 @@ export class ModelService<T extends Document> extends Service<T> {
       'updateOptions',
       'updateAdvancedArgs',
       'updateAdvancedOptions',
+      'upsertOptions',
+      'upsertAdvancedArgs',
+      'upsertAdvancedOptions',
     ].forEach((key) => setIfNotFound(this._defaults, key, {}));
   }
 
@@ -666,6 +672,99 @@ export class ModelService<T extends Document> extends Service<T> {
           model: this._modelName,
           op: 'update',
           id: identifier,
+          data,
+          args: { select, populate },
+          options: {
+            returningAll,
+            includePermissions,
+            populateAccess,
+          },
+        },
+        __requestConfig: reqConfig,
+        __service: this,
+      },
+    );
+
+    return result;
+  }
+
+  upsert(data: object, options?: UpsertOptions, axiosRequestConfig?: RequestConfig) {
+    const { returningAll = this._defaults.upsertOptions.returningAll ?? true } = options ?? {};
+    const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
+    set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
+
+    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+      () =>
+        this._axios
+          .put(this._basePath, data, mergeConfig(reqConfig, { params: { returning_all: returningAll } }))
+          .then(this.handleSuccess)
+          .then((result: ModelResponse<T>) => {
+            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+            return result;
+          })
+          .catch(this.handleError<ModelResponse<T>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+      {
+        __op: 'upsert',
+        __query: {
+          model: this._modelName,
+          op: 'upsert',
+          data,
+          options: {
+            returningAll,
+          },
+        },
+        __requestConfig: reqConfig,
+        __service: this,
+      },
+    );
+
+    return result;
+  }
+
+  upsertAdvanced(
+    data: object,
+    args?: UpsertAdvancedArgs,
+    options?: UpsertAdvancedOptions,
+    axiosRequestConfig?: RequestConfig,
+  ) {
+    const { select = this._defaults.upsertAdvancedArgs.select, populate = this._defaults.upsertAdvancedArgs.populate } =
+      args ?? {};
+
+    const {
+      returningAll = this._defaults.upsertAdvancedOptions.returningAll ?? true,
+      includePermissions = this._defaults.upsertAdvancedOptions.includePermissions ?? true,
+      populateAccess = this._defaults.upsertAdvancedOptions.populateAccess,
+    } = options ?? {};
+
+    const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
+    set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
+
+    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+      () =>
+        this._axios
+          .put(
+            `${this._basePath}/${this._mutationPath}`,
+            {
+              data,
+              select,
+              populate,
+              options: { returningAll, includePermissions, populateAccess },
+            },
+            reqConfig,
+          )
+          .then(this.handleSuccess)
+          .then((result: ModelResponse<T>) => {
+            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+            return result;
+          })
+          .catch(this.handleError<ModelResponse<T>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+      {
+        __op: 'upsertAdvanced',
+        __query: {
+          model: this._modelName,
+          op: 'upsert',
           data,
           args: { select, populate },
           options: {

@@ -2,7 +2,6 @@ import 'mocha';
 
 import mongoose from 'mongoose';
 import { expect } from 'chai';
-
 import { services } from './00.setup.spec';
 
 describe('List Users', () => {

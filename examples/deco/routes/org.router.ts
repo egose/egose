@@ -17,11 +17,12 @@ export class OrgRouter {
     list: true,
     read: true,
     update: true,
+    upsert: true,
     delete: false,
     create: 'isAdmin',
   };
 
-  @Option() permissionSchema = { name: { list: true, read: true, create: true } };
+  @Option() permissionSchema = { name: { list: true, read: true, update: true, create: true } };
 
   @Option() basePath = null;
 
