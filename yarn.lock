@@ -8254,10 +8254,10 @@ mongodb@6.9.0:
     bson "^6.7.0"
     mongodb-connection-string-url "^3.0.0"
 
-mongoose-schema-jsonschema@^2.0.2:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/mongoose-schema-jsonschema/-/mongoose-schema-jsonschema-2.2.1.tgz#5491f7d65e45418df676d0e9958d69852a8db963"
-  integrity sha512-6F8nYeAnwOAqTPSyvMRT05WUevh/SN6Urlw0/sXj8LWgF5aq29B86Oy+nVlUifWFD/KvZp4BfEZGLZpdHjrd5w==
+mongoose-schema-jsonschema@^3.0.0:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/mongoose-schema-jsonschema/-/mongoose-schema-jsonschema-3.0.2.tgz#d896a408570d1226b5aefa3265e07da637e321ff"
+  integrity sha512-7s/01YQ60L6ME0EbRBh/S8nDkEzsVbbDREww2S9VUyILz/6fWZquFNWkPK0zU7DzGCtf82RQWmArcCsHC8hzsg==
   dependencies:
     pluralize "^8.0.0"
 
