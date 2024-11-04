@@ -37,9 +37,8 @@ export class PublicService extends Service {
   //   super(req, modelName);
   // }
 
-  async _list(
-    filter: Filter,
-    {
+  async _list(filter: Filter, args?: PublicListArgs, options?: PublicListOptions): Promise<ServiceResult> {
+    const {
       select = this.defaults.publicListArgs?.select,
       populate = this.defaults.publicListArgs?.populate,
       include = this.defaults.publicListArgs?.include,
@@ -49,15 +48,16 @@ export class PublicService extends Service {
       page = this.defaults.publicListArgs?.page,
       pageSize = this.defaults.publicListArgs?.pageSize,
       tasks = this.defaults.publicListArgs?.tasks ?? [],
-    }: PublicListArgs = {},
-    {
+    } = args ?? {};
+
+    const {
       skim = this.defaults.publicListOptions?.skim ?? true,
       includePermissions = this.defaults.publicListOptions?.includePermissions ?? false,
       includeCount = this.defaults.publicListOptions?.includeCount ?? false,
       populateAccess = this.defaults.publicListOptions?.populateAccess ?? 'read',
       lean = this.defaults.publicListOptions?.lean ?? true,
-    }: PublicListOptions = {},
-  ): Promise<ServiceResult> {
+    } = options ?? {};
+
     const result = await this.find(
       filter,
       { select, populate, include, sort, skip, limit, page, pageSize },
@@ -80,19 +80,19 @@ export class PublicService extends Service {
     return result;
   }
 
-  async _create(
-    data,
-    {
+  async _create(data, args?: PublicCreateArgs, options?: PublicCreateOptions): Promise<ServiceResult> {
+    const {
       select = this.defaults.publicCreateArgs?.select,
       populate = this.defaults.publicCreateArgs?.populate,
       tasks = this.defaults.publicCreateArgs?.tasks ?? [],
-    }: PublicCreateArgs = {},
-    {
+    } = args ?? {};
+
+    const {
       skim = this.defaults.publicCreateOptions?.skim ?? false,
       includePermissions = this.defaults.publicCreateOptions?.includePermissions ?? true,
       populateAccess = this.defaults.publicCreateOptions?.populateAccess ?? 'read',
-    }: PublicCreateOptions = {},
-  ): Promise<ServiceResult> {
+    } = options ?? {};
+
     const result = await this.create(
       data,
       { populate },
@@ -114,22 +114,22 @@ export class PublicService extends Service {
     return this.new();
   }
 
-  async _read(
-    id: string,
-    {
+  async _read(id: string, args?: PublicReadArgs, options?: PublicReadOptions): Promise<ServiceResult> {
+    const {
       select = this.defaults.publicReadArgs?.select,
       populate = this.defaults.publicReadArgs?.populate,
       include = this.defaults.publicReadArgs?.include,
       tasks = this.defaults.publicReadArgs?.tasks ?? [],
-    }: PublicReadArgs = {},
-    {
+    } = args ?? {};
+
+    const {
       skim = this.defaults.publicReadOptions?.skim ?? false,
       includePermissions = this.defaults.publicReadOptions?.includePermissions ?? true,
       tryList = this.defaults.publicReadOptions?.tryList ?? true,
       populateAccess = this.defaults.publicReadOptions?.populateAccess,
       lean = this.defaults.publicReadOptions?.lean ?? false,
-    }: PublicReadOptions = {},
-  ): Promise<ServiceResult> {
+    } = options ?? {};
+
     let access: FindAccess = 'read';
     const idFilter = await this.genIDFilter(id);
 
@@ -173,21 +173,25 @@ export class PublicService extends Service {
 
   async _readFilter(
     filter: Filter,
-    {
+    args?: PublicReadArgs & { sort?: Sort },
+    options?: PublicReadOptions,
+  ): Promise<ServiceResult> {
+    const {
       select = this.defaults.publicReadArgs?.select,
       sort = this.defaults.publicListArgs?.sort,
       populate = this.defaults.publicReadArgs?.populate,
       include = this.defaults.publicReadArgs?.include,
       tasks = this.defaults.publicReadArgs?.tasks ?? [],
-    }: PublicReadArgs & { sort?: Sort } = {},
-    {
+    } = args ?? {};
+
+    const {
       skim = this.defaults.publicReadOptions?.skim ?? false,
       includePermissions = this.defaults.publicReadOptions?.includePermissions ?? true,
       tryList = this.defaults.publicReadOptions?.tryList ?? true,
       populateAccess = this.defaults.publicReadOptions?.populateAccess,
       lean = this.defaults.publicReadOptions?.lean ?? false,
-    }: PublicReadOptions = {},
-  ): Promise<ServiceResult> {
+    } = options ?? {};
+
     let access: FindAccess = 'read';
 
     let result = await this.findOne(
@@ -230,21 +234,20 @@ export class PublicService extends Service {
     return result;
   }
 
-  async _update(
-    id: string,
-    data,
-    {
+  async _update(id: string, data, args?: PublicUpdateArgs, options?: PublicUpdateOptions): Promise<ServiceResult> {
+    const {
       select = this.defaults.publicUpdateArgs?.select,
       populate = this.defaults.publicUpdateArgs?.populate,
       tasks = this.defaults.publicUpdateArgs?.tasks ?? [],
-    }: PublicUpdateArgs = {},
-    {
+    } = args ?? {};
+
+    const {
       skim = this.defaults.publicUpdateOptions?.skim ?? false,
       returningAll = this.defaults.publicUpdateOptions?.returningAll ?? true,
       includePermissions = this.defaults.publicUpdateOptions?.includePermissions ?? true,
       populateAccess = this.defaults.publicUpdateOptions?.populateAccess ?? 'read',
-    }: PublicUpdateOptions = {},
-  ): Promise<ServiceResult> {
+    } = options ?? {};
+
     const result = await this.updateById(
       id,
       data,

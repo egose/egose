@@ -79,24 +79,24 @@ export class Service extends Base {
     this.baseFieldsExt = this.baseFields.concat(this.options.permissionField);
   }
 
-  public async findOne(
-    filter: Filter,
-    {
+  public async findOne(filter: Filter, args?: FindOneArgs, options?: FindOneOptions): Promise<ServiceResult> {
+    const {
       select = this.defaults.findOneArgs?.select,
       sort = this.defaults.findOneArgs?.sort,
       populate = this.defaults.findOneArgs?.populate,
       include = this.defaults.findOneArgs?.include,
       overrides = {},
-    }: FindOneArgs = {},
-    {
+    } = args ?? {};
+
+    const {
       skim = this.defaults.findOneOptions?.skim ?? false,
       includePermissions = this.defaults.findOneOptions?.includePermissions ?? true,
       access = this.defaults.findOneOptions?.access ?? 'read',
       populateAccess = this.defaults.findOneOptions?.populateAccess,
       lean = this.defaults.findOneOptions?.lean ?? false,
-    }: FindOneOptions = {},
-  ): Promise<ServiceResult> {
-    const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
+    } = options ?? {};
+
+    const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides ?? {};
 
     let [_filter, _select, _populate] = await Promise.all([
       overrideFilter || this.genFilter(access, await this.parseClientData(filter)),
@@ -143,23 +143,23 @@ export class Service extends Base {
     return { success: true, code: Codes.Success, data: doc, query, context };
   }
 
-  public async findById(
-    id: string,
-    {
+  public async findById(id: string, args?: FindByIdArgs, options?: FindByIdOptions): Promise<ServiceResult> {
+    const {
       select = this.defaults.findByIdArgs?.select,
       populate = this.defaults.findByIdArgs?.populate,
       include = this.defaults.findByIdArgs?.include,
       overrides = {},
-    }: FindByIdArgs = {},
-    {
+    } = args ?? {};
+
+    const {
       skim = this.defaults.findOneOptions?.skim ?? false,
       includePermissions = this.defaults.findOneOptions?.includePermissions ?? true,
       access = this.defaults.findOneOptions?.access ?? 'read',
       populateAccess = this.defaults.findOneOptions?.populateAccess,
       lean = this.defaults.findOneOptions?.lean ?? false,
-    }: FindByIdOptions = {},
-  ): Promise<ServiceResult> {
-    const { select: overrideSelect, populate: overridePopulate, idFilter: overrideIdFilter } = overrides;
+    } = options ?? {};
+
+    const { select: overrideSelect, populate: overridePopulate, idFilter: overrideIdFilter } = overrides ?? {};
     const filter = overrideIdFilter || (await this.genIDFilter(id));
 
     return this.findOne(
@@ -179,7 +179,11 @@ export class Service extends Base {
 
   public async find(
     filter: Filter,
-    {
+    args?: FindArgs,
+    options?: FindOptions,
+    decorate?: Function,
+  ): Promise<ServiceResult> {
+    const {
       select = this.defaults.findArgs?.select,
       populate = this.defaults.findArgs?.populate,
       include = this.defaults.findArgs?.include,
@@ -189,17 +193,17 @@ export class Service extends Base {
       page = this.defaults.findArgs?.page,
       pageSize = this.defaults.findArgs?.pageSize,
       overrides = {},
-    }: FindArgs = {},
-    {
+    } = args ?? {};
+
+    const {
       skim = this.defaults.findOptions?.skim ?? false,
       includePermissions = this.defaults.findOptions?.includePermissions ?? true,
       includeCount = this.defaults.findOptions?.includeCount ?? false,
       populateAccess = this.defaults.findOptions?.populateAccess ?? 'read',
       lean = this.defaults.findOptions?.lean ?? false,
-    }: FindOptions = {},
-    decorate?: Function,
-  ): Promise<ServiceResult> {
-    const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides;
+    } = options ?? {};
+
+    const { filter: overrideFilter, select: overrideSelect, populate: overridePopulate } = overrides ?? {};
 
     const [_filter, _select, _populate, pagination] = await Promise.all([
       overrideFilter || this.genFilter('list', await this.parseClientData(filter)),
@@ -274,16 +278,14 @@ export class Service extends Base {
     };
   }
 
-  public async create(
-    data,
-    { populate = this.defaults.createArgs?.populate }: CreateArgs = {},
-    {
+  public async create(data, args?: CreateArgs, options?: CreateOptions, decorate?: Function): Promise<ServiceResult> {
+    const { populate = this.defaults.createArgs?.populate } = args ?? {};
+    const {
       skim = this.defaults.createOptions?.skim ?? false,
       includePermissions = this.defaults.createOptions?.includePermissions ?? true,
       populateAccess = this.defaults.createOptions?.populateAccess ?? 'read',
-    }: CreateOptions = {},
-    decorate?: Function,
-  ): Promise<ServiceResult> {
+    } = options ?? {};
+
     const isArr = Array.isArray(data);
     let dataArr = isArr ? data : [data];
     dataArr = await Promise.all(dataArr.map((d) => this.parseClientData(d)));
@@ -364,15 +366,17 @@ export class Service extends Base {
   public async updateOne(
     filter: Filter,
     data,
-    { populate = this.defaults.updateOneArgs?.populate, overrides = {} }: UpdateOneArgs = {},
-    {
+    args?: UpdateOneArgs,
+    options?: UpdateOneOptions,
+    decorate?: Function,
+  ): Promise<ServiceResult> {
+    const { populate = this.defaults.updateOneArgs?.populate, overrides = {} } = args ?? {};
+    const {
       skim = this.defaults.updateOneOptions?.skim ?? false,
       includePermissions = this.defaults.updateOneOptions?.includePermissions ?? true,
       populateAccess = this.defaults.updateOneOptions?.populateAccess ?? 'read',
-    }: UpdateOneOptions = {},
-    decorate?: Function,
-  ): Promise<ServiceResult> {
-    const { filter: overrideFilter, populate: overridePopulate } = overrides;
+    } = options ?? {};
+    const { filter: overrideFilter, populate: overridePopulate } = overrides ?? {};
 
     const [_filter, _populate] = await Promise.all([
       overrideFilter || this.genFilter('update', filter),
@@ -481,15 +485,17 @@ export class Service extends Base {
   public async upsert(
     filter: Filter,
     data,
-    { populate = this.defaults.upsertArgs?.populate, overrides = {} }: UpsertArgs = {},
-    {
+    args?: UpsertArgs,
+    options?: UpsertOptions,
+    decorate?: Function,
+  ): Promise<ServiceResult> {
+    const { populate = this.defaults.upsertArgs?.populate, overrides = {} } = args ?? {};
+    const {
       skim = this.defaults.upsertOptions?.skim ?? false,
       includePermissions = this.defaults.upsertOptions?.includePermissions ?? true,
       populateAccess = this.defaults.upsertOptions?.populateAccess ?? 'read',
-    }: UpsertOptions = {},
-    decorate?: Function,
-  ): Promise<ServiceResult> {
-    const { filter: overrideFilter, populate: overridePopulate } = overrides;
+    } = options ?? {};
+    const { filter: overrideFilter, populate: overridePopulate } = overrides ?? {};
 
     const theone = await this.model.findOne({ filter });
     if (theone) {
@@ -543,19 +549,19 @@ export class Service extends Base {
     return { success: true, code: Codes.Success, data: doc._id, query };
   }
 
-  public async exists(
-    filter: Filter,
-    {
+  public async exists(filter: Filter, options?: ExistsOptions): Promise<ServiceResult> {
+    const {
       access = this.defaults.existsOptions?.access ?? 'read',
       includeId = this.defaults.existsOptions?.includeId ?? false,
-    }: ExistsOptions = {},
-  ): Promise<ServiceResult> {
+    } = options ?? {};
+
     filter = await this.genFilter(access, filter);
     const result = await this.model.exists(filter);
     return { success: true, code: Codes.Success, data: includeId ? result : !!result, query: { filter } };
   }
 
-  public async distinct(field: string, { filter }: DistinctArgs = {}): Promise<ServiceResult> {
+  public async distinct(field: string, args?: DistinctArgs): Promise<ServiceResult> {
+    let { filter } = args ?? {};
     filter = await this.genFilter('read', filter);
 
     const query = { filter };
