@@ -13,8 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-    - uses: hmarr/debug-action@v2
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+    - uses: hmarr/debug-action@f7318c783045ac39ed9bb497e22ce835fdafbfe6
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
     - name: Setup Tools
       uses: ./.github/actions/setup-tools
@@ -28,7 +28,7 @@ jobs:
       working-directory: docusaurus
 
     - name: Deploy GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: JamesIves/github-pages-deploy-action@c1a0a351fcb5782d6f4f7152406c4d66da2c90c3
       with:
         repository-name: egose/egose.github.io
         branch: gh-pages
