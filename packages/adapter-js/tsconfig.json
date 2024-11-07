@@ -4,5 +4,5 @@
     "rootDir": "../",
     "outDir": "_lib"
   },
-  "include": ["eslint.config.js", "src", "test"]
+  "include": ["src", "test"]
 }
