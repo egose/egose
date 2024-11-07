@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import request from 'supertest';
 import mongoose from 'mongoose';
 import { expect } from 'chai';
@@ -7,7 +9,6 @@ import { app } from './00.setup.spec';
 
 describe('Create Users', async () => {
   it('should create an user `nick` with populated orgs by admin', async () => {
-    // @ts-ignore
     const orgs = await mongoose.model('Org').find().lean();
 
     const response = await request(app)
