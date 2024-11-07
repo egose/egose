@@ -1,11 +1,10 @@
-module.exports = {
-  extends: ['airbnb-base', 'prettier'],
-  env: { es6: true, commonjs: true, node: true, jest: true },
-  plugins: ['import'],
-  parserOptions: {
-    ecmaVersion: 6,
-  },
-  root: true,
+// @ts-check
+
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintConfigPrettier from 'eslint-config-prettier';
+
+export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.recommended, eslintConfigPrettier, {
   rules: {
     'arrow-body-style': 0,
     'import/no-extraneous-dependencies': 0,
@@ -31,5 +30,4 @@ module.exports = {
     'import/no-dynamic-require': 0,
     'spaced-comment': 0,
   },
-  overrides: [],
-};
+});

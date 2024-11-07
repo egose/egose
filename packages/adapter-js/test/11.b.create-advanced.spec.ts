@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import 'mocha';
 
 import mongoose from 'mongoose';
@@ -7,7 +9,7 @@ import { services } from './00.setup.spec';
 
 describe('Create Users', async () => {
   it('should create an user `nick` with populated orgs by admin', async () => {
-    const orgs: { _id: string }[] = await mongoose.model('Org').find().lean();
+    const orgs = await mongoose.model('Org').find().lean();
 
     const response = await services.userService.createAdvanced(
       { name: 'nick', role: 'user', orgs: orgs.map((org) => org._id) },
