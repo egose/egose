@@ -20,7 +20,9 @@ const setRoutes = async () => {
   router.use('/', orgRoutes.routes);
   router.use('/', petDataRoutes.routes);
   router.use('/', rootRouter.routes);
-  router.get('/apple/:name', (req, res) => res.json({ pathParams: req.params, queryParams: req.query }));
+  router.get('/apple/:name', (req, res) => {
+    res.json({ pathParams: req.params, queryParams: req.query });
+  });
 
   const swagger = createOpenAPI([userRoutes, orgRoutes], { baseUrl: 'http://localhost:3000' });
   await swagger.build();
