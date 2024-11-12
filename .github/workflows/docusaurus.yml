@@ -28,7 +28,7 @@ jobs:
       working-directory: docusaurus
 
     - name: Deploy GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@c1a0a351fcb5782d6f4f7152406c4d66da2c90c3
+      uses: JamesIves/github-pages-deploy-action@271e4a60b8e718209d73dbb50e0fe23b93a19962
       with:
         repository-name: egose/egose.github.io
         branch: gh-pages
