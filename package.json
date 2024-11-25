@@ -57,7 +57,7 @@
     "mini-css-extract-plugin": "^2.7.5",
     "mocha": "^10.2.0",
     "mocha-chai-jest-snapshot": "^1.1.4",
-    "mongoose": "8.8.1",
+    "mongoose": "8.8.2",
     "morgan": "^1.10.0",
     "nodemon": "^3.0.0",
     "path": "^0.12.7",
