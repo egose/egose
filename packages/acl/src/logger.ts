@@ -7,7 +7,7 @@ export const logger = createLogger({
   format: format.combine(
     format.label({ label: '[EGOSE]' }),
     format.timestamp({ format: 'YY-MM-DD HH:mm:ss' }),
-    format.printf((msg) => {
+    format.printf((msg: { level: string; label: string; message: string; timestamp: string }) => {
       const label = colorizer.colorize('notice', msg.label);
       const timestamp = msg.timestamp;
       const level = colorizer.colorize(msg.level, `[${msg.level.toUpperCase()}]`);
