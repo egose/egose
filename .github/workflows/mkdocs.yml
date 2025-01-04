@@ -24,7 +24,7 @@ jobs:
         make mk-build
 
     - name: Deploy GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@45ad85b4a199d81314160b9cf25d2c14ed89b123
+      uses: JamesIves/github-pages-deploy-action@f9cbe5cd0b5c7a4809e6a86ea38fa319da375a03
       with:
         repository-name: egose/egose.github.io
         branch: gh-pages
