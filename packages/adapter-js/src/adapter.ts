@@ -1,4 +1,4 @@
-import axios, { CreateAxiosDefaults, mergeConfig, AxiosRequestConfig } from 'axios';
+import axios, { mergeConfig, AxiosRequestConfig } from 'axios';
 import set from 'lodash.set';
 import isEmpty from 'lodash.isempty';
 import castArray from 'lodash.castarray';
@@ -22,7 +22,7 @@ const defaultAxiosConfig = Object.freeze({
 });
 
 export function createAdapter(
-  axiosConfig?: CreateAxiosDefaults,
+  axiosConfig?: AxiosRequestConfig,
   egoseOptions?: {
     rootRouterPath?: string;
     onSuccess?: ResponseCallback;
