@@ -63,7 +63,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "reflect-metadata": "^0.2.2",
-    "release-it": "^18.0.0",
+    "release-it": "^19.0.0",
     "style-loader": "^4.0.0",
     "supertest": "^7.0.0",
     "ts-loader": "^9.5.2",
