@@ -49,9 +49,9 @@ export interface Response<T1, T2 = T1> {
   headers: Record<string, string>;
 }
 
-export type ModelResponse<T> = Response<T, Model<T> & T>;
-export type ArrayModelResponse<T> = Response<T[], (Model<T> & T)[]>;
-export type ListModelResponse<T> = ArrayModelResponse<T> & { totalCount: number };
+export type ModelResponse<T, TData = T> = Response<TData, Model<T, TData> & TData>;
+export type ArrayModelResponse<T, TData = T> = Response<TData[], (Model<T, TData> & TData)[]>;
+export type ListModelResponse<T, TData = T> = ArrayModelResponse<T, TData> & { totalCount: number };
 
 export interface ModelPromiseMeta {
   __op: string;

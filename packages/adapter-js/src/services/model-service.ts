@@ -119,7 +119,7 @@ export class ModelService<T extends Document> extends Service<T> {
     ].forEach((key) => setIfNotFound(this._defaults, key, {}));
   }
 
-  list(args?: ListArgs, options?: ListOptions, axiosRequestConfig?: RequestConfig) {
+  list<TData extends Partial<T> = T>(args?: ListArgs, options?: ListOptions, axiosRequestConfig?: RequestConfig) {
     const {
       skip = this._defaults.listArgs.skip,
       limit = this._defaults.listArgs.limit,
@@ -139,8 +139,8 @@ export class ModelService<T extends Document> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
-    const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
-      ListModelResponse<T>,
+    const result: ModelPromiseMeta & Promise<ListModelResponse<T, TData>> = wrapLazyPromise<
+      ListModelResponse<T, TData>,
       ModelPromiseMeta
     >(
       () =>
@@ -161,11 +161,11 @@ export class ModelService<T extends Document> extends Service<T> {
             }),
           )
           .then(this.handleSuccess)
-          .then((result: ListModelResponse<T>) => {
+          .then((result: ListModelResponse<T, TData>) => {
             return this.processListResult(this, result, { includeCount, includeExtraHeaders });
           })
-          .catch(this.handleError<ListModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ListModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ListModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ListModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'list',
         __query: {
@@ -189,7 +189,7 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  listAdvanced(
+  listAdvanced<TData extends Partial<T> = T>(
     filter: FilterQuery<T>,
     args?: ListAdvancedArgs,
     options?: ListAdvancedOptions,
@@ -220,8 +220,8 @@ export class ModelService<T extends Document> extends Service<T> {
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const _filter = replaceSubQuery<T>(filter);
-    const result: ModelPromiseMeta & Promise<ListModelResponse<T>> = wrapLazyPromise<
-      ListModelResponse<T>,
+    const result: ModelPromiseMeta & Promise<ListModelResponse<T, TData>> = wrapLazyPromise<
+      ListModelResponse<T, TData>,
       ModelPromiseMeta
     >(
       () =>
@@ -249,11 +249,11 @@ export class ModelService<T extends Document> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: ListModelResponse<T>) => {
+          .then((result: ListModelResponse<T, TData>) => {
             return this.processListResult(this, result, { includeCount, includeExtraHeaders });
           })
-          .catch(this.handleError<ListModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ListModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ListModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ListModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'listAdvanced',
         __query: {
@@ -278,7 +278,7 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  read(identifier: string, options?: ReadOptions, axiosRequestConfig?: RequestConfig) {
+  read<TData extends Partial<T> = T>(identifier: string, options?: ReadOptions, axiosRequestConfig?: RequestConfig) {
     const {
       includePermissions = this._defaults.readOptions.includePermissions ?? true,
       tryList = this._defaults.readOptions.tryList ?? true,
@@ -289,7 +289,10 @@ export class ModelService<T extends Document> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .get(
@@ -302,12 +305,12 @@ export class ModelService<T extends Document> extends Service<T> {
             }),
           )
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'read',
         __query: {
@@ -329,7 +332,7 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  readAdvanced(
+  readAdvanced<TData extends Partial<T> = T>(
     identifier: string,
     args?: ReadAdvancedArgs,
     options?: ReadAdvancedOptions,
@@ -352,7 +355,10 @@ export class ModelService<T extends Document> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .post(
@@ -370,12 +376,12 @@ export class ModelService<T extends Document> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'readAdvanced',
         __query: {
@@ -398,7 +404,7 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  readAdvancedFilter(
+  readAdvancedFilter<TData extends Partial<T> = T>(
     filter: FilterQuery<T>,
     args?: ReadAdvancedArgs,
     options?: ReadAdvancedOptions,
@@ -423,7 +429,10 @@ export class ModelService<T extends Document> extends Service<T> {
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const _filter = replaceSubQuery<T>(filter);
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .post(
@@ -443,12 +452,12 @@ export class ModelService<T extends Document> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'readAdvancedFilter',
         __query: {
@@ -471,23 +480,26 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  new(axiosRequestConfig?: RequestConfig) {
+  new<TData extends Partial<T> = T>(axiosRequestConfig?: RequestConfig) {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .get(`${this._basePath}/new`, reqConfig)
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
+          .then((result: ModelResponse<T, TData>) => {
             delete result.raw._id;
 
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'new',
         __query: {
@@ -502,22 +514,25 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  create(data: object, options?: CreateOptions, axiosRequestConfig?: RequestConfig) {
+  create<TData extends Partial<T> = T>(data: object, options?: CreateOptions, axiosRequestConfig?: RequestConfig) {
     const { includePermissions = this._defaults.createOptions.includePermissions ?? true } = options ?? {};
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .post(this._basePath, data, mergeConfig(reqConfig, { params: { include_permissions: includePermissions } }))
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'create',
         __query: {
@@ -536,7 +551,7 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  createAdvanced(
+  createAdvanced<TData extends Partial<T> = T>(
     data: object,
     args?: CreateAdvancedArgs,
     options?: CreateAdvancedOptions,
@@ -553,7 +568,10 @@ export class ModelService<T extends Document> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .post(
@@ -562,12 +580,12 @@ export class ModelService<T extends Document> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'createAdvanced',
         __query: {
@@ -588,12 +606,20 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  update(identifier: string, data: object, options?: UpdateOptions, axiosRequestConfig?: RequestConfig) {
+  update<TData extends Partial<T> = T>(
+    identifier: string,
+    data: object,
+    options?: UpdateOptions,
+    axiosRequestConfig?: RequestConfig,
+  ) {
     const { returningAll = this._defaults.updateOptions.returningAll ?? true } = options ?? {};
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .patch(
@@ -602,12 +628,12 @@ export class ModelService<T extends Document> extends Service<T> {
             mergeConfig(reqConfig, { params: { returning_all: returningAll } }),
           )
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'update',
         __query: {
@@ -627,7 +653,7 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  updateAdvanced(
+  updateAdvanced<TData extends Partial<T> = T>(
     identifier: string,
     data: object,
     args?: UpdateAdvancedArgs,
@@ -646,7 +672,10 @@ export class ModelService<T extends Document> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .patch(
@@ -660,12 +689,12 @@ export class ModelService<T extends Document> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'updateAdvanced',
         __query: {
@@ -688,22 +717,25 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  upsert(data: object, options?: UpsertOptions, axiosRequestConfig?: RequestConfig) {
+  upsert<TData extends Partial<T> = T>(data: object, options?: UpsertOptions, axiosRequestConfig?: RequestConfig) {
     const { returningAll = this._defaults.upsertOptions.returningAll ?? true } = options ?? {};
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .put(this._basePath, data, mergeConfig(reqConfig, { params: { returning_all: returningAll } }))
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'upsert',
         __query: {
@@ -722,7 +754,7 @@ export class ModelService<T extends Document> extends Service<T> {
     return result;
   }
 
-  upsertAdvanced(
+  upsertAdvanced<TData extends Partial<T> = T>(
     data: object,
     args?: UpsertAdvancedArgs,
     options?: UpsertAdvancedOptions,
@@ -740,7 +772,10 @@ export class ModelService<T extends Document> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     set(reqConfig, `headers.${CACHE_HEADER}`, 'false');
 
-    const result: ModelPromiseMeta & Promise<ModelResponse<T>> = wrapLazyPromise<ModelResponse<T>, ModelPromiseMeta>(
+    const result: ModelPromiseMeta & Promise<ModelResponse<T, TData>> = wrapLazyPromise<
+      ModelResponse<T, TData>,
+      ModelPromiseMeta
+    >(
       () =>
         this._axios
           .put(
@@ -754,12 +789,12 @@ export class ModelService<T extends Document> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: ModelResponse<T>) => {
-            result.data = result.success ? Model.create<T>(result.raw, this) : null;
+          .then((result: ModelResponse<T, TData>) => {
+            result.data = result.success ? Model.create<T, TData>(result.raw, this) : null;
             return result;
           })
-          .catch(this.handleError<ModelResponse<T>>)
-          .then((res) => this._handleCallbacks<ModelResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ModelResponse<T, TData>>)
+          .then((res) => this._handleCallbacks<ModelResponse<T, TData>>(res, throwOnError)),
       {
         __op: 'upsertAdvanced',
         __query: {
@@ -1261,9 +1296,9 @@ export class ModelService<T extends Document> extends Service<T> {
     };
   }
 
-  private processListResult<T>(
+  private processListResult<TData>(
     _this: ModelService<T>,
-    result: ListModelResponse<T>,
+    result: ListModelResponse<T, TData>,
     { includeCount, includeExtraHeaders },
   ) {
     if (includeCount) {
@@ -1271,12 +1306,12 @@ export class ModelService<T extends Document> extends Service<T> {
         const totalCount = get(result, `headers.${CustomHeaders.TotalCount}`, 0);
         result.totalCount = Number(totalCount);
       } else {
-        result.totalCount = (result.raw as never as ListData<T>).count;
-        result.raw = (result.raw as never as ListData<T>).rows;
+        result.totalCount = (result.raw as never as ListData<TData>).count;
+        result.raw = (result.raw as never as ListData<TData>).rows;
       }
     }
 
-    result.data = result.success ? result.raw.map((item) => Model.create<T>(item, _this)) : [];
+    result.data = result.success ? result.raw.map((item) => Model.create<T, TData>(item, _this)) : [];
 
     return result;
   }
