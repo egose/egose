@@ -28,6 +28,7 @@ const packageRoot = path.join(__dirname, '../packages');
 const files = globSync(`${packageRoot}/*/package.json`, { ignore: 'node_modules/**' });
 _.forEach(files, (file) => {
   const dir = file.substring(0, file.lastIndexOf('/'));
+  console.log(`processing ${dir}`);
   execSync(`cd ${dir} && yarn bundle`);
 
   const publishDir = `${dir}/${PUBLISH_DIR}`;

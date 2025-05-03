@@ -6,7 +6,7 @@ import { AxiosRequestConfig } from 'axios';
 import { Document } from './types';
 import { ModelService } from './services';
 
-export class Model<T extends Document, TData extends Document> {
+export class Model<T extends Document, TData extends Partial<T> = T> {
   private _data!: TData;
   private readonly _service!: ModelService<T>;
   private modifiedPaths!: Set<string>;
@@ -18,7 +18,7 @@ export class Model<T extends Document, TData extends Document> {
     this.modifiedPaths = new Set();
   }
 
-  static create<T, TData = T>(data: TData, adapter: ModelService<T>) {
+  static create<T, TData extends Partial<T> = T>(data: TData, adapter: ModelService<T>) {
     return new Model<T, TData>(data, adapter) as Model<T, TData> & TData;
   }
 
