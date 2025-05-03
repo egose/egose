@@ -1,3 +1,9 @@
+## [0.46.0](https://github.com/egose/egose/compare/v0.45.1...v0.46.0) (2025-05-03)
+
+### Features
+
+* **acl:** add sort validation ([45a879c](https://github.com/egose/egose/commit/45a879c9fb306ca54c11c63e9c49d950d2ef3dee))
+* **adapter-js:** add data type definitions for service methods ([241297b](https://github.com/egose/egose/commit/241297bc12ae551bc9aef442b581471250ba9abf))
 ## [0.45.1](https://github.com/egose/egose/compare/v0.45.0...v0.45.1) (2024-11-04)
 ## [0.45.0](https://github.com/egose/egose/compare/v0.44.7...v0.45.0) (2024-10-22)
 

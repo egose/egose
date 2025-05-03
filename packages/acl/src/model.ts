@@ -32,6 +32,15 @@ interface FindOneProps {
 const reducer1 = (baseArr, index) => baseArr.concat(Object.keys(index.key));
 const reducer2 = (baseObj, key) => ({ ...baseObj, [key]: true });
 
+type SortValue = 1 | -1 | 'asc' | 'desc';
+type SortType =
+  | string
+  | [string, SortValue][]
+  | { [key: string]: SortValue }
+  | Map<string, SortValue>
+  | null
+  | undefined;
+
 class Model {
   modelName: string;
   model: mongoose.Model<any>;
@@ -71,6 +80,9 @@ class Model {
 
   find({ filter, select, sort, populate, limit, skip, lean }: FindProps) {
     // sort = this.pruneSort(sort);
+    if (!this.validateSort(sort as SortType)) {
+      sort = null;
+    }
 
     let builder = this.model.find(filter as FilterQuery<any>);
     if (select) builder = builder.select(select);
@@ -82,6 +94,72 @@ class Model {
     // builder = builder.setOptions({ sanitizeFilter: true });
 
     return builder;
+  }
+
+  // See https://github.com/Automattic/mongoose/blob/65b2d12a8f85f86136cfaf32947f338ba0c5f451/lib/query.js#L3011
+  validateSort(sort: SortType, logError: (msg: string, ...args: any[]) => void = console.error): boolean {
+    // Handle null/undefined (valid, no-op)
+    if (sort === null || sort === undefined) return true;
+
+    // Validate string
+    if (typeof sort === 'string') {
+      // Optional: Check for valid format (e.g., "field -field2")
+      if (!/^[a-zA-Z0-9\s-]+/.test(sort)) {
+        logError('Invalid sort string:', sort);
+        return false;
+      }
+      return true;
+    }
+
+    // Validate array
+    if (Array.isArray(sort)) {
+      const isValid = sort.every((pair: any) => {
+        if (!Array.isArray(pair) || pair.length !== 2) {
+          logError('Invalid sort array element: must be [key, order]', pair);
+          return false;
+        }
+        const [key, order] = pair as [string, any];
+        if (typeof key !== 'string') {
+          logError('Invalid sort array key: must be string', key);
+          return false;
+        }
+        if (![1, -1, 'asc', 'desc'].includes(order)) {
+          logError('Invalid sort array order: must be 1, -1, "asc", or "desc"', order);
+          return false;
+        }
+        return true;
+      });
+
+      return isValid;
+    }
+
+    // Validate object
+    if (typeof sort === 'object' && !(sort instanceof Map)) {
+      const isValid = Object.values(sort).every((order: any) => {
+        if (![1, -1, 'asc', 'desc'].includes(order)) {
+          logError('Invalid sort object value: must be 1, -1, "asc", or "desc"', order);
+          return false;
+        }
+        return true;
+      });
+      return isValid;
+    }
+
+    // Validate Map
+    if (sort instanceof Map) {
+      const isValid = Array.from(sort.values()).every((order: any) => {
+        if (![1, -1, 'asc', 'desc'].includes(order)) {
+          logError('Invalid sort Map value: must be 1, -1, "asc", or "desc"', order);
+          return false;
+        }
+        return true;
+      });
+      return isValid;
+    }
+
+    // Invalid type
+    logError('Invalid sort type: must be string, array, object, or Map', sort);
+    return false;
   }
 
   pruneSort(sort = {}) {
@@ -101,6 +179,10 @@ class Model {
   }
 
   findOne({ filter, select, sort, populate, lean }: FindOneProps) {
+    if (!this.validateSort(sort as SortType)) {
+      sort = null;
+    }
+
     let builder = this.model.findOne(filter as FilterQuery<any>);
     if (select) builder = builder.select(select);
     if (sort) builder = builder.sort(sort);
