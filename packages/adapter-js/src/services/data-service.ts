@@ -92,7 +92,11 @@ export class DataService<T> extends Service<T> {
     ].forEach((key) => setIfNotFound(this._defaults, key, {}));
   }
 
-  list(args?: DataListArgs, options?: DataListOptions, axiosRequestConfig?: RequestConfig) {
+  list<TData extends Partial<T> = T>(
+    args?: DataListArgs,
+    options?: DataListOptions,
+    axiosRequestConfig?: RequestConfig,
+  ) {
     const {
       skip = this._defaults.listArgs.skip,
       limit = this._defaults.listArgs.limit,
@@ -110,8 +114,8 @@ export class DataService<T> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
-    const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
-      ListDataResponse<T>,
+    const result: DataPromiseMeta & Promise<ListDataResponse<TData>> = wrapLazyPromise<
+      ListDataResponse<TData>,
       DataPromiseMeta
     >(
       () =>
@@ -131,11 +135,11 @@ export class DataService<T> extends Service<T> {
             }),
           )
           .then(this.handleSuccess)
-          .then((result: ListDataResponse<T>) => {
+          .then((result: ListDataResponse<TData>) => {
             return this.processListResult(result, { includeCount, includeExtraHeaders });
           })
-          .catch(this.handleError<ListDataResponse<T>>)
-          .then((res) => this._handleCallbacks<ListDataResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ListDataResponse<TData>>)
+          .then((res) => this._handleCallbacks<ListDataResponse<TData>>(res, throwOnError)),
       {
         __op: 'list',
         __query: {
@@ -157,7 +161,7 @@ export class DataService<T> extends Service<T> {
     return result;
   }
 
-  listAdvanced(
+  listAdvanced<TData extends Partial<T> = T>(
     filter: FilterQuery<T>,
     args?: DataListAdvancedArgs,
     options?: DataListAdvancedOptions,
@@ -183,8 +187,8 @@ export class DataService<T> extends Service<T> {
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const _filter = replaceSubQuery<T>(filter);
-    const result: DataPromiseMeta & Promise<ListDataResponse<T>> = wrapLazyPromise<
-      ListDataResponse<T>,
+    const result: DataPromiseMeta & Promise<ListDataResponse<TData>> = wrapLazyPromise<
+      ListDataResponse<TData>,
       DataPromiseMeta
     >(
       () =>
@@ -208,11 +212,11 @@ export class DataService<T> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: ListDataResponse<T>) => {
+          .then((result: ListDataResponse<TData>) => {
             return this.processListResult(result, { includeCount, includeExtraHeaders });
           })
-          .catch(this.handleError<ListDataResponse<T>>)
-          .then((res) => this._handleCallbacks<ListDataResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<ListDataResponse<TData>>)
+          .then((res) => this._handleCallbacks<ListDataResponse<TData>>(res, throwOnError)),
       {
         __op: 'listAdvanced',
         __query: {
@@ -234,7 +238,11 @@ export class DataService<T> extends Service<T> {
     return result;
   }
 
-  read(identifier: string, options?: DataReadOptions, axiosRequestConfig?: RequestConfig) {
+  read<TData extends Partial<T> = T>(
+    identifier: string,
+    options?: DataReadOptions,
+    axiosRequestConfig?: RequestConfig,
+  ) {
     const {
       includePermissions = this._defaults.readOptions.includePermissions ?? true,
       ignoreCache = this._defaults.readOptions.ignoreCache ?? false,
@@ -243,7 +251,10 @@ export class DataService<T> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
-    const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
+    const result: DataPromiseMeta & Promise<DataResponse<TData>> = wrapLazyPromise<
+      DataResponse<TData>,
+      DataPromiseMeta
+    >(
       () =>
         this._axios
           .get(
@@ -255,12 +266,12 @@ export class DataService<T> extends Service<T> {
             }),
           )
           .then(this.handleSuccess)
-          .then((result: DataResponse<T>) => {
+          .then((result: DataResponse<TData>) => {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError<DataResponse<T>>)
-          .then((res) => this._handleCallbacks<DataResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<DataResponse<TData>>)
+          .then((res) => this._handleCallbacks<DataResponse<TData>>(res, throwOnError)),
       {
         __op: 'read',
         __query: {
@@ -280,7 +291,7 @@ export class DataService<T> extends Service<T> {
     return result;
   }
 
-  readAdvanced(
+  readAdvanced<TData extends Partial<T> = T>(
     identifier: string,
     args?: DataReadAdvancedArgs,
     options?: DataReadAdvancedOptions,
@@ -296,7 +307,10 @@ export class DataService<T> extends Service<T> {
     const { throwOnError, ...reqConfig } = axiosRequestConfig ?? {};
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
-    const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
+    const result: DataPromiseMeta & Promise<DataResponse<TData>> = wrapLazyPromise<
+      DataResponse<TData>,
+      DataPromiseMeta
+    >(
       () =>
         this._axios
           .post(
@@ -310,12 +324,12 @@ export class DataService<T> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: DataResponse<T>) => {
+          .then((result: DataResponse<TData>) => {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError<DataResponse<T>>)
-          .then((res) => this._handleCallbacks<DataResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<DataResponse<TData>>)
+          .then((res) => this._handleCallbacks<DataResponse<TData>>(res, throwOnError)),
       {
         __op: 'readAdvanced',
         __query: {
@@ -335,7 +349,7 @@ export class DataService<T> extends Service<T> {
     return result;
   }
 
-  readAdvancedFilter(
+  readAdvancedFilter<TData extends Partial<T> = T>(
     filter: FilterQuery<T>,
     args?: DataReadAdvancedArgs,
     options?: DataReadAdvancedOptions,
@@ -352,7 +366,10 @@ export class DataService<T> extends Service<T> {
     reqConfig.headers = this.updateHeaders(reqConfig.headers, { ignoreCache });
 
     const _filter = replaceSubQuery<T>(filter);
-    const result: DataPromiseMeta & Promise<DataResponse<T>> = wrapLazyPromise<DataResponse<T>, DataPromiseMeta>(
+    const result: DataPromiseMeta & Promise<DataResponse<TData>> = wrapLazyPromise<
+      DataResponse<TData>,
+      DataPromiseMeta
+    >(
       () =>
         this._axios
           .post(
@@ -367,12 +384,12 @@ export class DataService<T> extends Service<T> {
             reqConfig,
           )
           .then(this.handleSuccess)
-          .then((result: DataResponse<T>) => {
+          .then((result: DataResponse<TData>) => {
             result.data = result.raw;
             return result;
           })
-          .catch(this.handleError<DataResponse<T>>)
-          .then((res) => this._handleCallbacks<DataResponse<T>>(res, throwOnError)),
+          .catch(this.handleError<DataResponse<TData>>)
+          .then((res) => this._handleCallbacks<DataResponse<TData>>(res, throwOnError)),
       {
         __op: 'readAdvancedFilter',
         __query: {
@@ -392,14 +409,14 @@ export class DataService<T> extends Service<T> {
     return result;
   }
 
-  private processListResult<T>(result: ListDataResponse<T>, { includeCount, includeExtraHeaders }) {
+  private processListResult<TData>(result: ListDataResponse<TData>, { includeCount, includeExtraHeaders }) {
     if (includeCount) {
       if (includeExtraHeaders) {
         const totalCount = get(result, `headers.${CustomHeaders.TotalCount}`, 0);
         result.totalCount = Number(totalCount);
       } else {
-        result.totalCount = (result.raw as never as ListData<T>).count;
-        result.raw = (result.raw as never as ListData<T>).rows;
+        result.totalCount = (result.raw as never as ListData<TData>).count;
+        result.raw = (result.raw as never as ListData<TData>).rows;
       }
     }
 

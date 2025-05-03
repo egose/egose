@@ -6,20 +6,20 @@ import { AxiosRequestConfig } from 'axios';
 import { Document } from './types';
 import { ModelService } from './services';
 
-export class Model<T extends Document> {
-  private _data!: T;
+export class Model<T extends Document, TData extends Document> {
+  private _data!: TData;
   private readonly _service!: ModelService<T>;
   private modifiedPaths!: Set<string>;
 
-  constructor(data: T, adapter: ModelService<T>) {
+  constructor(data: TData, adapter: ModelService<T>) {
     this.defineHiddenDataProp(cloneDeep(data));
     this.defineHiddenAdapterProp(adapter);
     this.definePublicDataProps();
     this.modifiedPaths = new Set();
   }
 
-  static create<T>(data: T, adapter: ModelService<T>) {
-    return new Model(data, adapter) as Model<T> & T;
+  static create<T, TData = T>(data: TData, adapter: ModelService<T>) {
+    return new Model<T, TData>(data, adapter) as Model<T, TData> & TData;
   }
 
   async save(reqConfig?: AxiosRequestConfig) {
@@ -39,7 +39,7 @@ export class Model<T extends Document> {
     return {
       success: result.success,
       message: result.message,
-      data: Model.create<T>(this._data, this._service),
+      data: Model.create<T, TData>(this._data, this._service),
     };
   }
 
