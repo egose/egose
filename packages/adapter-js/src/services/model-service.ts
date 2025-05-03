@@ -1296,7 +1296,7 @@ export class ModelService<T extends Document> extends Service<T> {
     };
   }
 
-  private processListResult<TData>(
+  private processListResult<TData extends Partial<T> = T>(
     _this: ModelService<T>,
     result: ListModelResponse<T, TData>,
     { includeCount, includeExtraHeaders },
