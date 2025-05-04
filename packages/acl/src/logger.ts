@@ -3,7 +3,7 @@ import { createLogger, format, transports } from 'winston';
 const colorizer = format.colorize();
 
 export const logger = createLogger({
-  level: 'info',
+  level: process.env.EGOSE_LOG_LEVEL || 'info',
   format: format.combine(
     format.label({ label: '[EGOSE]' }),
     format.timestamp({ format: 'YY-MM-DD HH:mm:ss' }),

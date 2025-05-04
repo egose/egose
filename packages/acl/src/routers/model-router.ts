@@ -128,7 +128,7 @@ export class ModelRouter {
         page,
         pageSize,
         options = {},
-      } = req.body;
+      } = req.body ?? {};
       const { skim, includePermissions, includeCount, includeExtraHeaders, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
@@ -170,7 +170,11 @@ export class ModelRouter {
       const { include_permissions } = req.query;
 
       const svc = req.macl.getPublicService(this.modelName);
-      const result = await svc._create(req.body, {}, { includePermissions: parseBooleanString(include_permissions) });
+      const result = await svc._create(
+        req.body ?? {},
+        {},
+        { includePermissions: parseBooleanString(include_permissions) },
+      );
 
       handleResultError(result);
 
@@ -185,7 +189,7 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const { include_permissions } = req.query;
-      const { data, select, populate, tasks, options = {} } = req.body;
+      const { data, select, populate, tasks, options = {} } = req.body ?? {};
       const { includePermissions, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
@@ -237,7 +241,7 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       // @Deprecated option 'query'
-      const { query, filter, access } = req.body;
+      const { query, filter, access } = req.body ?? {};
       const svc = req.macl.getPublicService(this.modelName);
       const result = await svc._count(filter ?? query, access);
 
@@ -277,7 +281,7 @@ export class ModelRouter {
       const allowed = await req.macl.isAllowed(this.modelName, 'read');
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      let { filter, select, sort, populate, include, tasks, options = {} } = req.body;
+      let { filter, select, sort, populate, include, tasks, options = {} } = req.body ?? {};
       const { skim, includePermissions, tryList, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
@@ -306,7 +310,7 @@ export class ModelRouter {
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
       const id = req.params[this.options.idParam];
-      let { select, populate, include, tasks, options = {} } = req.body;
+      let { select, populate, include, tasks, options = {} } = req.body ?? {};
       const { skim, includePermissions, tryList, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
@@ -337,7 +341,7 @@ export class ModelRouter {
       const { returning_all } = req.query;
 
       const svc = req.macl.getPublicService(this.modelName);
-      const result = await svc._update(id, req.body, {}, { returningAll: parseBooleanString(returning_all) });
+      const result = await svc._update(id, req.body ?? {}, {}, { returningAll: parseBooleanString(returning_all) });
 
       handleResultError(result);
 
@@ -353,7 +357,7 @@ export class ModelRouter {
 
       const id = req.params[this.options.idParam];
       const { returning_all } = req.query;
-      const { data, select, populate, tasks, options = {} } = req.body;
+      const { data, select, populate, tasks, options = {} } = req.body ?? {};
       const { returningAll, includePermissions, populateAccess } = options;
 
       const svc = req.macl.getPublicService(this.modelName);
@@ -381,7 +385,7 @@ export class ModelRouter {
       if (idKey !== '_id') throw new clientErrors.BadRequest('not supported identifier');
 
       const { returning_all, include_permissions } = req.query;
-      const { [idKey]: idVal, ...data } = req.body;
+      const { [idKey]: idVal, ...data } = req.body ?? {};
 
       if (idVal) {
         const existing = await svc.exists({ [idKey]: idVal }, { access: 'update' });
@@ -411,7 +415,7 @@ export class ModelRouter {
       if (idKey !== '_id') throw new clientErrors.BadRequest('not supported identifier');
 
       const { returning_all, include_permissions } = req.query;
-      const { data, select, populate, tasks, options = {} } = req.body;
+      const { data, select, populate, tasks, options = {} } = req.body ?? {};
       const { returningAll, includePermissions, populateAccess } = options;
       const { [idKey]: idVal, ...otherData } = data;
 
@@ -485,7 +489,7 @@ export class ModelRouter {
 
       const { field } = req.params;
       // @Deprecated option 'query'
-      const { query, filter } = req.body;
+      const { query, filter } = req.body ?? {};
 
       const svc = req.macl.getPublicService(this.modelName);
       const result = await svc._distinct(field, { filter: filter ?? query });
@@ -529,7 +533,7 @@ export class ModelRouter {
 
         const id = req.params[this.options.idParam];
         const svc = req.macl.getPublicService(this.modelName);
-        const result = await svc.listSub(id, sub, req.body);
+        const result = await svc.listSub(id, sub, req.body ?? {});
 
         handleResultError(result);
         return result.data;
@@ -544,7 +548,7 @@ export class ModelRouter {
 
         const id = req.params[this.options.idParam];
         const svc = req.macl.getPublicService(this.modelName);
-        const result = await svc.bulkUpdateSub(id, sub, req.body);
+        const result = await svc.bulkUpdateSub(id, sub, req.body ?? {});
 
         handleResultError(result);
         return result.data;
@@ -576,7 +580,7 @@ export class ModelRouter {
         const id = req.params[this.options.idParam];
         const { subId } = req.params;
         const svc = req.macl.getPublicService(this.modelName);
-        const result = await svc.readSub(id, sub, subId, req.body);
+        const result = await svc.readSub(id, sub, subId, req.body ?? {});
 
         handleResultError(result);
         return result.data;
@@ -592,7 +596,7 @@ export class ModelRouter {
         const id = req.params[this.options.idParam];
         const { subId } = req.params;
         const svc = req.macl.getPublicService(this.modelName);
-        const result = await svc.updateSub(id, sub, subId, req.body);
+        const result = await svc.updateSub(id, sub, subId, req.body ?? {});
 
         handleResultError(result);
         return result.data;
@@ -607,7 +611,7 @@ export class ModelRouter {
 
         const id = req.params[this.options.idParam];
         const svc = req.macl.getPublicService(this.modelName);
-        const result = await svc.createSub(id, sub, req.body);
+        const result = await svc.createSub(id, sub, req.body ?? {});
 
         handleResultError(result);
 

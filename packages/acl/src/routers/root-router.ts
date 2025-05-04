@@ -101,7 +101,7 @@ export class RootRouter {
       const allowed = await req.macl.canActivate(this.routeGuard);
       if (!allowed) throw new clientErrors.UnauthorizedError();
 
-      const items: RootQueryEntry[] = req.body || [];
+      const items: RootQueryEntry[] = req.body ?? [];
       const groupedItems = this.groupItemsByOrder(items);
 
       const results = [];
