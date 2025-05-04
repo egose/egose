@@ -61,6 +61,7 @@ import {
 } from '../interfaces';
 import { Codes, StatusCodes } from '../enums';
 import { Base } from './base';
+import { logger } from '../logger';
 
 export class Service extends Base {
   model: Model;
@@ -104,19 +105,21 @@ export class Service extends Base {
       overridePopulate || this.genPopulate(populateAccess || access, populate),
     ]);
 
-    const finalSelect = normalizeSelect(_select);
     const { includes, includeLocalFields, includePaths } = this.processInclude(include);
+    const finalSelect = normalizeSelect(_select).concat(includeLocalFields);
 
     const query = {
       filter: _filter,
-      select: finalSelect.concat(includeLocalFields),
+      select: finalSelect,
       sort,
       populate: _populate,
     };
 
+    logger.debug(JSON.stringify({ op: 'findOne', query }));
+
     if (_filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
 
-    let doc = await this.model.findOne({ filter: _filter, select: _select, populate: _populate, lean });
+    let doc = await this.model.findOne({ ...query, lean });
     if (!doc) return { success: false, code: Codes.NotFound, data: null, query };
 
     const context: MiddlewareContext = {
@@ -229,6 +232,8 @@ export class Service extends Base {
       sort,
       ...pagination,
     };
+
+    logger.debug(JSON.stringify({ op: 'find', query }));
 
     if (_filter === false) return { success: false, code: 'forbidden', data: [], count: 0, totalCount: null, query };
 
@@ -385,6 +390,8 @@ export class Service extends Base {
 
     const query = { filter: _filter, populate: _populate };
 
+    logger.debug(JSON.stringify({ op: 'updateOne', query }));
+
     if (_filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
 
     let doc = await this.model.findOne({ filter: _filter });
@@ -501,6 +508,8 @@ export class Service extends Base {
     if (theone) {
       const _filter = await (overrideFilter || this.genFilter('update', filter));
       const query = { filter: _filter };
+
+      logger.debug(JSON.stringify({ op: 'upsert', query }));
       if (_filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
 
       const matched = matchElement(theone, _filter);
@@ -537,6 +546,8 @@ export class Service extends Base {
     const filter = await this.genFilter('delete', await this.genIDFilter(id));
 
     const query = { filter };
+
+    logger.debug(JSON.stringify({ op: 'delete', query }));
 
     if (filter === false) return { success: false, code: Codes.Forbidden, data: null, query };
     let doc = await this.model.findOne({ filter });
