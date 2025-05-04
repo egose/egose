@@ -1,3 +1,8 @@
+## [0.47.0](https://github.com/egose/egose/compare/v0.46.1...v0.47.0) (2025-05-04)
+
+### Bug Fixes
+
+* **acl:** resolve issue with passing sort parameter to findOne ([2e3b928](https://github.com/egose/egose/commit/2e3b92861f02a43f35fc5910968bc9596d324597))
 ## [0.46.1](https://github.com/egose/egose/compare/v0.46.0...v0.46.1) (2025-05-03)
 ## [0.46.0](https://github.com/egose/egose/compare/v0.45.1...v0.46.0) (2025-05-03)
 
