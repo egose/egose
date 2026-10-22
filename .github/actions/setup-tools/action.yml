@@ -7,6 +7,7 @@ runs:
   - name: Setup Tools
     uses: egose/actions/asdf-tools@ca675443ce632a6365ae45cd3a43b34650a43934
     with:
+      github-token: ${{ github.token }}
       plugins: |
         mongodb=https://github.com/junminahn/asdf-mongodb.git
 
